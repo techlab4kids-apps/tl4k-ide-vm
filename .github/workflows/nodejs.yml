@@ -13,7 +13,7 @@ jobs:
           event-type: update
           repository: Snail-IDE/snail-ide.github.io
       - name: Repository Dispatch2
-        uses: peter-evans/repository-dispatch@v2.0.1
+        uses: peter-evans/repository-dispatch@v2.1.1
         with:
           token: ${{ secrets.T }}
           event-type: update
