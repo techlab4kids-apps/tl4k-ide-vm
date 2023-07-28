@@ -168,7 +168,7 @@ const builtinExtensions = {
     //fr3d:
     fr3d: () => require('../extensions/fr_3d'),
     // wooooooooooooow
-    iygPerlin: () => require('../extensions/scratch3_adabrowser'),
+    adabrowser: () => require('../extensions/scratch3_adabrowser'),
 };
 
 const coreExtensionList = Object.getOwnPropertyNames(builtinExtensions);
