@@ -171,7 +171,7 @@ class Scratch3AdaBrowserBlocks {
         this._locale = this.setLocale();
         return {
             id: 'adabrowser',
-            name: 'Browser',
+            name: 'AdaBrowser',
             menuIconURI: menuIconURI,
             blockIconURI: blockIconURI,
             docsURI: 'https://adacraft.notion.site/9c8fb3c7ed6240e181290b2f1c70a651',
