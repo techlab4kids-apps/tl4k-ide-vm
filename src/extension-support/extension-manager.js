@@ -167,8 +167,9 @@ const builtinExtensions = {
     // fr: waw 3d physics!!
     //fr3d:
     fr3d: () => require('../extensions/fr_3d'),
-    // wooooooooooooow
+    // adacraft
     adabrowser: () => require('../extensions/scratch3_adabrowser'),
+    adacraftleaflet: () => require('../extensions/adacraft_leaflet'),
 };
 
 const coreExtensionList = Object.getOwnPropertyNames(builtinExtensions);
