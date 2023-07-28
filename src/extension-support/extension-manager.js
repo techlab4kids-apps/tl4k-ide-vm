@@ -169,6 +169,7 @@ const builtinExtensions = {
     fr3d: () => require('../extensions/fr_3d'),
     // adacraft
     adabrowser: () => require('../extensions/scratch3_adabrowser'),
+    vittamicrobit: () => require('../extensions/scratch3_vittamicrobit'),
 };
 
 const coreExtensionList = Object.getOwnPropertyNames(builtinExtensions);
