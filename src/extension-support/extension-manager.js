@@ -170,6 +170,7 @@ const builtinExtensions = {
     // adacraft
     adabrowser: () => require('../extensions/scratch3_adabrowser'),
     vittamicrobit: () => require('../extensions/scratch3_vittamicrobit'),
+    adaruntime: () => require('../extensions/scratch3_adaruntime'),
 };
 
 const coreExtensionList = Object.getOwnPropertyNames(builtinExtensions);
