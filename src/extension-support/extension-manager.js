@@ -174,6 +174,8 @@ const builtinExtensions = {
 
     // snail ide
     snailextras: () => require('../extensions/snail_extras'),
+    goofiestExt: () => require('../extensions/scratch3_goofy'),
+    //goofiestExt
     // GvbvdxxMod2
     beepboxsynth: () => require('../extensions/scratch3_beepbox_synth'),
 
