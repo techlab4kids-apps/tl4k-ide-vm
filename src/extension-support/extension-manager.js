@@ -174,6 +174,9 @@ const builtinExtensions = {
 
     // snail ide
     snailextras: () => require('../extensions/snail_extras'),
+    // GvbvdxxMod2
+    beepboxsynth: () => require('../extensions/scratch3_beepbox_synth'),
+
 };
 
 const coreExtensionList = Object.getOwnPropertyNames(builtinExtensions);
