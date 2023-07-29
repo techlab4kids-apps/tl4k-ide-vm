@@ -171,7 +171,6 @@ const builtinExtensions = {
     adabrowser: () => require('../extensions/scratch3_adabrowser'),
     vittamicrobit: () => require('../extensions/scratch3_vittamicrobit'),
     adaruntime: () => require('../extensions/scratch3_adaruntime'),
-    Croquet: () => require('../extensions/scratch3_croquet'),
 };
 
 const coreExtensionList = Object.getOwnPropertyNames(builtinExtensions);
