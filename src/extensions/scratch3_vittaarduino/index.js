@@ -7,8 +7,8 @@ const localisation = {
     availableLocales: ['en', 'fr'],
     messages: {
         'display_setGroveSocketLed': {
-            'en': '(LED) contrôler la LED sur la broche [PIN] à l\'état [STATE]',
-            'fr': '(LED) set LED on pin [PIN] to state [STATE]'
+            'en': '(LED) set LED on pin [PIN] to state [STATE]',
+            '(LED) réglez la LED sur la broche [PIN] sur l'état [STATE]' 
         },
         'display_lcdSetText': {
             'en': '(lcd) show text [TEXT] on line [LINE] position [POS]',
@@ -631,7 +631,7 @@ class Scratch3VittaArduinoBlocks {
                     arguments: {
                         TEXT: {
                             type: ArgumentType.STRING,
-                            defaultValue: 'Bonjour Vittabot'
+                            defaultValue: 'Snail IDE is cool!'
                         },
                         LINE: {
                             type: ArgumentType.NUMBER,
