@@ -170,7 +170,6 @@ const builtinExtensions = {
     fr3d: () => require('../extensions/fr_3d'),
     // adacraft
     adabrowser: () => require('../extensions/scratch3_adabrowser'),
-    leaflet: () => require('../extensions/adacraft_leaflet'),
     vittamicrobit: () => require('../extensions/scratch3_vittamicrobit'),
     adaruntime: () => require('../extensions/scratch3_adaruntime'),
     vittaarduino: () => require('../extensions/scratch3_vittaarduino'),
