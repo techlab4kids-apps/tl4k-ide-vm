@@ -33,6 +33,7 @@ const builtinExtensions = {
     boost: () => require('../extensions/scratch3_boost'),
     gdxfor: () => require('../extensions/scratch3_gdx_for'),
     text: () => require('../extensions/scratchLab_animatedText'),
+    speech2text: () => require('../extensions/scratch3_speech2text'),
 
     // garbomuffin: *silence*
     // tw: core extension
