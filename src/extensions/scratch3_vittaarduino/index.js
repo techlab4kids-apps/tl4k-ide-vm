@@ -8,7 +8,7 @@ const localisation = {
     messages: {
         'display_setGroveSocketLed': {
             'en': '(LED) set LED on pin [PIN] to state [STATE]',
-            '(LED) réglez la LED sur la broche [PIN] sur l'état [STATE]' 
+            '(LED) réglez la LED sur la broche [PIN] sur létat [STATE]' 
         },
         'display_lcdSetText': {
             'en': '(lcd) show text [TEXT] on line [LINE] position [POS]',
