@@ -171,6 +171,7 @@ const builtinExtensions = {
     adabrowser: () => require('../extensions/scratch3_adabrowser'),
     vittamicrobit: () => require('../extensions/scratch3_vittamicrobit'),
     adaruntime: () => require('../extensions/scratch3_adaruntime'),
+    vittaarduino: () => require('../extensions/scratch3_vittaarduino'),
 
     // snail ide
     snailextras: () => require('../extensions/snail_extras'),
