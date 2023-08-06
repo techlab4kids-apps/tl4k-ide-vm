@@ -179,6 +179,8 @@ const builtinExtensions = {
     goofiestExt: () => require('../extensions/scratch3_goofy'),
     // GvbvdxxMod2
     beepboxsynth: () => require('../extensions/scratch3_beepbox_synth'),
+    // Cognimates
+    alexa: () => require('../extensions/scratch3_alexa'),
 
 };
 
