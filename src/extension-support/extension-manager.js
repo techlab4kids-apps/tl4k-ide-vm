@@ -180,7 +180,7 @@ const builtinExtensions = {
     // GvbvdxxMod2
     beepboxsynth: () => require('../extensions/scratch3_beepbox_synth'),
     // Cognimates
-    typescratch: () => require(../extensions/typescratch)
+    typescratch: () => require('../extensions/typescratch'),
 
 };
 
