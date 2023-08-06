@@ -172,6 +172,7 @@ const builtinExtensions = {
     adabrowser: () => require('../extensions/scratch3_adabrowser'),
     vittamicrobit: () => require('../extensions/scratch3_vittamicrobit'),
     adaruntime: () => require('../extensions/scratch3_adaruntime'),
+    vittaarduino: () => require('../extensions/scratch3_vittaarduino'),
 
     // snail ide
     snailextras: () => require('../extensions/snail_extras'),
@@ -179,8 +180,7 @@ const builtinExtensions = {
     // GvbvdxxMod2
     beepboxsynth: () => require('../extensions/scratch3_beepbox_synth'),
     // Cognimates
-    alexa: () => require('../extensions/scratch3_alexa'),
-    typescratch: () => require('../extensions/typescratch'),
+    typescratch: () => require(../extensions/typescratch)
 
 };
 
