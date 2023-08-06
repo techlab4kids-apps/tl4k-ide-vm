@@ -181,6 +181,7 @@ const builtinExtensions = {
     beepboxsynth: () => require('../extensions/scratch3_beepbox_synth'),
     // Cognimates
     alexa: () => require('../extensions/scratch3_alexa'),
+    typescratch: () => require('../extensions/typescratch'),
 
 };
 
