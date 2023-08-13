@@ -166,7 +166,7 @@ class JgIframeBlocks {
                     arguments: {
                         URL: {
                             type: ArgumentType.STRING,
-                            defaultValue: "https://www.example.com"
+                            defaultValue: "https://snail-ide.github.io/editor.html"
                         }
                     }
                 },

@@ -496,7 +496,7 @@ class Scratch3PenBlocks {
                     arguments: {
                         TEXT: {
                             type: ArgumentType.STRING,
-                            defaultValue: 'Foobars are yummy'
+                            defaultValue: 'Snails are super cool.'
                         },
                         X: {
                             type: ArgumentType.NUMBER,

@@ -33,7 +33,7 @@ class typeScratch {
     getInfo() {
         return {
             id: 'typescratch',
-            name: 'TypeScratch',
+            name: 'TypeScratch (Unfinished)',
             blockIconURI: blockIconURI,
             color1: '#3178c6',
             color2: '#235a97',
