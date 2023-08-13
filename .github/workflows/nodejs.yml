@@ -7,8 +7,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Repository Dispatch
-        uses: peter-evans/repository-dispatch@v2.1.1
+        uses: peter-evans/repository-dispatch@v2.0.1
         with:
           token: ${{ secrets.T }}
           event-type: update
           repository: Snail-IDE/snail-ide.github.io
+      - name: Repository Dispatch2
+        uses: peter-evans/repository-dispatch@v2.0.1
+        with:
+          token: ${{ secrets.T }}
+          event-type: update
+          repository: Snail-IDE/Snail-IDE-Packager
