@@ -7,6 +7,7 @@ const { ConvexGeometry } = require('three/examples/jsm/geometries/ConvexGeometry
 const { OBJLoader } = require('three/examples/jsm/loaders/OBJLoader.js');
 const { GLTFLoader } = require('three/examples/jsm/loaders/GLTFLoader.js');
 const { FBXLoader } = require('three/examples/jsm/loaders/FBXLoader.js');
+const Color = require('../../util/color');
 
 const MeshLoaders = {
     OBJ: new OBJLoader(),
@@ -70,11 +71,15 @@ class Jg3DBlocks {
         }
 
         this.savedMeshes = {};
+        this.sceneLayer = "front";
+        this.lastStageColor = [255, 255, 255, 0];
 
         // event recievers
         // stop button clicked or project restarted, dispose of all objects
         this.runtime.on('PROJECT_STOP_ALL', () => {
             this.dispose();
+            this.sceneLayer = "front";
+            this.updateScratchCanvasRelayering();
         });
     }
 
@@ -134,7 +139,46 @@ class Jg3DBlocks {
     }
     appendElementAboveScratchCanvas(element) {
         element.style.zIndex = 450;
+        if (this.sceneLayer === 'back') {
+            element.style.zIndex = 0;
+        }
         this.getScratchCanvas().parentElement.prepend(element);
+    }
+    updateScratchCanvasRelayering() {
+        const canvas = this.getScratchCanvas();
+        canvas.style.backgroundColor = "transparent";
+        canvas.style.position = "relative"; // allows zIndex changes
+        if (Cast.toNumber(canvas.style.zIndex) < 1) {
+            canvas.style.zIndex = 1;
+        }
+
+        // _backgroundColor4f[3] controls opacity
+        let lastOpacity = this.runtime.renderer._backgroundColor4f[3];
+        if (this.sceneLayer === 'front') {
+            this.runtime.renderer._backgroundColor4f[3] = 1;
+            this.runtime.renderer.setBackgroundColor(
+                this.lastStageColor[0],
+                this.lastStageColor[1],
+                this.lastStageColor[2]
+            );
+        }
+        if (this.sceneLayer === 'back') {
+            if (
+                this.runtime.renderer._backgroundColor4f[0] !== this.lastStageColor[0]
+                || this.runtime.renderer._backgroundColor4f[1] !== this.lastStageColor[1]
+                || this.runtime.renderer._backgroundColor4f[2] !== this.lastStageColor[2]
+            ) {
+                // color likely changed to sum else
+                console.log("updated stage color");
+                this.lastStageColor = this.runtime.renderer._backgroundColor4f;
+            }
+            this.runtime.renderer._backgroundColor4f[3] = 0;
+            this.runtime.renderer.setBackgroundColor(0, 0, 0);
+        }
+        // update if changed
+        if (lastOpacity !== this.runtime.renderer._backgroundColor4f[3]) {
+            this.runtime.renderer.dirty = true;
+        }
     }
     needsToResizeCanvas() {
         const stage = {
@@ -202,6 +246,7 @@ class Jg3DBlocks {
 
         this.restyleExternalCanvas(canvas);
         this.appendElementAboveScratchCanvas(canvas);
+        this.updateScratchCanvasRelayering();
         /* dev: test rendering by drawing a cube and see if it appears
         // const geometry = new Three.BoxGeometry(1, 1, 1);
         // const material = new Three.MeshBasicMaterial({ color: 0x00ff00 });
@@ -232,6 +277,7 @@ class Jg3DBlocks {
         // when switching between project page & editor, we need to move the canvas again since it gets lost
         /* todo: create layers so that iframe appears above 3d every time this is done */
         this.appendElementAboveScratchCanvas(this.renderer.domElement);
+        this.updateScratchCanvasRelayering();
         return new Promise((resolve) => {
             // we do this to avoid HUGE lag when not waiting 1 tick
             // and because it waits if the tab isnt focused
@@ -323,15 +369,28 @@ class Jg3DBlocks {
         return toDegRounding(rotation);
     }
 
+    setSceneLayer(args) {
+        if (!this.renderer) return;
+        let lastSceneLayer = this.sceneLayer;
+        this.sceneLayer = "front";
+        if (Cast.toString(args.SIDE) === 'back') {
+            this.sceneLayer = "back";
+        }
+        if (this.sceneLayer !== lastSceneLayer) {
+            this.lastStageColor = this.runtime.renderer._backgroundColor4f;
+        }
+        this.appendElementAboveScratchCanvas(this.renderer.domElement);
+        this.updateScratchCanvasRelayering();
+    }
     setSceneBackgroundColor(args) {
         if (!this.renderer) return;
-        const color = Cast.toNumber(args.COLOR);
+        const color = Color.hexToDecimal(args.COLOR);
         this.renderer.penguinMod.backgroundColor = color;
         this.renderer.setClearColor(color, this.renderer.penguinMod.backgroundOpacity);
     }
     setSceneBackgroundOpacity(args) {
         if (!this.renderer) return;
-        let opacity = Cast.toNumber(args.OPACITY);
+        let opacity = Color.hexToDecimal(args.OPACITY);
         if (opacity > 100) opacity = 100;
         if (opacity < 0) opacity = 0;
         const backgroundOpac = 1 - (opacity / 100);

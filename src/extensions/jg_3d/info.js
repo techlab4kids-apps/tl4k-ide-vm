@@ -115,7 +115,8 @@ module.exports = {
     id: 'jg3d',
     name: '3D',
     color1: '#B100FE',
-    color2: '#8000BC',
+    color2: '#8600C3',
+    color3: '#5B0088',
     blockIconURI: blockIconURI,
     blocks: [
         infoLabel("Initializing your scene"),
@@ -182,15 +183,18 @@ module.exports = {
 
         infoLabel("Scene customization"),
 
+        createCommandBlock('setSceneLayer', "move 3D scene layer to [SIDE]", {
+            SIDE: infoArgumentMenu(ArgumentType.STRING, "frontBack")
+        }),
         createCommandBlock('setSceneBackgroundColor', "set background color to [COLOR]", {
             COLOR: infoArgument("COLOR")
         }),
         createCommandBlock('setSceneBackgroundOpacity', "set background transparency to [OPACITY]%", {
             OPACITY: infoArgument(100)
         }),
-        createCommandBlock("show3d", "show the 3d scene", {}),
-        createCommandBlock("hide3d", "hide the 3d scene", {}),
-        createBooleanBlock("is3dVisible", "is the 3d scene visible?", {}),
+        createCommandBlock("show3d", "show 3D scene", {}),
+        createCommandBlock("hide3d", "hide 3D scene", {}),
+        createBooleanBlock("is3dVisible", "is 3D scene visible?", {}),
 
         infoLabel("Camera controls"),
 
@@ -402,6 +406,7 @@ module.exports = {
         cameraType: infoMenu(["perspective", "orthographic"]),
         lightType: infoMenu(["point"]),
         clippingPlanes: infoMenu(["near", "far"]),
+        frontBack: infoMenu(["front", "back"]),
         vector3: infoMenu(["x", "y", "z"]),
         vector2: infoMenu(["x", "y"]),
         onoff: infoMenu(["on", "off"]),
