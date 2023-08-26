@@ -1,11 +1,12 @@
+const formatMessage = require('format-message');
 const BlockType = require('../../extension-support/block-type');
 const ArgumentType = require('../../extension-support/argument-type');
 const Cast = require('../../util/cast');
+const Icon = require('./icon.png');
+const IconController = require('./controller.png');
 
 const SESSION_TYPE = "immersive-vr";
 
-// WebXR unfortunately does not give us Euler angles easily
-// so lets do it ourselves
 // thanks to twoerner94 for quaternion-to-euler on npm
 function quaternionToEuler(quat) {
     const q0 = quat[0];
@@ -28,40 +29,49 @@ function toRad(deg) {
 function toDeg(rad) {
     return rad * (180 / Math.PI);
 }
+function toDegRounding(rad) {
+    const result = toDeg(rad);
+    if (!String(result).includes('.')) return result;
+    const split = String(result).split('.');
+    const endingDecimals = split[1].substring(0, 3);
+    if ((endingDecimals === '999') && (split[1].charAt(3) === '9')) return Number(split[0]) + 1;
+    return Number(split[0] + '.' + endingDecimals);
+}
 
 /**
- * Class of 2025
- * @constructor
+ * Class for 3D VR blokckes
  */
-class jgVr {
+class Jg3DVrBlocks {
     constructor(runtime) {
         /**
          * The runtime instantiating this block package.
-         * @type {runtime}
          */
         this.runtime = runtime;
         this.open = false;
-        this.session = null;
-
-        this.view = null;
-        this.localSpace = null;
-
-        /**
-         * If true, VR sessions will begin split
-         * If false, VR sessions will begin with no split
-         */
-        this.splitState = false;
+        this._3d = {}
+        this.three = {}
+        if (!this.runtime.ext_jg3d) {
+            vm.extensionManager.loadExtensionURL('jg3d')
+                .then(() => {
+                    this._3d = this.runtime.ext_jg3d;
+                    this.three = this._3d.three;
+                });
+        } else {
+            this._3d = this.runtime.ext_jg3d;
+            this.three = this._3d.three
+        }
     }
-
     /**
-     * @returns {object} metadata for this extension and its blocks.
+     * metadata for this extension and its blocks.
+     * @returns {object}
      */
     getInfo() {
         return {
-            id: 'jgVr',
-            name: 'Virtual Reality',
-            color1: '#3888cf',
-            color2: '#2f72ad',
+            id: 'jg3dVr',
+            name: '3D VR',
+            color1: '#B100FE',
+            color2: '#8000BC',
+            blockIconURI: Icon,
             blocks: [
                 // CORE
                 {
@@ -86,62 +96,32 @@ class jgVr {
                     blockType: BlockType.BOOLEAN,
                     disableMonitor: true
                 },
-                '---', // SCREEN SPLITTING SETTINGS
+                '---',
                 {
-                    opcode: 'enableDisableSplitting',
-                    text: 'turn auto-splitting [ONOFF]',
+                    opcode: 'attachObject',
+                    text: 'attach camera to object named [OBJECT]',
                     blockType: BlockType.COMMAND,
                     arguments: {
-                        ONOFF: {
+                        OBJECT: {
                             type: ArgumentType.STRING,
-                            menu: 'onoff'
+                            defaultValue: "Object1"
                         }
                     }
                 },
                 {
-                    opcode: 'splittingOffset',
-                    text: 'set auto-split offset to [PX] pixels',
-                    blockType: BlockType.COMMAND,
-                    arguments: {
-                        PX: {
-                            type: ArgumentType.NUMBER,
-                            defaultValue: 40
-                        }
-                    }
+                    opcode: 'detachObject',
+                    text: 'detach camera from object',
+                    blockType: BlockType.COMMAND
                 },
-                '---', // HEADSET POSITION
+                '---',
                 {
-                    opcode: 'headsetPosition',
-                    text: 'headset position [VECTOR3]',
+                    opcode: 'getControllerPosition',
+                    text: 'controller #[INDEX] position [VECTOR3]',
                     blockType: BlockType.REPORTER,
+                    blockIconURI: IconController,
                     disableMonitor: true,
                     arguments: {
-                        VECTOR3: {
-                            type: ArgumentType.STRING,
-                            menu: 'vector3'
-                        }
-                    }
-                },
-                {
-                    opcode: 'headsetRotation',
-                    text: 'headset rotation [VECTOR3]',
-                    blockType: BlockType.REPORTER,
-                    disableMonitor: true,
-                    arguments: {
-                        VECTOR3: {
-                            type: ArgumentType.STRING,
-                            menu: 'vector3'
-                        }
-                    }
-                },
-                '---', // CONTROLLER INPUT
-                {
-                    opcode: 'controllerPosition',
-                    text: 'controller #[COUNT] position [VECTOR3]',
-                    blockType: BlockType.REPORTER,
-                    disableMonitor: true,
-                    arguments: {
-                        COUNT: {
+                        INDEX: {
                             type: ArgumentType.NUMBER,
                             menu: 'count'
                         },
@@ -152,12 +132,13 @@ class jgVr {
                     }
                 },
                 {
-                    opcode: 'controllerRotation',
-                    text: 'controller #[COUNT] rotation [VECTOR3]',
+                    opcode: 'getControllerRotation',
+                    text: 'controller #[INDEX] rotation [VECTOR3]',
                     blockType: BlockType.REPORTER,
+                    blockIconURI: IconController,
                     disableMonitor: true,
                     arguments: {
-                        COUNT: {
+                        INDEX: {
                             type: ArgumentType.NUMBER,
                             menu: 'count'
                         },
@@ -167,16 +148,85 @@ class jgVr {
                         }
                     }
                 },
-                '---', // HELPER BLOCKS
                 {
-                    opcode: 'placement169',
-                    text: '[SIDE] x placement',
+                    opcode: 'getControllerSide',
+                    text: 'side of controller #[INDEX]',
                     blockType: BlockType.REPORTER,
+                    blockIconURI: IconController,
                     disableMonitor: true,
                     arguments: {
-                        SIDE: {
+                        INDEX: {
+                            type: ArgumentType.NUMBER,
+                            menu: 'count'
+                        }
+                    }
+                },
+                '---',
+                {
+                    opcode: 'getControllerStick',
+                    text: 'joystick axis [XY] of controller #[INDEX]',
+                    blockType: BlockType.REPORTER,
+                    blockIconURI: IconController,
+                    disableMonitor: true,
+                    arguments: {
+                        XY: {
                             type: ArgumentType.STRING,
-                            menu: 'side'
+                            menu: 'vector2'
+                        },
+                        INDEX: {
+                            type: ArgumentType.NUMBER,
+                            menu: 'count'
+                        }
+                    }
+                },
+                {
+                    opcode: 'getControllerTrig',
+                    text: 'analog value of [TRIGGER] trigger on controller #[INDEX]',
+                    blockType: BlockType.REPORTER,
+                    blockIconURI: IconController,
+                    disableMonitor: true,
+                    arguments: {
+                        TRIGGER: {
+                            type: ArgumentType.STRING,
+                            menu: 'trig'
+                        },
+                        INDEX: {
+                            type: ArgumentType.NUMBER,
+                            menu: 'count'
+                        }
+                    }
+                },
+                {
+                    opcode: 'getControllerButton',
+                    text: 'button [BUTTON] on controller #[INDEX] pressed?',
+                    blockType: BlockType.BOOLEAN,
+                    blockIconURI: IconController,
+                    disableMonitor: true,
+                    arguments: {
+                        BUTTON: {
+                            type: ArgumentType.STRING,
+                            menu: 'butt'
+                        },
+                        INDEX: {
+                            type: ArgumentType.NUMBER,
+                            menu: 'count'
+                        }
+                    }
+                },
+                {
+                    opcode: 'getControllerTouching',
+                    text: '[BUTTON] on controller #[INDEX] touched?',
+                    blockType: BlockType.BOOLEAN,
+                    blockIconURI: IconController,
+                    disableMonitor: true,
+                    arguments: {
+                        BUTTON: {
+                            type: ArgumentType.STRING,
+                            menu: 'buttAll'
+                        },
+                        INDEX: {
+                            type: ArgumentType.NUMBER,
+                            menu: 'count'
                         }
                     }
                 },
@@ -190,6 +240,42 @@ class jgVr {
                         "z",
                     ].map(item => ({ text: item, value: item }))
                 },
+                vector2: {
+                    acceptReporters: true,
+                    items: [
+                        "x",
+                        "y",
+                    ].map(item => ({ text: item, value: item }))
+                },
+                butt: {
+                    acceptReporters: true,
+                    items: [
+                        "a",
+                        "b",
+                        "x",
+                        "y",
+                        "joystick",
+                    ].map(item => ({ text: item, value: item }))
+                },
+                trig: {
+                    acceptReporters: true,
+                    items: [
+                        "back",
+                        "side",
+                    ].map(item => ({ text: item, value: item }))
+                },
+                buttAll: {
+                    acceptReporters: true,
+                    items: [
+                        "a button",
+                        "b button",
+                        "x button",
+                        "y button",
+                        "joystick",
+                        "back trigger",
+                        "side trigger",
+                    ].map(item => ({ text: item, value: item }))
+                },
                 count: {
                     acceptReporters: true,
                     items: [
@@ -197,77 +283,54 @@ class jgVr {
                         "2",
                     ].map(item => ({ text: item, value: item }))
                 },
-                side: {
-                    acceptReporters: false,
-                    items: [
-                        "left",
-                        "right",
-                    ].map(item => ({ text: item, value: item }))
-                },
-                onoff: {
-                    acceptReporters: false,
-                    items: [
-                        "on",
-                        "off",
-                    ].map(item => ({ text: item, value: item }))
-                },
             }
         };
     }
 
-    // menus
-    _isVector3Menu(option) {
-        const normalized = Cast.toString(option).toLowerCase().trim();
-        return ['x', 'y', 'z'].includes(normalized);
-    }
-    _onOffBoolean(onoff) {
-        const normalized = Cast.toString(onoff).toLowerCase().trim();
-        return normalized === 'on';
-    }
-
     // util
-    _getCanvas() {
-        if (!this.runtime) return;
-        if (!this.runtime.renderer) return;
-        return this.runtime.renderer.canvas;
-    }
-    _getContext() {
-        if (!this.runtime) return;
-        if (!this.runtime.renderer) return;
-        return this.runtime.renderer.gl;
-    }
     _getRenderer() {
-        if (!this.runtime) return;
-        return this.runtime.renderer;
+        if (!this._3d) return;
+        return this._3d.renderer;
+    }
+    _getGamepad(indexFrom1) {
+        const index = Cast.toNumber(indexFrom1) - 1;
+
+        const three = this._3d;
+        if (!three.scene) return;
+        const renderer = this._getRenderer();
+        if (!renderer) return;
+        const session = renderer.xr.getSession();
+        if (!session) return;
+
+        const sources = session.inputSources;
+        const controller = sources[index];
+        if (!controller) return;
+
+        const gamepad = controller.gamepad;
+        return gamepad;
     }
 
     _disposeImmersive() {
         this.session = null;
-        const gl = this._getContext();
-        if (!gl) return;
-        // bind frame buffer to canvas
-        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-        // reset renderer info
+
         const renderer = this._getRenderer();
         if (!renderer) return;
-        renderer.xrEnabled = false;
-        renderer.xrSplitting = false;
-        renderer.xrLayer = null;
+
+        renderer.xr.enabled = false;
     }
     async _createImmersive() {
         if (!('xr' in navigator)) return false;
-        const gl = this._getContext();
-        if (!gl) return;
         const renderer = this._getRenderer();
-        if (!renderer) return;
+        if (!renderer) return false;
 
-        await gl.makeXRCompatible();
-        const session = await navigator.xr.requestSession(SESSION_TYPE);
+        const sessionInit = { optionalFeatures: ['local-floor', 'bounded-floor', 'hand-tracking', 'layers'] };
+        const session = await navigator.xr.requestSession(SESSION_TYPE, sessionInit);
         this.session = session;
         this.open = true;
 
-        renderer.xrEnabled = true;
-        renderer.xrSplitting = this.splitState;
+        // enable xr on three.js
+        renderer.xr.enabled = true;
+        await renderer.xr.setSession(session);
 
         // we need to make sure stuff is back to normal once the vr session is done
         // but this isnt always triggered by the close session block
@@ -279,47 +342,24 @@ class jgVr {
             this._disposeImmersive();
         });
 
-        // set render state to use a new layer for the vr session
-        // renderer will handle this
-        const layer = new XRWebGLLayer(session, gl, {
-            alpha: true,
-            stencil: true,
-            antialias: false,
-        });
-        session.updateRenderState({
-            baseLayer: layer
-        });
-        renderer.xrLayer = layer;
-        // for debugging & other extensions, never used by the renderer
-        renderer._xrSession = session;
-
         // setup render loop
         const drawFrame = (_, frame) => {
             // breaks the loop once the session has ended
             if (!this.open) return;
-            // get view info
-            const viewerPose = frame.getViewerPose(this.localSpace);
-            const transform = viewerPose.transform;
-            // set view info
-            this.view = {
-                position: [
-                    transform.position.x,
-                    transform.position.y,
-                    transform.position.z
-                ],
-                quaternion: [
-                    transform.orientation.w,
-                    transform.orientation.y,
-                    transform.orientation.x,
-                    transform.orientation.z
-                ]
-            }
+
+            const threed = this._3d;
+            // break loop if no camera or scene
+            if (!threed.camera) return;
+            if (!threed.scene) return;
+
             // force renderer to draw a new frame
             // otherwise we would only actually draw outside of this loop
             // which just ends up showing nothing
             // since rendering only happens in session.requestAnimationFrame
-            renderer.dirty = true;
-            renderer.draw();
+            // we also dont give blocks for rendering
+            // because it would be too slow compared to just rendering
+            // every animation frame
+            renderer.render(threed.scene, threed.camera);
             // loop again
             session.requestAnimationFrame(drawFrame);
         }
@@ -355,69 +395,138 @@ class jgVr {
         return this.session.end();
     }
 
-    // splitting blocks
-    enableDisableSplitting(args) {
-        const renderer = this._getRenderer();
-        if (!renderer) return;
-
-        const boolean = this._onOffBoolean(args.ONOFF);
-        this.splitState = boolean;
-        // setting xrSplitting outside of XR mode WILL work
-        // so prevent this by just checking if we ARE in XR rendering mode
-        if (!renderer.xrEnabled) return;
-        renderer.xrSplitting = this.splitState;
+    // extra
+    attachObject(args) {
+        const three = this._3d;
+        if (!three.scene) return;
+        if (!three.camera) return;
+        const name = Cast.toString(args.OBJECT);
+        const object = three.scene.getObjectByName(name);
+        if (!object) return;
+        object.add(three.camera);
     }
-    splittingOffset(args) {
-        const renderer = this._getRenderer();
-        if (!renderer) return;
-
-        // pixels should be negative
-        // otherwise we push away from the center
-        const pixels = Cast.toNumber(args.PX);
-        renderer.xrSplitOffset = 0 - pixels;
+    detachObject() {
+        const three = this._3d;
+        if (!three.scene) return;
+        if (!three.camera) return;
+        three.scene.add(three.camera);
     }
 
     // inputs
-    headsetPosition(args) {
-        if (!this.open) return 0;
-        if (!this.session) return 0;
-        if (!this.view) return 0;
-        const vector3 = Cast.toString(args.VECTOR3).toLowerCase().trim();
-        if (!this._isVector3Menu(vector3)) return 0;
-        const axisArray = ['x', 'y', 'z'];
-        const idx = axisArray.indexOf(vector3);
-        return this.view.position[idx] * 100;
+    getControllerPosition(args) {
+        const three = this._3d;
+        if (!three.scene) return "";
+        const index = Cast.toNumber(args.INDEX) - 1;
+        const renderer = this._getRenderer();
+        if (!renderer) return "";
+        const controller = renderer.xr.getController(index);
+        if (!controller) return "";
+        const v = args.VECTOR3;
+        if (!v) return "";
+        if (!["x", "y", "z"].includes(v)) return "";
+        return Cast.toNumber(controller.position[v]);
     }
-    headsetRotation(args) {
-        if (!this.open) return 0;
-        if (!this.session) return 0;
-        if (!this.view) return 0;
-        const vector3 = Cast.toString(args.VECTOR3).toLowerCase().trim();
-        if (!this._isVector3Menu(vector3)) return 0;
-        const axisArray = ['x', 'y', 'z'];
-        const idx = axisArray.indexOf(vector3);
-        const quaternion = this.view.quaternion;
-        const euler = quaternionToEuler(quaternion);
-        return toDeg(euler[idx]);
+    getControllerRotation(args) {
+        const three = this._3d;
+        if (!three.scene) return "";
+        const index = Cast.toNumber(args.INDEX) - 1;
+        const renderer = this._getRenderer();
+        if (!renderer) return "";
+        const controller = renderer.xr.getController(index);
+        if (!controller) return "";
+        const v = args.VECTOR3;
+        if (!v) return "";
+        if (!["x", "y", "z"].includes(v)) return "";
+
+        // rotation is funky
+        // lets make it match the 3D extensions handling of rotation
+        // YXZ tells it to rotate Y first, then X, then Z
+        const euler = new three.three.Euler(0, 0, 0);
+        euler.setFromQuaternion(controller.quaternion, 'YXZ');
+        const rotation = Cast.toNumber(euler[v]);
+        // rotation is in radians, convert to degrees but round it
+        // a bit so that we get 46 instead of 45.999999999999996
+        return toDegRounding(rotation);
     }
 
-    // helper
-    placement169(args) {
-        const side = Cast.toString(args.SIDE).toLowerCase().trim();
+    // inputs but like actual
+    getControllerSide(args) {
+        const three = this._3d;
+        if (!three.scene) return "";
+        const renderer = this._getRenderer();
+        if (!renderer) return "";
+        const session = renderer.xr.getSession();
+        if (!session) return "";
 
-        const width = this.runtime.stageWidth;
-        const multX = width / 640;
+        const sources = session.inputSources;
+        const index = Cast.toNumber(args.INDEX) - 1;
+        const controller = sources[index];
+        if (!controller) return "";
 
-        // this was found with experimentation
-        // please tell me if stuff needs to be added for certain cases
-        const valueR = ((640 / 4) - 40) * multX;
-        const valueL = 0 - valueR;
-
-        if (side === 'right') {
-            return valueR;
+        return controller.handedness;
+    }
+    getControllerStick(args) {
+        const gamepad = this._getGamepad(args.INDEX);
+        if (!gamepad) return 0;
+        // index gained by testing
+        if (Cast.toString(args.XY) === "y") {
+            return gamepad.axes[3];
+        } else {
+            return gamepad.axes[2];
         }
-        return valueL;
+    }
+    getControllerTrig(args) {
+        const gamepad = this._getGamepad(args.INDEX);
+        if (!gamepad) return 0;
+        // index gained by testing
+        if (Cast.toString(args.TRIGGER) === "side") {
+            return gamepad.buttons[1].value;
+        } else {
+            return gamepad.buttons[0].value;
+        }
+    }
+    getControllerButton(args) {
+        const gamepad = this._getGamepad(args.INDEX);
+        if (!gamepad) return 0;
+        const button = Cast.toString(args.BUTTON);
+        switch (button) {
+            // index gained by testing
+            case 'a':
+                return gamepad.buttons[4].pressed;
+            case 'b':
+                return gamepad.buttons[5].pressed;
+            case 'x':
+                return gamepad.buttons[4].pressed;
+            case 'y':
+                return gamepad.buttons[5].pressed;
+            case 'joystick':
+                return gamepad.buttons[3].pressed;
+        }
+        return false;
+    }
+    getControllerTouching(args) {
+        const gamepad = this._getGamepad(args.INDEX);
+        if (!gamepad) return 0;
+        const button = Cast.toString(args.BUTTON);
+        switch (button) {
+            // index gained by testing
+            case 'a button':
+                return gamepad.buttons[4].touched;
+            case 'b button':
+                return gamepad.buttons[5].touched;
+            case 'x button':
+                return gamepad.buttons[4].touched;
+            case 'y button':
+                return gamepad.buttons[5].touched;
+            case 'joystick':
+                return gamepad.buttons[3].touched;
+            case 'back trigger':
+                return gamepad.buttons[0].touched;
+            case 'side trigger':
+                return gamepad.buttons[1].touched;
+        }
+        return false;
     }
 }
 
-module.exports = jgVr;
+module.exports = Jg3DVrBlocks;
