@@ -46,6 +46,30 @@ class Blockly2Math {
                     }
                 },
                 {
+                    opcode: 'multiplytwice',
+                    text: formatMessage({
+                        id: 'blockly2math.blocks.multiplytwice',
+                        default: '[X] * [Y] * [Z]',
+                        description: 'Multiply twice'
+                    }),
+                    disableMonitor: true,
+                    blockType: BlockType.REPORTER,
+                    arguments: {
+                        ONE: {
+                            type: ArgumentType.NUMBER,
+                            defaultValue: 1
+                        },
+                        OP: {
+                            type: ArgumentType.NUMBER,
+                            defaultValue: 2
+                        },
+                        TWO: {
+                            type: ArgumentType.NUMBER,
+                            defaultValue: 3
+                        }
+                    }
+                },
+                {
                     opcode: 'Operation',
                     text: formatMessage({
                         id: 'blockly2math.blocks.Operation',
@@ -226,6 +250,9 @@ class Blockly2Math {
 
     Number(args, util) {
         return Number(args.NUMBER)
+    }
+    multiplytwice(args, util) {
+        return X(args.X) * Y(args.Y) * Z(args.Z)
     }
 
     Operation(args, util) {
