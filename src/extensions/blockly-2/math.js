@@ -252,7 +252,7 @@ class Blockly2Math {
         return Number(args.NUMBER)
     }
     multiplytwice(args, util) {
-        return X(args.X) * Y(args.Y) * Z(args.Z)
+        return (X(args.X) * Y(args.Y) * Z(args.Z))
     }
 
     Operation(args, util) {
