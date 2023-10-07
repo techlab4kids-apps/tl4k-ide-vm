@@ -182,6 +182,10 @@ const builtinExtensions = {
     // Cognimates
     typescratch: () => require('../extensions/typescratch'),
 
+    // e
+
+    pmCamera: () => require('../extensions/pm_camera'),
+
 };
 
 const coreExtensionList = Object.getOwnPropertyNames(builtinExtensions);
