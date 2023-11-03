@@ -3,6 +3,7 @@ const ArgumentType = require('../../extension-support/argument-type');
 
 const Icons = {
     Cube: require('./cube.png'),
+    Troll: require('./troll.png'),
     Sphere: require('./sphere.png'),
     Plane: require('./plane.png'),
     Light: require('./light.png'),
@@ -276,6 +277,12 @@ module.exports = {
         seperator,
         createCommandBlock('createCubeObject', 'create cube named [NAME] at x: [X] y: [Y] z: [Z]', {
             NAME: infoArgument("Object1"),
+            X: infoArgument(0),
+            Y: infoArgument(0),
+            Z: infoArgument(0)
+        }, Icons.Cube),
+        createCommandBlock('createTrollObject', 'create troll named [NAME] at x: [X] y: [Y] z: [Z]', {
+            NAME: infoArgument("Trololool1"),
             X: infoArgument(0),
             Y: infoArgument(0),
             Z: infoArgument(0)

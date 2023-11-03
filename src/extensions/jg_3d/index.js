@@ -557,6 +557,13 @@ class Jg3DBlocks {
                 object = cube;
                 break;
             }
+            default: {
+                const geometry = new Three.BoxGeometry(1, 1, 1);
+                const material = new Three.MeshStandardMaterial({ color: 0xffffff });
+                const troll = new Three.Mesh(geometry, material);
+                object = troll;
+                break;
+            }
         }
         object.name = name;
         this.existingSceneObjects.push(name);
@@ -566,6 +573,9 @@ class Jg3DBlocks {
     }
     createCubeObject(args, util) {
         this.createGameObject(args, util, 'cube');
+    }
+    createTrollObject(args, util) {
+        this.createGameObject(args, util, 'troll')
     }
     createSphereObject(args, util) {
         this.createGameObject(args, util, 'sphere');
