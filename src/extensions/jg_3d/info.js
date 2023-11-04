@@ -281,12 +281,6 @@ module.exports = {
             Y: infoArgument(0),
             Z: infoArgument(0)
         }, Icons.Cube),
-        createCommandBlock('createTrollObject', 'create troll named [NAME] at x: [X] y: [Y] z: [Z]', {
-            NAME: infoArgument("Trololool1"),
-            X: infoArgument(0),
-            Y: infoArgument(0),
-            Z: infoArgument(0)
-        }, Icons.Cube),
         createCommandBlock('createSphereObject', 'create sphere named [NAME] at x: [X] y: [Y] z: [Z]', {
             NAME: infoArgument("Object1"),
             X: infoArgument(0),

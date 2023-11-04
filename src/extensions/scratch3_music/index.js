@@ -319,6 +319,14 @@ class Scratch3MusicBlocks {
                     description: 'Sound of a cuica being played'
                 }),
                 fileName: '18-cuica'
+            },
+            {
+                name: formatMessage({
+                    id: 'music.e',
+                    default: '(19) help me please',
+                    description: 'Sound of a fart being played'
+                }),
+                fileName: '19-e'
             }
         ];
     }
