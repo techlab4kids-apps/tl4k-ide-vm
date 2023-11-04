@@ -3,7 +3,6 @@ const ArgumentType = require('../../extension-support/argument-type');
 
 const Icons = {
     Cube: require('./cube.png'),
-    Troll: require('./troll.png'),
     Sphere: require('./sphere.png'),
     Plane: require('./plane.png'),
     Light: require('./light.png'),
