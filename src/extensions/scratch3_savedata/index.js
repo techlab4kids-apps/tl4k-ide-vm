@@ -2,8 +2,6 @@ const BlockType = require('../../extension-support/block-type');
 const ArgumentType = require('../../extension-support/argument-type');
 const Cast = require('../../util/cast');
 
-const blockSeparator = '<sep gap="36"/>'; // At default scale, about 28px
-
 
 /*
    This extension was made with TurboBuilder!
