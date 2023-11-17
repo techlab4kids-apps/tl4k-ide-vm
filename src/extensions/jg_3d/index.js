@@ -384,13 +384,14 @@ class Jg3DBlocks {
     }
     setSceneBackgroundColor(args) {
         if (!this.renderer) return;
-        const color = Color.hexToDecimal(args.COLOR);
+        const rgb = Cast.toRgbColorObject(args.COLOR);
+        const color = Color.rgbToDecimal(rgb);
         this.renderer.penguinMod.backgroundColor = color;
         this.renderer.setClearColor(color, this.renderer.penguinMod.backgroundOpacity);
     }
     setSceneBackgroundOpacity(args) {
         if (!this.renderer) return;
-        let opacity = Color.hexToDecimal(args.OPACITY);
+        let opacity = Cast.toNumber(args.OPACITY);
         if (opacity > 100) opacity = 100;
         if (opacity < 0) opacity = 0;
         const backgroundOpac = 1 - (opacity / 100);
@@ -706,7 +707,8 @@ class Jg3DBlocks {
     setObjectColor(args) {
         if (!this.scene) return;
         const name = Cast.toString(args.NAME);
-        const color = Cast.toNumber(args.COLOR);
+        const rgb = Cast.toRgbColorObject(args.COLOR);
+        const color = Color.rgbToDecimal(rgb);
         const object = this.scene.getObjectByName(name);
         if (!object) return;
         if (object.isLight) {

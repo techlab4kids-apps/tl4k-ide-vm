@@ -496,6 +496,7 @@ class JgJSONBlocks {
                             menu: 'lists'
                         }
                     },
+                    hideFromPalette: true,
                     text: 'get contents of list [list] as array'
                 },
                 {
@@ -512,6 +513,7 @@ class JgJSONBlocks {
                             defaultValue: "[\"A\", \"B\", \"C\"]"
                         }
                     },
+                    hideFromPalette: true,
                     text: 'set contents of list [list] to contents of array [array]'
                 }
             ],
