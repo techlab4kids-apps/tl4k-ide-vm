@@ -187,7 +187,6 @@ const builtinExtensions = {
     pmCamera: () => require('../extensions/pm_camera'),
     Scratch3WirelessBlocks: () => require('../extensions/scratch3_wireless'),
     jgTailgating: () => require('../extensions/jg_tailgaiting'),
-    qrcode: () => require('../extensions/scratch3_qrcode')
 
 };
 
