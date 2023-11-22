@@ -188,6 +188,7 @@ const builtinExtensions = {
     Scratch3WirelessBlocks: () => require('../extensions/scratch3_wireless'),
     jgTailgating: () => require('../extensions/jg_tailgaiting'),
     nmsderpMap: () => require('../extensions/nmsderp_maps'),
+    adaleaflet: () => require('../extensions/adacraft_leaflet')
 
 };
 
