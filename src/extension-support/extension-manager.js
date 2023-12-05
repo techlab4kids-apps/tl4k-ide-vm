@@ -189,7 +189,8 @@ const builtinExtensions = {
     jgTailgating: () => require('../extensions/jg_tailgaiting'),
     nmsderpMap: () => require('../extensions/nmsderp_maps'),
     adaleaflet: () => require('../extensions/adacraft_leaflet'),
-    generateQRCode: () => require('../extensions/qrcode_ext')
+    generateQRCode: () => require('../extensions/qrcode_ext'),
+    jgChristmas: () => require("../extensions/jg_christmas")
 
 };
 
