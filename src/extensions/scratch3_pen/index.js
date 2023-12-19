@@ -4,6 +4,7 @@ const TargetType = require('../../extension-support/target-type');
 const Cast = require('../../util/cast');
 const Clone = require('../../util/clone');
 const Color = require('../../util/color');
+const { translateForCamera } = require('../../util/pos-math');
 const formatMessage = require('format-message');
 const MathUtil = require('../../util/math-util');
 const log = require('../../util/log');
@@ -18,6 +19,25 @@ const blockIconURI = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0i
 
 // aka nothing because every image is way too big just like your mother
 const DefaultDrawImage = 'data:image/png;base64,'; 
+
+const SANS_SERIF_ID = 'Sans Serif';
+const SERIF_ID = 'Serif';
+const HANDWRITING_ID = 'Handwriting';
+const MARKER_ID = 'Marker';
+const CURLY_ID = 'Curly';
+const PIXEL_ID = 'Pixel';
+
+/* PenguinMod Fonts */
+const PLAYFUL_ID = 'Playful';
+const BUBBLY_ID = 'Bubbly';
+const BITSANDBYTES_ID = 'Bits and Bytes';
+const TECHNOLOGICAL_ID = 'Technological';
+const ARCADE_ID = 'Arcade';
+const ARCHIVO_ID = 'Archivo';
+const ARCHIVOBLACK_ID = 'Archivo Black';
+const SCRATCH_ID = 'Scratch';
+
+const RANDOM_ID = 'Random';
 
 /**
  * Enum for pen color parameter values.
@@ -105,11 +125,15 @@ class Scratch3PenBlocks {
 
         this._onTargetCreated = this._onTargetCreated.bind(this);
         this._onTargetMoved = this._onTargetMoved.bind(this);
+        this._onCameraMoved = this._onCameraMoved.bind(this);
 
         runtime.on('targetWasCreated', this._onTargetCreated);
         runtime.on('RUNTIME_DISPOSED', this.clear.bind(this));
+        //runtime.on('CAMERA_CHANGED', this._onCameraMoved);
 
         this.preloadedImages = {};
+
+        this.cameraBound = -1;
     }
 
     /**
@@ -243,9 +267,37 @@ class Scratch3PenBlocks {
             const penSkinId = this._getPenLayerID();
             if (penSkinId >= 0) {
                 const penState = this._getPenState(target);
-                this.runtime.renderer.penLine(penSkinId, penState.penAttributes, oldX, oldY, target.x, target.y);
+                // find the rendered possition of the sprite rather then the true possition of the sprite
+                const [newX, newY] = target._translatePossitionToCamera();
+                if (target.cameraBound >= 0) {
+                    [oldX, oldY] = translateForCamera(this.runtime, target.cameraBound, oldX, oldY);
+                }
+                this.runtime.renderer.penLine(penSkinId, penState.penAttributes, oldX, oldY, newX, newY);
                 this.runtime.requestRedraw();
             }
+        }
+    }
+
+    _onCameraMoved(screen) {
+        if (screen !== this.cameraBound) return;
+        const cameraState = this.runtime.cameraStates[screen];
+        const penSkinId = this._getPenLayerID();
+        if (penSkinId >= 0) {
+            this.runtime.renderer.penTranslate(penSkinId, ...cameraState.pos, cameraState.scale, cameraState.dir);
+        }
+        this.runtime.requestRedraw();
+    }
+
+    bindToCamera(screen) {
+        this.cameraBound = screen;
+        this._onCameraMoved();
+    }
+
+    removeCameraBinding() {
+        this.cameraBound = -1;
+        const penSkinId = this._getPenLayerID();
+        if (penSkinId >= 0) {
+            this.runtime.renderer.penTranslate(penSkinId, 0, 0, 1, 0);
         }
     }
 
@@ -378,6 +430,60 @@ class Scratch3PenBlocks {
         return 1.0 - (transparency / 100.0);
     }
 
+    _getFonts() {
+        return [{
+            text: 'Sans Serif',
+            value: SANS_SERIF_ID
+        }, {
+            text: 'Serif',
+            value: SERIF_ID
+        }, {
+            text: 'Handwriting',
+            value: HANDWRITING_ID
+        }, {
+            text: 'Marker',
+            value: MARKER_ID
+        }, {
+            text: 'Curly',
+            value: CURLY_ID
+        }, {
+            text: 'Pixel',
+            value: PIXEL_ID
+        }, {
+            text: 'Playful',
+            value: PLAYFUL_ID
+        }, {
+            text: 'Bubbly',
+            value: BUBBLY_ID
+        }, {
+            text: 'Arcade',
+            value: ARCADE_ID
+        }, {
+            text: 'Bits and Bytes',
+            value: BITSANDBYTES_ID
+        }, {
+            text: 'Technological',
+            value: TECHNOLOGICAL_ID
+        }, {
+            text: 'Scratch',
+            value: SCRATCH_ID
+        }, {
+            text: 'Archivo',
+            value: ARCHIVO_ID
+        }, {
+            text: 'Archivo Black',
+            value: ARCHIVOBLACK_ID
+        },
+        ...this.runtime.fontManager.getFonts().map(i => ({
+            text: i.name,
+            value: i.family
+        })),
+        {
+            text: 'random font',
+            value: RANDOM_ID
+        }];
+    }
+
     /**
      * @returns {object} metadata for this extension and its blocks.
      */
@@ -421,7 +527,8 @@ class Scratch3PenBlocks {
                     arguments: {
                         FONT: {
                             type: ArgumentType.STRING,
-                            defaultValue: 'Arial'
+                            defaultValue: 'Arial',
+                            menu: 'FONT'
                         }
                     }
                 },
@@ -496,7 +603,7 @@ class Scratch3PenBlocks {
                     arguments: {
                         TEXT: {
                             type: ArgumentType.STRING,
-                            defaultValue: 'Snails are super cool.'
+                            defaultValue: 'Snails are cool'
                         },
                         X: {
                             type: ArgumentType.NUMBER,
@@ -889,6 +996,10 @@ class Scratch3PenBlocks {
                     acceptReporters: false,
                     items: this.getItalicsToggleParam()
                 },
+                FONT: {
+                    items: '_getFonts',
+                    isTypeable: true
+                }
             }
         };
     }
@@ -1008,6 +1119,7 @@ class Scratch3PenBlocks {
                 return handler(preloadedImage);
             }
             const image = new Image();
+            image.crossOrigin = "anonymous";
             image.onload = () => handler(image);
             image.onerror = () => resolve(); // ignore loading errors lol!
             image.src = Cast.toString(URI);
@@ -1040,6 +1152,7 @@ class Scratch3PenBlocks {
     preloadUriImage ({ URI, NAME }) {
         return new Promise(resolve => {
             const image = new Image();
+            image.crossOrigin = "anonymous";
             image.onload = () => {
                 this.preloadedImages[Cast.toString(NAME)] = image;
                 resolve();
@@ -1059,7 +1172,7 @@ class Scratch3PenBlocks {
     drawRect (args) {
         const ctx = this._getBitmapCanvas();
 
-        const hex = Color.decimalToHex(args.COLOR);
+        const hex = Cast.toString(args.COLOR);
         ctx.fillStyle = hex;
         ctx.strokeStyle = ctx.fillStyle;
         ctx.fillRect(
@@ -1426,7 +1539,7 @@ class Scratch3PenBlocks {
 
         const ctx = this._getBitmapCanvas();
 
-        const hex = Color.decimalToHex(args.COLOR);
+        const hex = Cast.toString(args.COLOR);
         ctx.fillStyle = hex;
         ctx.strokeStyle = penColor;
         ctx.lineWidth = penAttributes.diameter;
