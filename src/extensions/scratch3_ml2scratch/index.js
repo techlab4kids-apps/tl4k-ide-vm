@@ -1,947 +1,945 @@
 const ArgumentType = require('../../extension-support/argument-type');
 const BlockType = require('../../extension-support/block-type');
 const Cast = require('../../util/cast');
-const log = require('../../util/log');
 const ml5 = require('ml5');
 const formatMessage = require('format-message');
-
-const HAT_TIMEOUT = 100;
-
-const blockIconURI = 'data:image/png;base64,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';
+const blockIconURI = 'data:image/png;base64,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';
 
 const Message = {
-  train_label_1: {
-    'ja': 'ラベル1を学習する',
-    'ja-Hira': 'ラベル1をがくしゅうする',
-    'en': 'train label 1',
-    'zh-cn': '学习标签1'
+  x: {
+    'ja': 'のx座標',
+    'ja-Hira': 'のxざひょう',
+    'en': ' x'
   },
-  train_label_2: {
-    'ja': 'ラベル2を学習する',
-    'ja-Hira': 'ラベル2をがくしゅうする',
-    'en': 'train label 2',
-    'zh-cn': '学习标签2'
+  y: {
+    'ja': 'のy座標',
+    'ja-Hira': 'のyざひょう',
+    'en': ' y'
   },
-  train_label_3: {
-    'ja': 'ラベル3を学習する',
-    'ja-Hira': 'ラベル3をがくしゅうする',
-    'en': 'train label 3',
-    'zh-cn': '学习标签3'
+  peopleCount: {
+    'ja': '人数',
+    'ja-Hira': 'にんずう',
+    'en': 'people count'
   },
-  train: {
-    'ja': 'ラベル[LABEL]を学習する',
-    'ja-Hira': 'ラベル[LABEL]をがくしゅうする',
-    'en': 'train label [LABEL]',
-    'zh-cn': '学习标签[LABEL]'
+  nose: {
+    'ja': '鼻',
+    'ja-Hira': 'はな',
+    'en': 'nose'
   },
-  when_received_block: {
-    'ja': 'ラベル[LABEL]を受け取ったとき',
-    'ja-Hira': 'ラベル[LABEL]をうけとったとき',
-    'en': 'when received label:[LABEL]',
-    'zh-cn': '接收到类别[LABEL]时'
+  leftEye: {
+    'ja': '左目',
+    'ja-Hira': 'ひだりめ',
+    'en': 'left eye'
   },
-  label_block: {
-    'ja': 'ラベル',
-    'ja-Hira': 'ラベル',
-    'en': 'label',
-    'zh-cn': '标签'
+  rightEye: {
+    'ja': '右目',
+    'ja-Hira': 'みぎめ',
+    'en': 'right eye'
   },
-  counts_label_1: {
-    'ja': 'ラベル1の枚数',
-    'ja-Hira': 'ラベル1のまいすう',
-    'en': 'counts of label 1',
-    'zh-cn': '标签数量1'
+  leftEar: {
+    'ja': '左耳',
+    'ja-Hira': 'ひだりみみ',
+    'en': 'left ear'
   },
-  counts_label_2: {
-    'ja': 'ラベル2の枚数',
-    'ja-Hira': 'ラベル2のまいすう',
-    'en': 'counts of label 2',
-    'zh-cn': '标签数量2'
+  rightEar: {
+    'ja': '右耳',
+    'ja-Hira': 'みぎみみ',
+    'en': 'right ear'
   },
-  counts_label_3: {
-    'ja': 'ラベル3の枚数',
-    'ja-Hira': 'ラベル3のまいすう',
-    'en': 'counts of label 3',
-    'zh-cn': '标签数量3'
+  leftShoulder: {
+    'ja': '左肩',
+    'ja-Hira': 'ひだりかた',
+    'en': 'left shoulder'
   },
-  counts_label_4: {
-    'ja': 'ラベル4の枚数',
-    'ja-Hira': 'ラベル4のまいすう',
-    'en': 'counts of label 4',
-    'zh-cn': '标签数量4'
+  rightShoulder: {
+    'ja': '右肩',
+    'ja-Hira': 'みぎかた',
+    'en': 'right shoulder'
   },
-  counts_label_5: {
-    'ja': 'ラベル5の枚数',
-    'ja-Hira': 'ラベル5のまいすう',
-    'en': 'counts of label 5',
-    'zh-cn': '标签数量5'
+  leftElbow: {
+    'ja': '左ひじ',
+    'ja-Hira': 'ひだりひじ',
+    'en': 'left elbow'
   },
-  counts_label_6: {
-    'ja': 'ラベル6の枚数',
-    'ja-Hira': 'ラベル6のまいすう',
-    'en': 'counts of label 6',
-    'zh-cn': '标签数量6'
+  rightElbow: {
+    'ja': '右ひじ',
+    'ja-Hira': 'みぎひじ',
+    'en': 'right elbow'
   },
-  counts_label_7: {
-    'ja': 'ラベル7の枚数',
-    'ja-Hira': 'ラベル7のまいすう',
-    'en': 'counts of label 7',
-    'zh-cn': '标签数量7'
+  leftWrist: {
+    'ja': '左手首',
+    'ja-Hira': 'ひだりてくび',
+    'en': 'left wrist'
   },
-  counts_label_8: {
-    'ja': 'ラベル8の枚数',
-    'ja-Hira': 'ラベル8のまいすう',
-    'en': 'counts of label 8',
-    'zh-cn': '标签数量8'
+  rightWrist: {
+    'ja': '右手首',
+    'ja-Hira': 'みぎてくび',
+    'en': 'right wrist'
   },
-  counts_label_9: {
-    'ja': 'ラベル9の枚数',
-    'ja-Hira': 'ラベル9のまいすう',
-    'en': 'counts of label 9',
-    'zh-cn': '标签数量9'
+  leftHip: {
+    'ja': '左腰',
+    'ja-Hira': 'ひだりこし',
+    'en': 'left hip'
   },
-  counts_label_10: {
-    'ja': 'ラベル10の枚数',
-    'ja-Hira': 'ラベル10のまいすう',
-    'en': 'counts of label 10',
-    'zh-cn': '标签数量10'
+  rightHip: {
+    'ja': '右腰',
+    'ja-Hira': 'みぎこし',
+    'en': 'right hip'
   },
-  counts_label: {
-    'ja': 'ラベル[LABEL]の枚数',
-    'ja-Hira': 'ラベル[LABEL]のまいすう',
-    'en': 'counts of label [LABEL]',
-    'zh-cn': '标签数量[LABEL]'
+  leftKnee: {
+    'ja': '左ひざ',
+    'ja-Hira': 'ひだりひざ',
+    'en': 'left knee'
   },
-  any: {
-    'ja': 'のどれか',
-    'ja-Hira': 'のどれか',
-    'en': 'any',
-    'zh-cn': '任何'
+  rightKnee: {
+    'ja': '右ひざ',
+    'ja-Hira': 'みぎひざ',
+    'en': 'right knee'
   },
-  all: {
-    'ja': 'の全て',
-    'ja-Hira': 'のすべて',
-    'en': 'all',
-    'zh-cn': '所有'
+  leftAnkle: {
+    'ja': '左足首',
+    'ja-Hira': 'ひだりあしくび',
+    'en': 'left ankle'
   },
-  reset: {
-    'ja': 'ラベル[LABEL]の学習をリセット',
-    'ja-Hira': 'ラベル[LABEL]のがくしゅうをリセット',
-    'en': 'reset label:[LABEL]',
-    'zh-cn': '重置[LABEL]'
+  rightAnkle: {
+    'ja': '右足首',
+    'ja-Hira': 'みぎあしくび',
+    'en': 'right ankle'
   },
-  download_learning_data: {
-    'ja': '学習データをダウンロード',
-    'ja-Hira': 'がくしゅうデータをダウンロード',
-    'en': 'download learning data',
-    'zh-cn': '下载学习数据'
+  getX: {
+    'ja': '[PERSON_NUMBER] 人目の [PART] のx座標',
+    'ja-Hira': '[PERSON_NUMBER] にんめの [PART] のxざひょう',
+    'en': '[PART] x of person no. [PERSON_NUMBER]'
   },
-  upload_learning_data: {
-    'ja': '学習データをアップロード',
-    'ja-Hira': 'がくしゅうデータをアップロード',
-    'en': 'upload learning data',
-    'zh-cn': '上传学习数据'
+  getY: {
+    'ja': '[PERSON_NUMBER] 人目の [PART] のy座標',
+    'ja-Hira': '[PERSON_NUMBER] にんめの [PART] のyざひょう',
+    'en': '[PART] y of person no. [PERSON_NUMBER]'
   },
-  upload: {
-    'ja': 'アップロード',
-    'ja-Hira': 'アップロード',
-    'en': 'upload',
-    'zh-cn': '上传'
-  },
-  uploaded: {
-    'ja': 'アップロードが完了しました。',
-    'ja-Hira': 'アップロードがかんりょうしました。',
-    'en': 'The upload is complete.',
-    'zh-cn': '上传完成。'
-  },
-  upload_instruction: {
-    'ja': 'ファイルを選び、アップロードボタンをクリックして下さい。',
-    'ja-Hira': 'ファイルをえらび、アップロードボタンをクリックしてください。',
-    'en': 'Select a file and click the upload button.',
-    'zh-cn': '选择一个文件，然后单击上传按钮。'
-  },
-  confirm_reset: {
-    'ja': '本当にリセットしてもよろしいですか？',
-    'ja-Hira': 'ほんとうにリセットしてもよろしいですか？',
-    'en': 'Are you sure to reset?',
-    'zh-cn': '你确定要重置吗？'
-  },
-  toggle_classification: {
-    'ja': 'ラベル付けを[CLASSIFICATION_STATE]にする',
-    'ja-Hira': 'ラベルづけを[CLASSIFICATION_STATE]にする',
-    'en': 'turn classification [CLASSIFICATION_STATE]',
-    'zh-cn': '[CLASSIFICATION_STATE]分类'
-  },
-  set_classification_interval: {
-    'ja': 'ラベル付けを[CLASSIFICATION_INTERVAL]秒間に1回行う',
-    'ja-Hira': 'ラベルづけを[CLASSIFICATION_INTERVAL]びょうかんに1かいおこなう',
-    'en': 'Label once every [CLASSIFICATION_INTERVAL] seconds',
-    'zh-cn': '每隔[CLASSIFICATION_INTERVAL]秒标记一次'
-  },
-  video_toggle: {
+  videoToggle: {
     'ja': 'ビデオを[VIDEO_STATE]にする',
     'ja-Hira': 'ビデオを[VIDEO_STATE]にする',
-    'en': 'turn video [VIDEO_STATE]',
-    'zh-cn': '[VIDEO_STATE]摄像头'
-  },
-  set_input: {
-    'ja': '[INPUT]の画像を学習/判定する',
-    'ja-Hira': '[INPUT]のがぞうをがくしゅう/はんていする',
-    'en': 'Learn/Classify [INPUT] image',
-    'zh-cn': '学习/分类[INPUT]图像'
+    'en': 'turn video [VIDEO_STATE]'
   },
   on: {
     'ja': '入',
     'ja-Hira': 'いり',
-    'en': 'on',
-    'zh-cn': '开启'
+    'en': 'on'
   },
   off: {
     'ja': '切',
     'ja-Hira': 'きり',
-    'en': 'off',
-    'zh-cn': '关闭'
+    'en': 'off'
   },
   video_on_flipped: {
     'ja': '左右反転',
     'ja-Hira': 'さゆうはんてん',
     'en': 'on flipped',
-    'zh-cn': '镜像开启'
   },
-  webcam: {
-    'ja': 'カメラ',
-    'ja-Hira': 'カメラ',
-    'en': 'webcam',
-    'zh-cn': '网络摄像头'
-  },
-  stage: {
-    'ja': 'ステージ',
-    'ja-Hira': 'ステージ',
-    'en': 'stage',
-    'zh-cn': '舞台'
-  },
-  first_training_warning: {
-    'ja': '最初の学習にはしばらく時間がかかるので、何度もクリックしないで下さい。',
-    'ja-Hira': 'さいしょのがくしゅうにはしばらくじかんがかかるので、なんどもクリックしないでください。',
-    'en': 'The first training will take a while, so do not click again and again.',
-    'zh-cn': '第一项研究需要一段时间，所以不要一次又一次地点击。'
-  }
 }
+const AvailableLocales = ['en', 'ja', 'ja-Hira'];
 
-const AvailableLocales = ['en', 'ja', 'ja-Hira', 'zh-cn'];
+class Scratch3Posenet2ScratchBlocks {
+    get PERSON_NUMBERS_MENU () {
+      return [
+          {
+              text: '1',
+              value: '1'
+          },
+          {
+              text: '2',
+              value: '2'
+          },
+          {
+              text: '3',
+              value: '3'
+          },
+          {
+              text: '4',
+              value: '4'
+          },
+          {
+              text: '5',
+              value: '5'
+          },
+          {
+              text: '6',
+              value: '6'
+          },
+          {
+              text: '7',
+              value: '7'
+          },
+          {
+              text: '8',
+              value: '8'
+          },
+          {
+              text: '9',
+              value: '9'
+          },
+          {
+              text: '10',
+              value: '10'
+          }
+      ]
+    }
 
-class Scratch3ML2ScratchBlocks {
-  constructor (runtime) {
-    this.runtime = runtime;
-    this.when_received = false;
-    this.when_received_arr = Array(8).fill(false);
-    this.label = null;
-    this.locale = this.setLocale();
+    get PARTS_MENU () {
+      return [
+          {
+              text: Message.nose[this._locale],
+              value: '0'
+          },
+          {
+              text: Message.leftEye[this._locale],
+              value: '1'
+          },
+          {
+              text: Message.rightEye[this._locale],
+              value: '2'
+          },
+          {
+              text: Message.leftEar[this._locale],
+              value: '3'
+          },
+          {
+              text: Message.rightEar[this._locale],
+              value: '4'
+          },
+          {
+              text: Message.leftShoulder[this._locale],
+              value: '5'
+          },
+          {
+              text: Message.rightShoulder[this._locale],
+              value: '6'
+          },
+          {
+              text: Message.leftElbow[this._locale],
+              value: '7'
+          },
+          {
+              text: Message.rightElbow[this._locale],
+              value: '8'
+          },
+          {
+              text: Message.leftWrist[this._locale],
+              value: '9'
+          },
+          {
+              text: Message.rightWrist[this._locale],
+              value: '10'
+          },
+          {
+              text: Message.leftHip[this._locale],
+              value: '11'
+          },
+          {
+              text: Message.rightHip[this._locale],
+              value: '12'
+          },
+          {
+              text: Message.leftKnee[this._locale],
+              value: '13'
+          },
+          {
+              text: Message.rightKnee[this._locale],
+              value: '14'
+          },
+          {
+              text: Message.leftAnkle[this._locale],
+              value: '15'
+          },
+          {
+              text: Message.rightAnkle[this._locale],
+              value: '16'
+          }
+      ]
+    }
 
-    this.video = document.createElement("video");
-    this.video.width = 480;
-    this.video.height = 360;
-    this.video.autoplay = true;
-    this.video.style.display = "none";
+    get VIDEO_MENU () {
+      return [
+          {
+            text: Message.off[this._locale],
+            value: 'off'
+          },
+          {
+            text: Message.on[this._locale],
+            value: 'on'
+          },
+          {
+            text: Message.video_on_flipped[this._locale],
+            value: 'on-flipped'
+          }
+      ]
+    }
 
-    this.blockClickedAt = null;
+    constructor (runtime) {
+        this.runtime = runtime;
 
-    this.counts = null;
-    this.firstTraining = true;
+        this.poses = [];
+        this.keypoints = [];
 
-    this.interval = 1000;
+        let video = document.createElement("video");
+        video.width = 480;
+        video.height = 360;
+        video.autoplay = true;
+        video.style.display = "none";
 
-    let media = navigator.mediaDevices.getUserMedia({
-      video: true,
-      audio: false
-    });
+        let media = navigator.mediaDevices.getUserMedia({
+          video: true,
+          audio: false
+        });
 
-    media.then((stream) => {
-      this.video.srcObject = stream;
-    });
+        media.then((stream) => {
+            video.srcObject = stream;
+        });
 
-    this.canvas = document.querySelector('canvas');
+        let poseNet = ml5.poseNet(video, ()=>{
+            console.log('Model Loaded!');
+        });
 
-    this.input =  this.video;
-
-    this.knnClassifier = ml5.KNNClassifier();
-    this.featureExtractor = ml5.featureExtractor('MobileNet', () => {
-      console.log('[featureExtractor] Model Loaded!');
-      this.timer = setInterval(() => {
-        this.classify();
-      }, this.interval);
-    });
-
-    this.runtime.ioDevices.video.enableVideo();
-  }
-
-  getInfo() {
-    this.locale = this.setLocale();
-
-    return {
-      id: 'ml2scratch',
-      name: 'ML2Scratch',
-      blockIconURI: blockIconURI,
-      blocks: [
-        {
-          opcode: 'addExample1',
-          blockType: BlockType.COMMAND,
-          text: Message.train_label_1[this.locale]
-        },
-        {
-          opcode: 'addExample2',
-          blockType: BlockType.COMMAND,
-          text: Message.train_label_2[this.locale]
-        },
-        {
-          opcode: 'addExample3',
-          blockType: BlockType.COMMAND,
-          text: Message.train_label_3[this.locale]
-        },
-        {
-          opcode: 'train',
-          text: Message.train[this.locale],
-          blockType: BlockType.COMMAND,
-          arguments: {
-            LABEL: {
-              type: ArgumentType.STRING,
-              menu: 'train_menu',
-              defaultValue: '4'
+        poseNet.on('pose', (poses)=>{
+            if (poses.length > 0) {
+                this.poses = poses;
+                this.keypoints = poses[0].pose.keypoints;
+            } else {
+                this.poses = [];
+                this.keypoints = [];
             }
-          }
-        },
-        {
-          opcode: 'trainAny',
-          text: Message.train[this.locale],
-          blockType: BlockType.COMMAND,
-          arguments: {
-            LABEL: {
-              type: ArgumentType.STRING,
-              defaultValue: '11'
+        });
+
+        this.runtime.ioDevices.video.enableVideo();
+    }
+
+    getInfo () {
+        this._locale = this.setLocale();
+        return {
+            id: 'posenet2scratch',
+            name: 'Posenet2Scratch',
+            blockIconURI: blockIconURI,
+            blocks: [
+                {
+                    opcode: 'getX',
+                    blockType: BlockType.REPORTER,
+                    text: Message.getX[this._locale],
+                    arguments: {
+                        PERSON_NUMBER: {
+                            type: ArgumentType.STRING,
+                            menu: 'personNumbers',
+                            defaultValue: '1'
+                        },
+                        PART: {
+                            type: ArgumentType.STRING,
+                            menu: 'parts',
+                            defaultValue: '0'
+                        }
+                    }
+                },
+                {
+                    opcode: 'getY',
+                    blockType: BlockType.REPORTER,
+                    text: Message.getY[this._locale],
+                    arguments: {
+                        PERSON_NUMBER: {
+                            type: ArgumentType.STRING,
+                            menu: 'personNumbers',
+                            defaultValue: '1'
+                        },
+                        PART: {
+                            type: ArgumentType.STRING,
+                            menu: 'parts',
+                            defaultValue: '0'
+                        }
+                    }
+                },
+                {   opcode: 'getPeopleCount',
+                    blockType: BlockType.REPORTER,
+                    text: Message.peopleCount[this._locale]
+                },
+                {
+                    opcode: 'getNoseX',
+                    blockType: BlockType.REPORTER,
+                    text: Message.nose[this._locale] + Message.x[this._locale]
+                },
+                {
+                    opcode: 'getNoseY',
+                    blockType: BlockType.REPORTER,
+                    text: Message.nose[this._locale] + Message.y[this._locale]
+                },
+                {
+                    opcode: 'getLeftEyeX',
+                    blockType: BlockType.REPORTER,
+                    text: Message.leftEye[this._locale] + Message.x[this._locale]
+                },
+                {
+                    opcode: 'getLeftEyeY',
+                    blockType: BlockType.REPORTER,
+                    text: Message.leftEye[this._locale] + Message.y[this._locale]
+                },
+                {
+                    opcode: 'getRightEyeX',
+                    blockType: BlockType.REPORTER,
+                    text: Message.rightEye[this._locale] + Message.x[this._locale]
+                },
+                {
+                    opcode: 'getRightEyeY',
+                    blockType: BlockType.REPORTER,
+                    text: Message.rightEye[this._locale] + Message.y[this._locale]
+                },
+                {
+                    opcode: 'getLeftEarX',
+                    blockType: BlockType.REPORTER,
+                    text: Message.leftEar[this._locale] + Message.x[this._locale]
+                },
+                {
+                    opcode: 'getLeftEarY',
+                    blockType: BlockType.REPORTER,
+                    text: Message.leftEar[this._locale] + Message.y[this._locale]
+                },
+                {
+                    opcode: 'getRightEarX',
+                    blockType: BlockType.REPORTER,
+                    text: Message.rightEar[this._locale] + Message.x[this._locale]
+                },
+                {
+                    opcode: 'getRightEarY',
+                    blockType: BlockType.REPORTER,
+                    text: Message.rightEar[this._locale] + Message.y[this._locale]
+                },
+                {
+                    opcode: 'getLeftShoulderX',
+                    blockType: BlockType.REPORTER,
+                    text: Message.leftShoulder[this._locale] + Message.x[this._locale]
+                },
+                {
+                    opcode: 'getLeftShoulderY',
+                    blockType: BlockType.REPORTER,
+                    text: Message.leftShoulder[this._locale] + Message.y[this._locale]
+                },
+                {
+                    opcode: 'getRightShoulderX',
+                    blockType: BlockType.REPORTER,
+                    text: Message.rightShoulder[this._locale] + Message.x[this._locale]
+                },
+                {
+                    opcode: 'getRightShoulderY',
+                    blockType: BlockType.REPORTER,
+                    text: Message.rightShoulder[this._locale] + Message.y[this._locale]
+                },
+                {
+                    opcode: 'getLeftElbowX',
+                    blockType: BlockType.REPORTER,
+                    text: Message.leftElbow[this._locale] + Message.x[this._locale]
+                },
+                {
+                    opcode: 'getLeftElbowY',
+                    blockType: BlockType.REPORTER,
+                    text: Message.leftElbow[this._locale] + Message.y[this._locale]
+                },
+                {
+                    opcode: 'getRightElbowX',
+                    blockType: BlockType.REPORTER,
+                    text: Message.rightElbow[this._locale] + Message.x[this._locale]
+                },
+                {
+                    opcode: 'getRightElbowY',
+                    blockType: BlockType.REPORTER,
+                    text: Message.rightElbow[this._locale] + Message.y[this._locale]
+                },
+                {
+                    opcode: 'getLeftWristX',
+                    blockType: BlockType.REPORTER,
+                    text: Message.leftWrist[this._locale] + Message.x[this._locale]
+                },
+                {
+                    opcode: 'getLeftWristY',
+                    blockType: BlockType.REPORTER,
+                    text: Message.leftWrist[this._locale] + Message.y[this._locale]
+                },
+                {
+                    opcode: 'getRightWristX',
+                    blockType: BlockType.REPORTER,
+                    text: Message.rightWrist[this._locale] + Message.x[this._locale]
+                },
+                {
+                    opcode: 'getRightWristY',
+                    blockType: BlockType.REPORTER,
+                    text: Message.rightWrist[this._locale] + Message.y[this._locale]
+                },
+                {
+                    opcode: 'getLeftHipX',
+                    blockType: BlockType.REPORTER,
+                    text: Message.leftHip[this._locale] + Message.x[this._locale]
+                },
+                {
+                    opcode: 'getLeftHipY',
+                    blockType: BlockType.REPORTER,
+                    text: Message.leftHip[this._locale] + Message.y[this._locale]
+                },
+                {
+                    opcode: 'getRightHipX',
+                    blockType: BlockType.REPORTER,
+                    text: Message.rightHip[this._locale] + Message.x[this._locale]
+                },
+                {
+                    opcode: 'getRightHipY',
+                    blockType: BlockType.REPORTER,
+                    text: Message.rightHip[this._locale] + Message.y[this._locale]
+                },
+                {
+                    opcode: 'getLeftKneeX',
+                    blockType: BlockType.REPORTER,
+                    text: Message.leftKnee[this._locale] + Message.x[this._locale]
+                },
+                {
+                    opcode: 'getLeftKneeY',
+                    blockType: BlockType.REPORTER,
+                    text: Message.leftKnee[this._locale] + Message.y[this._locale]
+                },
+                {
+                    opcode: 'getRightKneeX',
+                    blockType: BlockType.REPORTER,
+                    text: Message.rightKnee[this._locale] + Message.x[this._locale]
+                },
+                {
+                    opcode: 'getRightKneeY',
+                    blockType: BlockType.REPORTER,
+                    text: Message.rightKnee[this._locale] + Message.y[this._locale]
+                },
+                {
+                    opcode: 'getLeftAnkleX',
+                    blockType: BlockType.REPORTER,
+                    text: Message.leftAnkle[this._locale] + Message.x[this._locale]
+                },
+                {
+                    opcode: 'getLeftAnkleY',
+                    blockType: BlockType.REPORTER,
+                    text: Message.leftAnkle[this._locale] + Message.y[this._locale]
+                },
+                {
+                    opcode: 'getRightAnkleX',
+                    blockType: BlockType.REPORTER,
+                    text: Message.rightAnkle[this._locale] + Message.x[this._locale]
+                },
+                {
+                    opcode: 'getRightAnkleY',
+                    blockType: BlockType.REPORTER,
+                    text: Message.rightAnkle[this._locale] + Message.y[this._locale]
+                },
+                {
+                    opcode: 'videoToggle',
+                    blockType: BlockType.COMMAND,
+                    text: Message.videoToggle[this._locale],
+                    arguments: {
+                        VIDEO_STATE: {
+                            type: ArgumentType.STRING,
+                            menu: 'videoMenu',
+                            defaultValue: 'off'
+                        }
+                    }
+                }
+            ],
+            menus: {
+              personNumbers: {
+                acceptReporters: true,
+                items: this.PERSON_NUMBERS_MENU
+              },
+              parts: {
+                acceptReporters: true,
+                items: this.PARTS_MENU
+              },
+              videoMenu: {
+                acceptReporters: false,
+                items: this.VIDEO_MENU
+              }
             }
-          }
-        },
-        {
-          opcode: 'getLabel',
-          text: Message.label_block[this.locale],
-          blockType: BlockType.REPORTER
-        },
-        {
-          opcode: 'whenReceived',
-          text: Message.when_received_block[this.locale],
-          blockType: BlockType.HAT,
-          arguments: {
-            LABEL: {
-              type: ArgumentType.STRING,
-              menu: 'received_menu',
-              defaultValue: 'any'
-            }
-          }
-        },
-        {
-          opcode: 'whenReceivedAny',
-          text: Message.when_received_block[this.locale],
-          blockType: BlockType.HAT,
-          arguments: {
-            LABEL: {
-              type: ArgumentType.STRING,
-              defaultValue: '11'
-            }
-          }
-        },
-        {
-          opcode: 'getCountByLabel1',
-          text: Message.counts_label_1[this.locale],
-          blockType: BlockType.REPORTER
-        },
-        {
-          opcode: 'getCountByLabel2',
-          text: Message.counts_label_2[this.locale],
-          blockType: BlockType.REPORTER
-        },
-        {
-          opcode: 'getCountByLabel3',
-          text: Message.counts_label_3[this.locale],
-          blockType: BlockType.REPORTER
-        },
-        {
-          opcode: 'getCountByLabel4',
-          text: Message.counts_label_4[this.locale],
-          blockType: BlockType.REPORTER
-        },
-        {
-          opcode: 'getCountByLabel5',
-          text: Message.counts_label_5[this.locale],
-          blockType: BlockType.REPORTER
-        },
-        {
-          opcode: 'getCountByLabel6',
-          text: Message.counts_label_6[this.locale],
-          blockType: BlockType.REPORTER
-        },
-        {
-          opcode: 'getCountByLabel7',
-          text: Message.counts_label_7[this.locale],
-          blockType: BlockType.REPORTER
-        },
-        {
-          opcode: 'getCountByLabel8',
-          text: Message.counts_label_8[this.locale],
-          blockType: BlockType.REPORTER
-        },
-        {
-          opcode: 'getCountByLabel9',
-          text: Message.counts_label_9[this.locale],
-          blockType: BlockType.REPORTER
-        },
-        {
-          opcode: 'getCountByLabel10',
-          text: Message.counts_label_10[this.locale],
-          blockType: BlockType.REPORTER
-        },
-        {
-          opcode: 'getCountByLabel',
-          text: Message.counts_label[this.locale],
-          blockType: BlockType.REPORTER,
-          arguments: {
-            LABEL: {
-              type: ArgumentType.STRING,
-              defaultValue: '11'
-            }
-          }
-        },
-        {
-          opcode: 'reset',
-          blockType: BlockType.COMMAND,
-          text: Message.reset[this.locale],
-          arguments: {
-            LABEL: {
-              type: ArgumentType.STRING,
-              menu: 'reset_menu',
-              defaultValue: 'all'
-            }
-          }
-        },
-        {
-          opcode: 'resetAny',
-          blockType: BlockType.COMMAND,
-          text: Message.reset[this.locale],
-          arguments: {
-            LABEL: {
-              type: ArgumentType.STRING,
-              defaultValue: '11'
-            }
-          }
-        },
-        {
-          opcode: 'download',
-          text: Message.download_learning_data[this.locale],
-          blockType: BlockType.COMMAND
-        },
-        {
-          opcode: 'upload',
-          text: Message.upload_learning_data[this.locale],
-          blockType: BlockType.COMMAND
-        },
-        {
-          opcode: 'toggleClassification',
-          text: Message.toggle_classification[this.locale],
-          blockType: BlockType.COMMAND,
-          arguments: {
-            CLASSIFICATION_STATE: {
-              type: ArgumentType.STRING,
-              menu: 'classification_menu',
-              defaultValue: 'off'
-            }
-          }
-        },
-        {
-          opcode: 'setClassificationInterval',
-          text: Message.set_classification_interval[this.locale],
-          blockType: BlockType.COMMAND,
-          arguments: {
-            CLASSIFICATION_INTERVAL: {
-              type: ArgumentType.STRING,
-              menu: 'classification_interval_menu',
-              defaultValue: '1'
-            }
-          }
-        },
-        {
-          opcode: 'videoToggle',
-          text: Message.video_toggle[this.locale],
-          blockType: BlockType.COMMAND,
-          arguments: {
-            VIDEO_STATE: {
-              type: ArgumentType.STRING,
-              menu: 'video_menu',
-              defaultValue: 'off'
-            }
-          }
-        },
-        {
-          opcode: 'setInput',
-          text: Message.set_input[this.locale],
-          blockType: BlockType.COMMAND,
-          arguments: {
-            INPUT: {
-              type: ArgumentType.STRING,
-              menu: 'input_menu',
-              defaultValue: 'webcam'
-            }
-          }
-        }
-
-      ],
-      menus: {
-        received_menu: {
-          items: this.getMenu('received')
-        },
-        reset_menu: {
-          items: this.getMenu('reset')
-        },
-        train_menu: {
-          items: this.getTrainMenu()
-        },
-        count_menu: {
-          items: this.getTrainMenu()
-        },
-        video_menu: this.getVideoMenu(),
-        classification_interval_menu: {
-          acceptReporters: true,
-          items: this.getClassificationIntervalMenu()
-        },
-        classification_menu: this.getClassificationMenu(),
-        input_menu: this.getInputMenu()
-      }
-    };
-  }
-
-  addExample1() {
-    this.firstTrainingWarning();
-    let features = this.featureExtractor.infer(this.input);
-    this.knnClassifier.addExample(features, '1');
-    this.updateCounts();
-  }
-
-  addExample2() {
-    this.firstTrainingWarning();
-    let features = this.featureExtractor.infer(this.input);
-    this.knnClassifier.addExample(features, '2');
-    this.updateCounts();
-  }
-
-  addExample3() {
-    this.firstTrainingWarning();
-    let features = this.featureExtractor.infer(this.input);
-    this.knnClassifier.addExample(features, '3');
-    this.updateCounts();
-  }
-
-  train(args) {
-    this.firstTrainingWarning();
-    let features = this.featureExtractor.infer(this.input);
-    this.knnClassifier.addExample(features, args.LABEL);
-    this.updateCounts();
-  }
-
-  trainAny(args) {
-    this.train(args);
-  }
-
-  getLabel() {
-    return this.label;
-  }
-
-  whenReceived(args) {
-    if (args.LABEL === 'any') {
-      if (this.when_received) {
-        setTimeout(() => {
-            this.when_received = false;
-        }, HAT_TIMEOUT);
-        return true;
-      }
-      return false;
-    } else {
-      if (this.when_received_arr[args.LABEL]) {
-        setTimeout(() => {
-          this.when_received_arr[args.LABEL] = false;
-        }, HAT_TIMEOUT);
-        return true;
-      }
-      return false;
+        };
     }
-  }
 
-  whenReceivedAny(args) {
-    return this.whenReceived(args);
-  }
-
-  getCountByLabel1() {
-    if (this.counts) {
-      return this.counts['1'];
-    } else {
-      return 0;
-    }
-  }
-
-  getCountByLabel2() {
-    if (this.counts) {
-      return this.counts['2'];
-    } else {
-      return 0;
-    }
-  }
-
-  getCountByLabel3() {
-    if (this.counts) {
-      return this.counts['3'];
-    } else {
-      return 0;
-    }
-  }
-
-  getCountByLabel4() {
-    if (this.counts) {
-      return this.counts['4'];
-    } else {
-      return 0;
-    }
-  }
-
-  getCountByLabel5() {
-    if (this.counts) {
-      return this.counts['5'];
-    } else {
-      return 0;
-    }
-  }
-
-  getCountByLabel6() {
-    if (this.counts) {
-      return this.counts['6'];
-    } else {
-      return 0;
-    }
-  }
-
-  getCountByLabel7() {
-    if (this.counts) {
-      return this.counts['7'];
-    } else {
-      return 0;
-    }
-  }
-
-  getCountByLabel8() {
-    if (this.counts) {
-      return this.counts['8'];
-    } else {
-      return 0;
-    }
-  }
-
-  getCountByLabel9() {
-    if (this.counts) {
-      return this.counts['9'];
-    } else {
-      return 0;
-    }
-  }
-
-  getCountByLabel10() {
-    if (this.counts) {
-      return this.counts['10'];
-    } else {
-      return 0;
-    }
-  }
-
-  getCountByLabel(args) {
-    if (this.counts[args.LABEL]) {
-      return this.counts[args.LABEL];
-    } else {
-      return 0;
-    }
-  }
-
-  reset(args) {
-    if (this.actionRepeated()) { return };
-
-    setTimeout(() => {
-      let result = confirm(Message.confirm_reset[this.locale]);
-      if (result) {
-        if (args.LABEL == 'all') {
-          this.knnClassifier.clearAllLabels();
-          for (let label in this.counts) {
-            this.counts[label] = 0;
-          }
+    getX (args) {
+      if (this.poses[parseInt(args.PERSON_NUMBER, 10) - 1] && this.poses[parseInt(args.PERSON_NUMBER, 10) - 1].pose.keypoints[parseInt(args.PART, 10)]) {
+        if (this.runtime.ioDevices.video.mirror === false) {
+          return -1 * (240 - this.poses[parseInt(args.PERSON_NUMBER, 10) - 1].pose.keypoints[parseInt(args.PART, 10)].position.x);
         } else {
-          if (this.counts[args.LABEL] > 0) {
-            this.knnClassifier.clearLabel(args.LABEL);
-            this.counts[args.LABEL] = 0;
-          }
+          return 240 - this.poses[parseInt(args.PERSON_NUMBER, 10) - 1].pose.keypoints[parseInt(args.PART, 10)].position.x;
         }
-      }
-    }, 1000);
-  }
-
-  resetAny(args) {
-    this.reset(args);
-  }
-
-  download() {
-    if (this.actionRepeated()) { return };
-    let fileName = String(Date.now());
-    this.knnClassifier.save(fileName);
-  }
-
-  upload() {
-    if (this.actionRepeated()) { return };
-    let width = 480;
-    let height = 200;
-    let left = window.innerWidth / 2;
-    let top = window.innerHeight / 2;
-    let x = left - (width / 2);
-    let y = top - (height / 2);
-    uploadWindow = window.open('', null, 'top=' + y + ',left=' + x + ',width=' + width + ',height=' + height);
-    uploadWindow.document.open();
-    uploadWindow.document.write('<html><head><title>' + Message.upload_learning_data[this.locale] + '</title></head><body>');
-    uploadWindow.document.write('<p>' + Message.upload_instruction[this.locale] + '</p>');
-    uploadWindow.document.write('<input type="file" id="upload-files">');
-    uploadWindow.document.write('<input type="button" value="' + Message.upload[this.locale] + '" id="upload-button">');
-    uploadWindow.document.write('</body></html>');
-    uploadWindow.document.close();
-
-    uploadWindow.document.getElementById("upload-button").onclick = () =>{
-      this.uploadButtonClicked(uploadWindow);
-    }
-  }
-
-  toggleClassification (args) {
-    let state = args.CLASSIFICATION_STATE;
-    if (this.timer) {
-      clearTimeout(this.timer);
-    }
-    if (state === 'on') {
-      this.timer = setInterval(() => {
-        this.classify();
-      }, this.interval);
-    }
-  }
-
-  setClassificationInterval (args) {
-    if (this.timer) {
-      clearTimeout(this.timer);
-    }
-
-    this.interval = args.CLASSIFICATION_INTERVAL * 1000;
-    this.timer = setInterval(() => {
-      this.classify();
-    }, this.interval);
-  }
-
-  videoToggle (args) {
-    let state = args.VIDEO_STATE;
-    if (state === 'off') {
-      this.runtime.ioDevices.video.disableVideo();
-    } else {
-      this.runtime.ioDevices.video.enableVideo();
-      this.runtime.ioDevices.video.mirror = state === "on";
-    }
-  }
-
-  setInput (args) {
-    let input = args.INPUT;
-    if (input === 'webcam') {
-      this.input = this.video;
-    } else {
-      this.input = this.canvas;
-    }
-  }
-
-  uploadButtonClicked(uploadWindow) {
-    let files = uploadWindow.document.getElementById('upload-files').files;
-
-    if (files.length <= 0) {
-      alert('Please select JSON file.');
-      return false;
-    }
-
-    let fr = new FileReader();
-
-    fr.onload = (e) => {
-      let data = JSON.parse(e.target.result);
-      this.knnClassifier.load(data, () => {
-        console.log('uploaded!');
-
-        this.updateCounts();
-        alert(Message.uploaded[this.locale]);
-      });
-    }
-
-    fr.onloadend = (e) => {
-      uploadWindow.document.getElementById('upload-files').value = "";
-    }
-
-    fr.readAsText(files.item(0));
-    uploadWindow.close();
-  }
-
-  classify() {
-    let numLabels = this.knnClassifier.getNumLabels();
-    if (numLabels == 0) return;
-
-    let features = this.featureExtractor.infer(this.input);
-    this.knnClassifier.classify(features, (err, result) => {
-      if (err) {
-        console.error(err);
       } else {
-        this.label = this.getTopConfidenceLabel(result.confidencesByLabel);
-        this.when_received = true;
-        this.when_received_arr[this.label] = true
-      }
-    });
-  }
-
-  getTopConfidenceLabel(confidences) {
-    let topConfidenceLabel;
-    let topConfidence = 0;
-
-    for (let label in confidences) {
-      if (confidences[label] > topConfidence) {
-        topConfidenceLabel = label;
+        return "";
       }
     }
 
-    return topConfidenceLabel;
-  }
-
-  updateCounts() {
-    this.counts = this.knnClassifier.getCountByLabel();
-    console.debug(this.counts);
-  }
-
-  actionRepeated() {
-    let currentTime = Date.now();
-    if (this.blockClickedAt && (this.blockClickedAt + 250) > currentTime) {
-      console.log('Please do not repeat trigerring this block.');
-      this.blockClickedAt = currentTime;
-      return true;
-    } else {
-      this.blockClickedAt = currentTime;
-      return false;
-    }
-  }
-
-  getMenu(name) {
-    let arr = [];
-    let defaultValue = 'any';
-    let text = Message.any[this.locale];
-    if (name == 'reset') {
-      defaultValue = 'all';
-      text = Message.all[this.locale];
-    }
-    arr.push({text: text, value: defaultValue});
-    for(let i = 1; i <= 10; i++) {
-      let obj = {};
-      obj.text = i.toString(10);
-      obj.value = i.toString(10);
-      arr.push(obj);
-    };
-    return arr;
-  }
-
-  getTrainMenu() {
-    let arr = [];
-    for(let i = 4; i <= 10; i++) {
-      let obj = {};
-      obj.text = i.toString(10);
-      obj.value = i.toString(10);
-      arr.push(obj);
-    };
-    return arr;
-  }
-
-  getVideoMenu() {
-    return [
-      {
-        text: Message.off[this.locale],
-        value: 'off'
-      },
-      {
-        text: Message.on[this.locale],
-        value: 'on'
-      },
-      {
-        text: Message.video_on_flipped[this.locale],
-        value: 'on-flipped'
+    getY (args) {
+      if (this.poses[parseInt(args.PERSON_NUMBER, 10) - 1] && this.poses[parseInt(args.PERSON_NUMBER, 10) - 1].pose.keypoints[parseInt(args.PART, 10)]) {
+        return 180 - this.poses[parseInt(args.PERSON_NUMBER, 10) - 1].pose.keypoints[parseInt(args.PART, 10)].position.y;
+      } else {
+        return "";
       }
-    ]
-  }
-
-  getInputMenu() {
-    return [
-      {
-        text: Message.webcam[this.locale],
-        value: 'webcam'
-      },
-      {
-        text: Message.stage[this.locale],
-        value: 'stage'
-      }
-    ]
-  }
-
-  getClassificationIntervalMenu() {
-    return [
-      {
-        text: '1',
-        value: '1'
-      },
-      {
-        text: '0.5',
-        value: '0.5'
-      },
-      {
-        text: '0.2',
-        value: '0.2'
-      },
-      {
-        text: '0.1',
-        value: '0.1'
-      }
-    ]
-  }
-
-  getClassificationMenu() {
-    return [
-      {
-        text: Message.off[this.locale],
-        value: 'off'
-      },
-      {
-        text: Message.on[this.locale],
-        value: 'on'
-      }
-    ]
-  }
-
-  firstTrainingWarning() {
-    if (this.firstTraining) {
-      alert(Message.first_training_warning[this.locale]);
-      this.firstTraining = false;
     }
-  }
 
-  setLocale() {
-    let locale = formatMessage.setup().locale;
-    if (AvailableLocales.includes(locale)) {
-      return locale;
-    } else {
-      return 'en';
+    getPeopleCount () {
+      return this.poses.length;
     }
-  }
+
+    getNoseX () {
+      if (this.keypoints[0]) {
+        if (this.runtime.ioDevices.video.mirror === false) {
+          return -1 * (240 - this.keypoints[0].position.x);
+        } else {
+          return 240 - this.keypoints[0].position.x;
+        }
+      } else {
+        return "";
+      }
+    }
+
+    getNoseY () {
+      if (this.keypoints[0]) {
+        return 180 - this.keypoints[0].position.y;
+      } else {
+        return "";
+      }
+    }
+
+    getLeftEyeX () {
+      if (this.keypoints[1]) {
+        if (this.runtime.ioDevices.video.mirror === false) {
+          return -1 * (240 - this.keypoints[1].position.x);
+        } else {
+          return 240 - this.keypoints[1].position.x;
+        }
+      } else {
+        return "";
+      }
+    }
+
+    getLeftEyeY () {
+      if (this.keypoints[1]) {
+        return 180 - this.keypoints[1].position.y;
+      } else {
+        return "";
+      }
+    }
+
+    getRightEyeX () {
+      if (this.keypoints[2]) {
+        if (this.runtime.ioDevices.video.mirror === false) {
+          return -1 * (240 - this.keypoints[2].position.x);
+        } else {
+          return 240 - this.keypoints[2].position.x;
+        }
+      } else {
+        return "";
+      }
+    }
+
+    getRightEyeY () {
+      if (this.keypoints[2]) {
+        return 180 - this.keypoints[2].position.y;
+      } else {
+        return "";
+      }
+    }
+
+    getLeftEarX () {
+      if (this.keypoints[3]) {
+        if (this.runtime.ioDevices.video.mirror === false) {
+          return -1 * (240 - this.keypoints[3].position.x);
+        } else {
+          return 240 - this.keypoints[3].position.x;
+        }
+      } else {
+        return "";
+      }
+    }
+
+    getLeftEarY () {
+      if (this.keypoints[3]) {
+        return 180 - this.keypoints[3].position.y;
+      } else {
+        return "";
+      }
+    }
+
+    getRightEarX () {
+      if (this.keypoints[4]) {
+        if (this.runtime.ioDevices.video.mirror === false) {
+          return -1 * (240 - this.keypoints[4].position.x);
+        } else {
+          return 240 - this.keypoints[4].position.x;
+        }
+      } else {
+        return "";
+      }
+    }
+
+    getRightEarY () {
+      if (this.keypoints[4]) {
+        return 180 - this.keypoints[4].position.y;
+      } else {
+        return "";
+      }
+    }
+
+    getLeftShoulderX () {
+      if (this.keypoints[5]) {
+        if (this.runtime.ioDevices.video.mirror === false) {
+          return -1 * (240 - this.keypoints[5].position.x);
+        } else {
+          return 240 - this.keypoints[5].position.x;
+        }
+      } else {
+        return "";
+      }
+    }
+
+    getLeftShoulderY () {
+      if (this.keypoints[5]) {
+        return 180 - this.keypoints[5].position.y;
+      } else {
+        return "";
+      }
+    }
+
+    getRightShoulderX () {
+      if (this.keypoints[6]) {
+        if (this.runtime.ioDevices.video.mirror === false) {
+          return -1 * (240 - this.keypoints[6].position.x);
+        } else {
+          return 240 - this.keypoints[6].position.x;
+        }
+      } else {
+        return "";
+      }
+    }
+
+    getRightShoulderY () {
+      if (this.keypoints[6]) {
+        return 180 - this.keypoints[6].position.y;
+      } else {
+        return "";
+      }
+    }
+
+    getLeftElbowX () {
+      if (this.keypoints[7]) {
+        if (this.runtime.ioDevices.video.mirror === false) {
+          return -1 * (240 - this.keypoints[7].position.x);
+        } else {
+          return 240 - this.keypoints[7].position.x;
+        }
+      } else {
+        return "";
+      }
+    }
+
+    getLeftElbowY () {
+      if (this.keypoints[7]) {
+        return 180 - this.keypoints[7].position.y;
+      } else {
+        return "";
+      }
+    }
+
+    getRightElbowX () {
+      if (this.keypoints[8]) {
+        if (this.runtime.ioDevices.video.mirror === false) {
+          return -1 * (240 - this.keypoints[8].position.x);
+        } else {
+          return 240 - this.keypoints[8].position.x;
+        }
+      } else {
+        return "";
+      }
+    }
+
+    getRightElbowY () {
+      if (this.keypoints[8]) {
+        return 180 - this.keypoints[8].position.y;
+      } else {
+        return "";
+      }
+    }
+
+    getLeftWristX () {
+      if (this.keypoints[9]) {
+        if (this.runtime.ioDevices.video.mirror === false) {
+          return -1 * (240 - this.keypoints[9].position.x);
+        } else {
+          return 240 - this.keypoints[9].position.x;
+        }
+      } else {
+        return "";
+      }
+    }
+
+    getLeftWristY () {
+      if (this.keypoints[9]) {
+        return 180 - this.keypoints[9].position.y;
+      } else {
+        return "";
+      }
+    }
+
+    getRightWristX () {
+      if (this.keypoints[10]) {
+        if (this.runtime.ioDevices.video.mirror === false) {
+          return -1 * (240 - this.keypoints[10].position.x);
+        } else {
+          return 240 - this.keypoints[10].position.x;
+        }
+      } else {
+        return "";
+      }
+    }
+
+    getRightWristY () {
+      if (this.keypoints[10]) {
+        return 180 - this.keypoints[10].position.y;
+      } else {
+        return "";
+      }
+    }
+
+    getLeftHipX () {
+      if (this.keypoints[11]) {
+        if (this.runtime.ioDevices.video.mirror === false) {
+          return -1 * (240 - this.keypoints[11].position.x);
+        } else {
+          return 240 - this.keypoints[11].position.x;
+        }
+      } else {
+        return "";
+      }
+    }
+
+    getLeftHipY () {
+      if (this.keypoints[11]) {
+        return 180 - this.keypoints[11].position.y;
+      } else {
+        return "";
+      }
+    }
+
+    getRightHipX () {
+      if (this.keypoints[12]) {
+        if (this.runtime.ioDevices.video.mirror === false) {
+          return -1 * (240 - this.keypoints[12].position.x);
+        } else {
+          return 240 - this.keypoints[12].position.x;
+        }
+      } else {
+        return "";
+      }
+    }
+
+    getRightHipY () {
+      if (this.keypoints[12]) {
+        return 180 - this.keypoints[12].position.y;
+      } else {
+        return "";
+      }
+    }
+
+    getLeftKneeX () {
+      if (this.keypoints[13]) {
+        if (this.runtime.ioDevices.video.mirror === false) {
+          return -1 * (240 - this.keypoints[13].position.x);
+        } else {
+          return 240 - this.keypoints[13].position.x;
+        }
+      } else {
+        return "";
+      }
+    }
+
+    getLeftKneeY () {
+      if (this.keypoints[13]) {
+        return 180 - this.keypoints[13].position.y;
+      } else {
+        return "";
+      }
+    }
+
+    getRightKneeX () {
+      if (this.keypoints[14]) {
+        if (this.runtime.ioDevices.video.mirror === false) {
+          return -1 * (240 - this.keypoints[14].position.x);
+        } else {
+          return 240 - this.keypoints[14].position.x;
+        }
+      } else {
+        return "";
+      }
+    }
+
+    getRightKneeY () {
+      if (this.keypoints[14]) {
+        return 180 - this.keypoints[14].position.y;
+      } else {
+        return "";
+      }
+    }
+
+    getLeftAnkleX () {
+      if (this.keypoints[15]) {
+        if (this.runtime.ioDevices.video.mirror === false) {
+          return -1 * (240 - this.keypoints[15].position.x);
+        } else {
+          return 240 - this.keypoints[15].position.x;
+        }
+      } else {
+        return "";
+      }
+    }
+
+    getLeftAnkleY () {
+      if (this.keypoints[15]) {
+        return 180 - this.keypoints[15].position.y;
+      } else {
+        return "";
+      }
+    }
+
+    getRightAnkleX () {
+      if (this.keypoints[16]) {
+        if (this.runtime.ioDevices.video.mirror === false) {
+          return -1 * (240 - this.keypoints[16].position.x);
+        } else {
+          return 240 - this.keypoints[16].position.x;
+        }
+      } else {
+        return "";
+      }
+    }
+
+    getRightAnkleY () {
+      if (this.keypoints[16]) {
+        return 180 - this.keypoints[16].position.y;
+      } else {
+        return "";
+      }
+    }
+
+    videoToggle (args) {
+      let state = args.VIDEO_STATE;
+      if (state === 'off') {
+        this.runtime.ioDevices.video.disableVideo();
+      } else {
+        this.runtime.ioDevices.video.enableVideo();
+        this.runtime.ioDevices.video.mirror = state === "on";
+      }
+    }
+
+    setLocale() {
+      let locale = formatMessage.setup().locale;
+      if (AvailableLocales.includes(locale)) {
+        return locale;
+      } else {
+        return 'en';
+      }
+    }
 }
 
-module.exports = Scratch3ML2ScratchBlocks;
+module.exports = Scratch3Posenet2ScratchBlocks;
