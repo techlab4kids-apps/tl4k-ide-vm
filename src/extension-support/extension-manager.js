@@ -193,7 +193,8 @@ const builtinExtensions = {
     adaleaflet: () => require('../extensions/adacraft_leaflet'),
     generateQRCode: () => require('../extensions/qrcode_ext'),
     jgChristmas: () => require("../extensions/jg_christmas"),
-    pythonExtension: () => require("../extensions/nmsderp_python")
+    pythonExtension: () => require("../extensions/nmsderp_python"),
+    ic2scratch: () => require("../extensions/scratch3_ic2scratch")
 
 };
 
