@@ -170,9 +170,10 @@ const builtinExtensions = {
     fr3d: () => require('../extensions/fr_3d'),
     // adacraft
     adabrowser: () => require('../extensions/scratch3_adabrowser'),
-    posenet2scratch: ()=> require('../extensions/scratch3_posenet2scratch'),
     vittamicrobit: () => require('../extensions/scratch3_vittamicrobit'),
     adaruntime: () => require('../extensions/scratch3_adaruntime'),
+    adaruntime: () => require('../extensions/scratch3_adaruntime'),
+    adacraftleaflet: ()=> require('../extensions/adacraft_leaflet'),
 
     // snail ide
     snailextras: () => require('../extensions/snail_extras'),
