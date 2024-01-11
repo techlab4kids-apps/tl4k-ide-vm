@@ -194,7 +194,8 @@ const builtinExtensions = {
     generateQRCode: () => require('../extensions/qrcode_ext'),
     jgChristmas: () => require("../extensions/jg_christmas"),
     pythonExtension: () => require("../extensions/nmsderp_python"),
-    ic2scratch: () => require("../extensions/scratch3_ic2scratch")
+    ic2scratch: () => require("../extensions/scratch3_ic2scratch"),
+    threeAxisAccelerometer: () => require("../extensions/scratch3_3axis")
 
 };
 
