@@ -38,9 +38,11 @@
     "canvas-toBlob": "1.0.0",
     "decode-html": "2.0.0",
     "diff-match-patch": "1.0.4",
+    "encoding": "^0.1.13",
     "format-message": "6.2.1",
     "htmlparser2": "^3.10.0",
     "immutable": "3.8.2",
+    "jsqr": "^1.4.0",
     "jszip": "^3.1.5",
     "leaflet": "^1.9.4",
     "mersenne-twister": "^1.1.0",
@@ -55,6 +57,7 @@
     "three": "0.153.0",
     "three-mesh-bvh": "0.6.0",
     "tone": "^14.7.77",
+    "typescript": "^5.3.3",
     "worker-loader": "^1.1.1"
   },
   "peerDependencies": {
