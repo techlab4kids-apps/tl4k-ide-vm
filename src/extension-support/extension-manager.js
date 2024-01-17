@@ -197,7 +197,8 @@ const builtinExtensions = {
     ic2scratch: () => require("../extensions/scratch3_ic2scratch"),
     threeAxisAccelerometer: () => require("../extensions/scratch3_3axis"),
     facemesh2scratch: () => require("../extensions/scratch3_facemesh2scratch"),
-    handpose2scratch: () => require("../extensions/scratch3_handpose2scratch")
+    handpose2scratch: () => require("../extensions/scratch3_handpose2scratch"),
+    sweetalert2: () => require("../extensions/scratch3_sweetalert")
 
 };
 
