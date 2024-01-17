@@ -1,7 +1,19 @@
 const ArgumentType = require('../../extension-support/argument-type');
 const BlockType = require('../../extension-support/block-type');
 import Swal from 'sweetalert2';
+// Wrap the registration in an async function
+async function registerSweetAlert2Extension() {
+    // Create an instance of SweetAlert2Extension
+    const sweetAlert2Extension = new SweetAlert2Extension();
 
+    // Asynchronously register the extension
+    await Scratch.extensions.register(sweetAlert2Extension);
+}
+
+// Call the async function to register the extension
+registerSweetAlert2Extension().catch(error => {
+    console.error('Error registering SweetAlert2Extension:', error);
+});
 class SweetAlert2Extension {
     constructor(runtime) {
         this.runtime = runtime;
@@ -61,6 +73,7 @@ class SweetAlert2Extension {
                 },
             ],
         };
+        
     }
 
     async alert(args) {
@@ -155,5 +168,3 @@ class SweetAlert2Extension {
         });
     }
 }
-
-Scratch.extensions.register(new SweetAlert2Extension());
