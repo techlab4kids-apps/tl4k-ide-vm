@@ -103,4 +103,4 @@ class SweetAlert {
       }
     }
 
-module.exports = Scratch3AdaBrowserBlocks;
+module.exports = SweetAlert;
