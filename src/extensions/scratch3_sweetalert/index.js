@@ -1,24 +1,36 @@
 const ArgumentType = require('../../extension-support/argument-type');
 const BlockType = require('../../extension-support/block-type');
+const formatMessage = require('format-message');
 import Swal from 'sweetalert2';
-// Wrap the registration in an async function
-async function registerSweetAlert2Extension() {
-    // Create an instance of SweetAlert2Extension
-    const sweetAlert2Extension = new SweetAlert2Extension();
 
-    // Asynchronously register the extension
-    await Scratch.extensions.register(sweetAlert2Extension);
+const DOMPurify  = require('dompurify');
+
+// Source: https://gist.github.com/bgrins/6194623
+const isDataUri = function (string) {
+    const regex = /^\s*data:([a-z]+\/[a-z+]+(;[a-z\-]+\=[a-z\-]+)?)?(;base64)?,[a-z0-9\!\$\&\'\,\(\)\*\+\,\;\=\-\.\_\~\:\@\/\?\%\s]*\s*$/i;
+    return !!string.match(regex);
 }
 
-// Call the async function to register the extension
-registerSweetAlert2Extension().catch(error => {
-    console.error('Error registering SweetAlert2Extension:', error);
-});
-class SweetAlert2Extension {
-    constructor(runtime) {
+/**
+ * Icon svg to be displayed at the left edge of each extension block, encoded as a data URI.
+ * @type {string}
+ */
+// eslint-disable-next-line max-len
+const menuIconURI = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNyAyNSI+PGRlZnM+PHN0eWxlPi5jbHMtMXtmaWxsOm5vbmU7fS5jbHMtMntmaWxsOiNjZTU3NGU7fTwvc3R5bGU+PC9kZWZzPjxnIGlkPSJDYWxxdWVfMiIgZGF0YS1uYW1lPSJDYWxxdWUgMiI+PGcgaWQ9IkxheWVyXzEiIGRhdGEtbmFtZT0iTGF5ZXIgMSI+PHJlY3QgY2xhc3M9ImNscy0xIiB3aWR0aD0iMjciIGhlaWdodD0iMjUiLz48ZyBpZD0iQnJvd3NlciI+PHBhdGggY2xhc3M9ImNscy0yIiBkPSJNMjAsMTguMjNIN2EuNzguNzgsMCwwLDEtLjc4LS43OFY3LjlBMS4xMywxLjEzLDAsMCwxLDcuMzMsNi43N0gxOS42N0ExLjEzLDEuMTMsMCwwLDEsMjAuNzksNy45djkuNTVBLjc4Ljc4LDAsMCwxLDIwLDE4LjIzWk03LjMzLDcuMjlhLjYuNiwwLDAsMC0uNi42MXY5LjU1YS4yNi4yNiwwLDAsMCwuMjYuMjZIMjBhLjI2LjI2LDAsMCwwLC4yNi0uMjZWNy45YS42LjYsMCwwLDAtLjYtLjYxWiIvPjxnIGlkPSJ0b3AiPjxwYXRoIGNsYXNzPSJjbHMtMiIgZD0iTTcuMzMsN0gxOS42N2EuODYuODYsMCwwLDEsLjg2Ljg2VjkuNjVhMCwwLDAsMCwxLDAsMEg2LjQ3YTAsMCwwLDAsMSwwLDBWNy45QS44Ni44NiwwLDAsMSw3LjMzLDdaIi8+PC9nPjwvZz48L2c+PC9nPjwvc3ZnPg==';
+const blockIconURI = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNyAyNSI+PGRlZnM+PHN0eWxlPi5jbHMtMXtmaWxsOm5vbmU7fS5jbHMtMntmaWxsOiNmZmY7fTwvc3R5bGU+PC9kZWZzPjxnIGlkPSJDYWxxdWVfMiIgZGF0YS1uYW1lPSJDYWxxdWUgMiI+PGcgaWQ9IkxheWVyXzEiIGRhdGEtbmFtZT0iTGF5ZXIgMSI+PHJlY3QgY2xhc3M9ImNscy0xIiB3aWR0aD0iMjciIGhlaWdodD0iMjUiLz48cGF0aCBjbGFzcz0iY2xzLTIiIGQ9Ik0xOS42Niw2LjdINy4zM0ExLjEyLDEuMTIsMCwwLDAsNi4yMSw3LjgydjkuNTVhLjc4Ljc4LDAsMCwwLC43OC43OEgyMGEuNzguNzgsMCwwLDAsLjc3LS43OFY3LjgyQTEuMTIsMS4xMiwwLDAsMCwxOS42Niw2LjdaTTIwLDE3LjYzSDdhLjI1LjI1LDAsMCwxLS4yNi0uMjZWOS41N0gyMC4yN3Y3LjhBLjI2LjI2LDAsMCwxLDIwLDE3LjYzWiIvPjwvZz48L2c+PC9zdmc+';
+
+class SweetAlert {
+    constructor (runtime) {
+        /**
+         * The runtime instantiating this block package.
+         * @type {Runtime}
+         */
         this.runtime = runtime;
     }
 
+    /**
+     * @returns {object} metadata for this extension and its blocks.
+     */
     getInfo() {
         return {
             id: 'sweetalert2',
@@ -60,111 +72,35 @@ class SweetAlert2Extension {
                         },
                     },
                 },
-                {
-                    opcode: 'playSound',
-                    blockType: Scratch.BlockType.COMMAND,
-                    text: 'play sound from URL [url]',
-                    arguments: {
-                        url: {
-                            type: Scratch.ArgumentType.STRING,
-                            defaultValue: 'https://example.com/sound.mp3',
-                        },
-                    },
-                },
             ],
         };
         
     }
-
-    async alert(args) {
-        const { text, desc } = args;
-        await this.showAlert(text, desc, false);
+    alert (args) {
+        Swal.fire({
+            title: args.text,
+            text: args.desc,
+            confirmButtonText: "Ok",
+            icon: "success",
+            allowOutsideClick: true,
+        })
     }
-
-    async alert2(args) {
-        const { text, desc, url } = args;
-        await this.showAlert(text, desc, true, url);
-    }
-
-    async playSound(args) {
-        const { url } = args;
-        await this.playSound(url);
-    }
-
-    async showAlert(text, desc, allowRedirect, url) {
-        try {
-            await Swal.fire({
-                title: text,
-                text: desc,
-                confirmButtonText: 'Ok',
-                icon: 'success',
-                allowOutsideClick: allowRedirect,
-                preConfirm: () => {
-                    if (allowRedirect) {
-                        window.location.href = url;
-                    }
-                },
-            });
-        } catch (error) {
-            console.error('Error displaying SweetAlert2:', error);
-        }
-    }
-
-    async playSound(url) {
-        try {
-            const audioEngine = this.runtime.audioEngine;
-            const target = this.runtime.target;
-            
-            if (!(await this.runtime.canFetch(url))) {
-                throw new Error(`Permission to fetch ${url} denied`);
+    alert2 (args) {
+        Swal.fire({
+            title: args.text,
+            text: args.desc,
+            confirmButtonText: "Open page",
+            icon: "success",
+            allowOutsideClick: true,
+            preConfirm: () => {
+                window.location.href = this.alert2;
             }
-
-            const arrayBuffer = await this.fetchAsArrayBufferWithTimeout(url);
-            const soundPlayer = await this.decodeSoundPlayer(arrayBuffer);
-            const soundBank = target.sprite.soundBank;
-
-            soundBank.addSoundPlayer(soundPlayer);
-            await soundBank.playSound(target, soundPlayer.id);
-
-            delete soundBank.soundPlayers[soundPlayer.id];
-            soundBank.playerTargets.delete(soundPlayer.id);
-            soundBank.soundEffects.delete(soundPlayer.id);
-        } catch (e) {
-            console.warn(`Failed to play sound from ${url}`, e);
-        }
+        })
     }
 
-    async fetchAsArrayBufferWithTimeout(url) {
-        return new Promise((resolve, reject) => {
-            const xhr = new XMLHttpRequest();
-            const timeout = setTimeout(() => {
-                xhr.abort();
-                reject(new Error('Timed out'));
-            }, 5000);
-            xhr.onload = () => {
-                clearTimeout(timeout);
-                if (xhr.status === 200) {
-                    resolve(xhr.response);
-                } else {
-                    reject(new Error(`HTTP error ${xhr.status} while fetching ${url}`));
-                }
-            };
-            xhr.onerror = () => {
-                clearTimeout(timeout);
-                reject(new Error(`Failed to request ${url}`));
-            };
-            xhr.responseType = 'arraybuffer';
-            xhr.open('GET', url);
-            xhr.send();
-        });
+      getMessage(id) {
+        return localisation.messages[id][this._locale];
+      }
     }
 
-    async decodeSoundPlayer(arrayBuffer) {
-        return new Promise((resolve, reject) => {
-            const audioEngine = this.runtime.audioEngine;
-            audioEngine.decodeSoundPlayer({ data: { buffer: arrayBuffer } })
-                .then((soundPlayer) => resolve(soundPlayer))
-                .catch((error) => reject(error));
-        });
-    }
-}
+module.exports = Scratch3AdaBrowserBlocks;
