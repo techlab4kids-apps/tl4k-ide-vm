@@ -538,6 +538,8 @@ class JSGenerator {
 
         case 'looks.size':
             return new TypedInput('Math.round(target.size)', TYPE_NUMBER);
+        case 'looks.tintColor':
+            return new TypedInput('runtime.ext_scratch3_looks.getTintColor(null, { target: target })', TYPE_NUMBER);
         case 'looks.backdropName':
             return new TypedInput('stage.getCostumes()[stage.currentCostume].name', TYPE_STRING);
         case 'looks.backdropNumber':
@@ -1219,6 +1221,9 @@ class JSGenerator {
             break;
         case 'looks.setColor':
             this.source += `runtime.ext_scratch3_looks.setColor({ prop: "${sanitize(node.prop)}", color: ${this.descendInput(node.color).asColor()} }, { target: target });\n`;
+            break;
+        case 'looks.setTintColor':
+            this.source += `runtime.ext_scratch3_looks.setTintColor({ color: ${this.descendInput(node.color).asColor()} }, { target: target });\n`;
             break;
         case 'looks.setShape':
             this.source += `runtime.ext_scratch3_looks.setShape({ prop: "${sanitize(node.prop)}", color: ${this.descendInput(node.value).asColor()} }, { target: target });\n`;

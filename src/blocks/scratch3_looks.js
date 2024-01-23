@@ -384,6 +384,8 @@ class Scratch3LooksBlocks {
             looks_changeVisibilityOfSpriteHide: this.hideSprite,
             looks_stoptalking: this.stopTalking,
             looks_getinputofcostume: this.getCostumeValue,
+            looks_tintColor: this.getTintColor,
+            looks_setTintColor: this.setTintColor
         };
     }
 
@@ -594,7 +596,16 @@ class Scratch3LooksBlocks {
         const value = Cast.toNumber(effects[effect]);
         return value;
     }
-
+    getTintColor (_, util) {
+        const effects = util.target.effects;
+        if (typeof effects.tintColor !== 'number') return '#ffffff';
+        return Color.decimalToHex(effects.tintColor - 1);
+    }
+    setTintColor (args, util) { // used by compiler
+        const rgb = Cast.toRgbColorObject(args.color);
+        const decimal = Color.rgbToDecimal(rgb);
+        util.target.setEffect("tintColor", decimal + 1);
+    }
     /**
      * Utility function to set the costume of a target.
      * Matches the behavior of Scratch 2.0 for different types of arguments.
