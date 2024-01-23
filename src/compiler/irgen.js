@@ -347,19 +347,10 @@ class ScriptTreeGenerator {
             return {
                 kind: 'looks.size'
             };
-        case 'looks_tintColor':
-            return {
-                kind: 'looks.tintColor'
-            };
 
         case 'motion_direction':
             return {
                 kind: 'motion.direction'
-            };
-        case "looks_setTintColor":
-            return {
-                kind: 'looks.setTintColor',
-                color: this.descendInputOfBlock(block, 'color')
             };
         case 'motion_xposition':
             return {
