@@ -23,9 +23,6 @@ const menuIconURI = 'data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZ
 // eslint-disable-next-line max-len
 const blockIconURI = 'data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyB3aWR0aD0iNDBweCIgaGVpZ2h0PSI0MHB4IiB2aWV3Qm94PSIwIDAgNDAgNDAiIHZlcnNpb249IjEuMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayI+CiAgICA8IS0tIEdlbmVyYXRvcjogU2tldGNoIDUyLjIgKDY3MTQ1KSAtIGh0dHA6Ly93d3cuYm9oZW1pYW5jb2RpbmcuY29tL3NrZXRjaCAtLT4KICAgIDx0aXRsZT5FeHRlbnNpb25zL1NvZnR3YXJlL1ZpZGVvLVNlbnNpbmctQmxvY2s8L3RpdGxlPgogICAgPGRlc2M+Q3JlYXRlZCB3aXRoIFNrZXRjaC48L2Rlc2M+CiAgICA8ZyBpZD0iRXh0ZW5zaW9ucy9Tb2Z0d2FyZS9WaWRlby1TZW5zaW5nLUJsb2NrIiBzdHJva2U9Im5vbmUiIHN0cm9rZS13aWR0aD0iMSIgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIiBzdHJva2Utb3BhY2l0eT0iMC4xNSI+CiAgICAgICAgPGcgaWQ9InZpZGVvLW1vdGlvbiIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMC4wMDAwMDAsIDEwLjAwMDAwMCkiIGZpbGwtcnVsZT0ibm9uemVybyIgc3Ryb2tlPSIjMDAwMDAwIj4KICAgICAgICAgICAgPGNpcmNsZSBpZD0iT3ZhbC1Db3B5IiBmaWxsPSIjRkZGRkZGIiBvcGFjaXR5PSIwLjI1IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGN4PSIzMiIgY3k9IjE2IiByPSI0LjUiPjwvY2lyY2xlPgogICAgICAgICAgICA8Y2lyY2xlIGlkPSJPdmFsLUNvcHkiIGZpbGw9IiNGRkZGRkYiIG9wYWNpdHk9IjAuNSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIiBjeD0iMzIiIGN5PSIxMiIgcj0iNC41Ij48L2NpcmNsZT4KICAgICAgICAgICAgPGNpcmNsZSBpZD0iT3ZhbC1Db3B5IiBmaWxsPSIjRkZGRkZGIiBvcGFjaXR5PSIwLjc1IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGN4PSIzMiIgY3k9IjgiIHI9IjQuNSI+PC9jaXJjbGU+CiAgICAgICAgICAgIDxjaXJjbGUgaWQ9Ik92YWwiIGZpbGw9IiNGRkZGRkYiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgY3g9IjMyIiBjeT0iNCIgcj0iNC41Ij48L2NpcmNsZT4KICAgICAgICAgICAgPHBhdGggZD0iTTIyLjY3MTk0NzcsNC40MTk1NzY0OSBMMTYuNSw4LjQxOTkxMjk4IEwxNi41LDYuMSBDMTYuNSw0LjA4OTc2NDU0IDE0LjkzNzE4MDYsMi41IDEzLDIuNSBMNC4xLDIuNSBDMi4wNzYxNDIzNywyLjUgMC41LDQuMDc2MTQyMzcgMC41LDYuMSBMMC41LDE0IEMwLjUsMTUuOTI3Mzk4NyAyLjA4NDQ5ODM5LDE3LjUxMTg5NzEgNC4xLDE3LjYgTDEzLDE3LjYgQzE0LjkwMTY2MDIsMTcuNiAxNi41LDE1Ljk0NjU0NSAxNi41LDE0IEwxNi41LDExLjcxNjkwNDggTDIyLjc1NzI0NzksMTUuNDcxMjUzNSBMMjIuODUzNTUzNCwxNS41NDY0NDY2IEMyMi44NzM3ODg2LDE1LjU2NjY4MTggMjIuOTUxNTMxLDE1LjYgMjMsMTUuNiBDMjMuMjY2OTg2NSwxNS42IDIzLjUsMTUuMzgyNTIwNyAyMy41LDE1LjEgTDIzLjUsNC44IEMyMy41LDQuODM2NzY1MzggMjMuNDQzODA1OCw0LjcwNTY0NTYzIDIzLjM3MTI1MzUsNC41NTcyNDc4OCBDMjMuMjI1OTA1Niw0LjMxNTAwMTM5IDIyLjk0MTU5MzcsNC4yNTgxMzg5OSAyMi42NzE5NDc3LDQuNDE5NTc2NDkgWiIgaWQ9InZpZGVvXzM3XyIgZmlsbD0iIzRENEQ0RCI+PC9wYXRoPgogICAgICAgIDwvZz4KICAgIDwvZz4KPC9zdmc+';
 
-const cameraIconURI =
-"data:image/svg+xml;base64,PHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHdpZHRoPSI1My45MDY2MyIgaGVpZ2h0PSI1My45MDY2MyIgdmlld0JveD0iMCwwLDUzLjkwNjYzLDUzLjkwNjYzIj48ZyB0cmFuc2Zvcm09InRyYW5zbGF0ZSgtMjEzLjA0NjY4LC0xNTMuMDQ2NykiPjxnIGRhdGEtcGFwZXItZGF0YT0ieyZxdW90O2lzUGFpbnRpbmdMYXllciZxdW90Ozp0cnVlfSIgc3Ryb2tlPSJub25lIiBzdHJva2UtbGluZWNhcD0iYnV0dCIgc3Ryb2tlLWxpbmVqb2luPSJtaXRlciIgc3Ryb2tlLW1pdGVybGltaXQ9IjEwIiBzdHJva2UtZGFzaGFycmF5PSIiIHN0cm9rZS1kYXNob2Zmc2V0PSIwIiBzdHlsZT0ibWl4LWJsZW5kLW1vZGU6IG5vcm1hbCI+PHBhdGggZD0iTTIxMy4wNDY2OCwyMDYuOTUzMzR2LTUzLjkwNjYzaDUzLjkwNjYzdjUzLjkwNjYzeiIgZmlsbD0iIzAwYjJhNCIgZmlsbC1ydWxlPSJub256ZXJvIiBzdHJva2Utd2lkdGg9IjAiLz48cGF0aCBkPSJNMjQwLDE5MC43NDI1MmMzLjk3MTE1LDAgNy4xNjE2NywtMy4yMTkxNyA3LjE2MTY3LC03LjE2MTY3YzAsLTMuOTcxMTUgLTMuMTkwNTIsLTcuMTYxNjcgLTcuMTYxNjcsLTcuMTYxNjdjLTMuOTQyNSwwIC03LjE2MTY3LDMuMTkwNTIgLTcuMTYxNjcsNy4xNjE2N2MwLDMuOTQyNSAzLjIxOTE3LDcuMTYxNjcgNy4xNjE2Nyw3LjE2MTY3TTI1NC4zMjMzNCwxNzEuMDQ3OTNjMS45Njk0NiwwIDMuNTgwODMsMS42MTEzOCAzLjU4MDgzLDMuNTgwODR2MTcuOTA0MTdjMCwxLjk3MzA0IC0xLjYxMTM3LDMuNTgwODQgLTMuNTgwODMsMy41ODA4NGgtMjguNjQ2NjdjLTEuOTY5NDYsMCAtMy41ODA4NCwtMS42MDc4IC0zLjU4MDg0LC0zLjU4MDg0di0xNy45MDQxN2MwLC0xLjk2OTQ2IDEuNjExMzgsLTMuNTgwODQgMy41ODA4NCwtMy41ODA4NGgyLjU0MjM5YzAuNjQ0NTUsMCAxLjIxNzQ4LC0wLjM1ODA4IDEuNTM5NzUsLTAuOTMxMDJsMi40MzEzOSwtNC4zNjUwNGMwLjY0ODEzLC0xLjE0OTQ1IDEuODI5OCwtMS44NjU2MSAzLjE1NDcxLC0xLjg2NTYxaDkuMzQ1OThjMS4zMjQ5MSwwIDIuNTA2NTksMC43MTYxNiAzLjE0NzU2LDEuODY1NjFsMi4zOTkxNiw0LjM2NTA0YzAuMzI1ODUsMC41NzI5NCAwLjg5NTIxLDAuOTMxMDIgMS41NzkxNSwwLjkzMTAyaDIuNTA2NTgiIGZpbGw9IiNmZmZmZmYiIGZpbGwtcnVsZT0iZXZlbm9kZCIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9nPjwvZz48L3N2Zz4=";
-
 /**
  * Sensor attribute video sensor block should report.
  * @readonly
@@ -488,13 +485,7 @@ class Scratch3VideoSensingBlocks {
                             defaultValue: 50
                         }
                     }
-                },
-                {
-                    opcode: "captureWebcamFootage",
-                    blockType: Scratch.BlockType.REPORTER,
-                    text: "webcam frame data.URI",
-                    disableMonitor: true
-                  },
+                }
             ],
             menus: {
                 ATTRIBUTE: {
@@ -592,14 +583,6 @@ class Scratch3VideoSensingBlocks {
         this.globalVideoTransparency = transparency;
         this.runtime.ioDevices.video.setPreviewGhost(transparency);
     }
-    captureWebcamFootage() {
-        if (this.videoElement) {
-          return canvasElement.toDataURL("image/png");
-        } else {
-          console.error("Camera is not turned on");
-          return "Camera is Off";
-        }
-      }
 }
 
 module.exports = Scratch3VideoSensingBlocks;
