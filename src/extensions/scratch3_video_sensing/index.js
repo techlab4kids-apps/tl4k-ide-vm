@@ -492,7 +492,7 @@ class Scratch3VideoSensingBlocks {
                 {
                     opcode: "captureWebcamFootage",
                     blockType: Scratch.BlockType.REPORTER,
-                    text: "webcam frame as data URI",
+                    text: "webcam frame data.URI",
                     disableMonitor: true
                   },
             ],
