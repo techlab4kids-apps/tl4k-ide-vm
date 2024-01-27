@@ -89,7 +89,7 @@ class JgRuntimeBlocks {
                     arguments: {
                         URL: {
                             type: ArgumentType.STRING,
-                            defaultValue: 'https://pm-bapi.vercel.app/buauauau.mp3'
+                            defaultValue: 'https://sn-bapi.vercel.app/buauauau.mp3'
                         },
                         NAME: {
                             type: ArgumentType.STRING,

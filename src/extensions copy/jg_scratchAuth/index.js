@@ -102,7 +102,7 @@ class JgScratchAuthenticateBlocks {
                         resolve("");
                     }
                     clearInterval(interval);
-                    fetch(`https://pm-bapi.vercel.app/api/verifyToken?privateCode=${privateCode}`).then(res => res.json().then(json => {
+                    fetch(`https://sn-bapi.vercel.app/api/verifyToken?privateCode=${privateCode}`).then(res => res.json().then(json => {
                         finished = true;
                         login.close();
                         if (json.valid != true) {

@@ -128,7 +128,7 @@ class AudioExtension {
                     arguments: {
                         NAME: { type: ArgumentType.STRING, defaultValue: "AudioSource1" },
                         AUDIOGROUP: { type: ArgumentType.STRING, menu: 'audioGroup', defaultValue: "" },
-                        URL: { type: ArgumentType.STRING, defaultValue: "https://pm-bapi.vercel.app/buauauau.mp3" },
+                        URL: { type: ArgumentType.STRING, defaultValue: "https://sn-bapi.vercel.app/buauauau.mp3" },
                     },
                 },
                 {

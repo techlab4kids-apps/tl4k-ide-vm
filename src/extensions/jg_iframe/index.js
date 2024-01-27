@@ -2,7 +2,8 @@ const formatMessage = require('format-message');
 const BlockType = require('../../extension-support/block-type');
 const ArgumentType = require('../../extension-support/argument-type');
 const ProjectPermissionManager = require('../../util/project-permissions');
-// const Cast = require('../../util/cast');
+const Color = require('../../util/color');
+const Cast = require('../../util/cast');
 
 const EffectOptions = {
     acceptReporters: true,
@@ -58,7 +59,7 @@ const isUrlRatedSafe = (url) => {
             return resolve(safeOriginUrls[saveUrl]);
         }
 
-        fetch(`https://pm-bapi.vercel.app/api/safeurl?url=${saveUrl}`).then(res => {
+        fetch(`https://sn-bapi.vercel.app/api/safeurl?url=${saveUrl}`).then(res => {
             if (!res.ok) {
                 resolve(true);
                 return;
@@ -76,7 +77,7 @@ const isUrlRatedSafe = (url) => {
  * @constructor
  */
 class JgIframeBlocks {
-    constructor (runtime) {
+    constructor(runtime) {
         /**
          * The runtime instantiating this block package.
          * @type {Runtime}
@@ -88,11 +89,13 @@ class JgIframeBlocks {
             y: 0,
             rotation: 90,
             width: 480,
-            height: 360
+            height: 360,
+            color: '#ffffff',
+            opacity: 0,
+            clickable: true
         };
         this.iframeFilters = ArrayToValue(EffectOptions.items.map(item => item.value), 0);
         this.iframeLoadedValue = false;
-        this.permission_AllowedWebsites = [];
         this.displayWebsiteUrl = "";
         this.runtime.on('PROJECT_STOP_ALL', () => {
             // stop button clicked so delete the iframe
@@ -101,16 +104,9 @@ class JgIframeBlocks {
     }
 
     /**
-     * dummy function for reseting user provided permisions when a save is loaded
-     */
-    deserialize () {
-        this.permission_AllowedWebsites = [];
-    }
-
-    /**
      * @returns {object} metadata for this extension and its blocks.
      */
-    getInfo () {
+    getInfo() {
         return {
             id: 'jgIframe',
             name: 'IFrame',
@@ -142,7 +138,8 @@ class JgIframeBlocks {
                         default: 'iframe exists?',
                         description: 'im too lazy to write these anymore tbh'
                     }),
-                    blockType: BlockType.BOOLEAN
+                    blockType: BlockType.BOOLEAN,
+                    disableMonitor: true,
                 },
                 "---",
                 "---",
@@ -166,7 +163,7 @@ class JgIframeBlocks {
                     arguments: {
                         URL: {
                             type: ArgumentType.STRING,
-                            defaultValue: "https://snail-ide.github.io/editor.html"
+                            defaultValue: "https://www.example.com"
                         }
                     }
                 },
@@ -246,6 +243,50 @@ class JgIframeBlocks {
                     }
                 },
                 {
+                    opcode: 'setIframeBackgroundColor',
+                    text: formatMessage({
+                        id: 'jgIframe.blocks.setIframeBackgroundColor',
+                        default: 'set iframe background color to [COLOR]',
+                        description: ''
+                    }),
+                    blockType: BlockType.COMMAND,
+                    arguments: {
+                        COLOR: {
+                            type: ArgumentType.COLOR
+                        }
+                    }
+                },
+                {
+                    opcode: 'setIframeBackgroundOpacity',
+                    text: formatMessage({
+                        id: 'jgIframe.blocks.setIframeBackgroundOpacity',
+                        default: 'set iframe background transparency to [GHOST]%',
+                        description: ''
+                    }),
+                    blockType: BlockType.COMMAND,
+                    arguments: {
+                        GHOST: {
+                            type: ArgumentType.NUMBER,
+                            defaultValue: 100
+                        }
+                    }
+                },
+                {
+                    opcode: 'setIframeClickable',
+                    text: formatMessage({
+                        id: 'jgIframe.blocks.setIframeClickable',
+                        default: 'toggle iframe to be [USABLE]',
+                        description: ''
+                    }),
+                    blockType: BlockType.COMMAND,
+                    arguments: {
+                        USABLE: {
+                            type: ArgumentType.STRING,
+                            menu: 'iframeClickable'
+                        }
+                    }
+                },
+                {
                     opcode: 'showIframeElement',
                     text: formatMessage({
                         id: 'jgIframe.blocks.showIframeElement',
@@ -309,11 +350,29 @@ class JgIframeBlocks {
                     blockType: BlockType.REPORTER
                 },
                 {
+                    opcode: 'getIframeBackgroundColor',
+                    text: formatMessage({
+                        id: 'jgIframe.blocks.getIframeBackgroundColor',
+                        default: 'iframe background color',
+                        description: ''
+                    }),
+                    blockType: BlockType.REPORTER
+                },
+                {
+                    opcode: 'getIframeBackgroundOpacity',
+                    text: formatMessage({
+                        id: 'jgIframe.blocks.getIframeBackgroundOpacity',
+                        default: 'iframe background transparency',
+                        description: ''
+                    }),
+                    blockType: BlockType.REPORTER
+                },
+                {
                     opcode: 'getIframeTargetUrl',
                     text: formatMessage({
                         id: 'jgIframe.blocks.getIframeTargetUrl',
                         default: 'iframe target url',
-                        description: 'doesnt get the url the iframe is actually on because web browsers are stupid and inconvenient'
+                        description: ''
                     }),
                     blockType: BlockType.REPORTER
                 },
@@ -324,7 +383,18 @@ class JgIframeBlocks {
                         default: 'iframe is hidden?',
                         description: 'im too lazy to write these anymore tbh'
                     }),
-                    blockType: BlockType.BOOLEAN
+                    blockType: BlockType.BOOLEAN,
+                    disableMonitor: true,
+                },
+                {
+                    opcode: 'getIframeClickable',
+                    text: formatMessage({
+                        id: 'jgIframe.blocks.getIframeClickable',
+                        default: 'iframe is interactable?',
+                        description: ''
+                    }),
+                    blockType: BlockType.BOOLEAN,
+                    disableMonitor: true,
                 },
                 "---",
                 "---",
@@ -397,12 +467,19 @@ class JgIframeBlocks {
                 "---"
             ],
             menus: {
-                effects: EffectOptions
+                effects: EffectOptions,
+                iframeClickable: {
+                    acceptReporters: true,
+                    items: [
+                        'interactable',
+                        'non-interactable'
+                    ]
+                }
             }
         };
     }
     // permissions
-    async IsWebsiteAllowed (url) {
+    async IsWebsiteAllowed(url) {
         if (ProjectPermissionManager.IsDataUrl(url)) return true;
         if (!ProjectPermissionManager.IsUrlSafe(url)) return false;
         const safe = await isUrlRatedSafe(url);
@@ -410,10 +487,10 @@ class JgIframeBlocks {
     }
 
     // utilities
-    GetCurrentCanvas () {
+    GetCurrentCanvas() {
         return this.runtime.renderer.canvas;
     }
-    SetNewIFrame () {
+    SetNewIFrame() {
         const iframe = document.createElement("iframe");
         iframe.onload = () => {
             this.iframeLoadedValue = true;
@@ -421,19 +498,19 @@ class JgIframeBlocks {
         this.createdIframe = iframe;
         return iframe;
     }
-    RemoveIFrame () {
+    RemoveIFrame() {
         if (this.createdIframe) {
             this.createdIframe.remove();
             this.createdIframe = null;
         }
     }
-    GetIFrameState () {
+    GetIFrameState() {
         if (this.createdIframe) {
             return true;
         }
         return false;
     }
-    SetIFramePosition (iframe, x, y, width, height, rotation) {
+    SetIFramePosition(iframe, x, y, width, height, rotation) {
         const frame = iframe;
         const stage = {
             width: this.runtime.stageWidth,
@@ -444,14 +521,15 @@ class JgIframeBlocks {
         frame.style.height = `${(height / stage.height) * 100}%`;
         frame.style.transformOrigin = "center center"; // rotation and translation begins at center
 
-        let xpos = x + (stage.width - width);
-        let ypos = y - (stage.height - height);
-        xpos = ((xpos / stage.width) * 100);
-        ypos = (((0 - ypos) / stage.height) * 100);
-
         // epic maths to place x and y at the center
-        frame.style.transform = `translate(${xpos}%, ${ypos}%) rotate(${rotation - 90}deg)`; 
+        let xpos = ((((stage.width / 2) - (width / 2)) + x) / stage.width) * 100;
+        let ypos = ((((stage.height / 2) - (height / 2)) - y) / stage.height) * 100;
+
+        frame.style.left = `${xpos}%`;
+        frame.style.top = `${ypos}%`;
+        frame.style.transform = `rotate(${rotation - 90}deg)`;
         this.iframeSettings = {
+            ...this.iframeSettings,
             x: x,
             y: y,
             rotation: rotation,
@@ -465,7 +543,41 @@ class JgIframeBlocks {
             this.GetCurrentCanvas().parentElement.prepend(iframe);
         }
     }
-    GenerateCssFilter (color, grayscale, brightness, contrast, ghost, blur, invert, saturate, sepia) {
+    SetIFrameColors(iframe, color, opacity) {
+        const frame = iframe;
+
+        const rgb = Cast.toRgbColorObject(color);
+        const hex = Color.rgbToHex(rgb);
+
+        frame.style.backgroundColor = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${opacity * 100}%)`;
+        this.iframeSettings = {
+            ...this.iframeSettings,
+            color: hex,
+            opacity: Cast.toNumber(opacity)
+        };
+
+        // when switching between project page & editor, we need to place the iframe again since it gets lost
+        if (iframe.parentElement !== this.GetCurrentCanvas().parentElement) {
+            /* todo: create layers so that iframe appears above 3d every time this is done */
+            this.GetCurrentCanvas().parentElement.prepend(iframe);
+        }
+    }
+    SetIFrameClickable(iframe, clickable) {
+        const frame = iframe;
+
+        frame.style.pointerEvents = Cast.toBoolean(clickable) ? '' : 'none';
+        this.iframeSettings = {
+            ...this.iframeSettings,
+            clickable: Cast.toBoolean(clickable)
+        };
+
+        // when switching between project page & editor, we need to place the iframe again since it gets lost
+        if (iframe.parentElement !== this.GetCurrentCanvas().parentElement) {
+            /* todo: create layers so that iframe appears above 3d every time this is done */
+            this.GetCurrentCanvas().parentElement.prepend(iframe);
+        }
+    }
+    GenerateCssFilter(color, grayscale, brightness, contrast, ghost, blur, invert, saturate, sepia) {
         return `hue-rotate(${(color / 200) * 360}deg) ` + // scratch color effect goes back to normal color at 200
             `grayscale(${grayscale}%) ` +
             `brightness(${brightness + 100}%) ` + // brightness at 0 will be 100
@@ -476,7 +588,7 @@ class JgIframeBlocks {
             `saturate(${saturate + 100}%) ` + // saturation at 0 will be 100
             `sepia(${sepia}%)`;
     }
-    ApplyFilterOptions (iframe) {
+    ApplyFilterOptions(iframe) {
         iframe.style.filter = this.GenerateCssFilter(
             this.iframeFilters.color,
             this.iframeFilters.grayscale,
@@ -490,34 +602,44 @@ class JgIframeBlocks {
         );
     }
 
-    createIframeElement () {
+    createIframeElement() {
         this.RemoveIFrame();
         const iframe = this.SetNewIFrame();
         iframe.style.zIndex = 500;
         iframe.style.borderWidth = "0px";
-        iframe.src = "data:text/html;base64,PERPQ1RZUEUgaHRtbD4KPGh0bWwgbGFuZz0iZW4tVVMiPgo8aGVhZD48L2hlYWQ+Cjxib2R5PjxoMT5IZWxsbyE8L2gxPjxwPllvdSd2ZSBqdXN0IGNyZWF0ZWQgYW4gaWZyYW1lIGVsZW1lbnQuPGJyPlVzZSB0aGlzIHRvIGVtYmVkIHNpdGVzIHdpdGggVVJMcyBvciBIVE1MIHVzaW5nIERhdGEgVVJJcy48L3A+PC9ib2R5Pgo8L2h0bWw+";
+        iframe.src = "data:text/html;base64,PERPQ1RZUEUgaHRtbD4KPGh0bWwgbGFuZz0iZW4tVVMiPgo8aGVhZD48L2hlYWQ+Cjxib2R5PjxoMT5IZWxsbyE8L2gxPjxwPllvdSd2ZSBqdXN0IGNyZWF0ZWQgYW4gaWZyYW1lIGVsZW1lbnQuPGJyPlVzZSB0aGlzIHRvIGVtYmVkIHdlYnNpdGVzIHdpdGggdGhlaXIgVVJMcy4gTm90ZSB0aGF0IHNvbWUgd2Vic2l0ZXMgbWlnaHQgbm90IGFsbG93IGlmcmFtZXMgdG8gd29yayBmb3IgdGhlaXIgd2Vic2l0ZS48L3A+PC9ib2R5Pgo8L2h0bWw+";
         this.displayWebsiteUrl = iframe.src;
         // positions iframe to fit stage
-        this.SetIFramePosition(iframe, 0, 0, this.runtime.stageWidth, this.runtime.stageHeight, 90); 
+        this.SetIFramePosition(iframe, 0, 0, this.runtime.stageWidth, this.runtime.stageHeight, 90);
+        // reset color & opacity
+        this.SetIFrameColors(iframe, '#ffffff', 0);
+        // reset other stuff
+        this.SetIFrameClickable(iframe, true);
+        // reset filters
         this.iframeFilters = ArrayToValue(EffectOptions.items.map(item => item.value), 0); // reset all filter stuff
         this.GetCurrentCanvas().parentElement.prepend(iframe); // adds the iframe above the canvas
         return iframe;
     }
-    deleteIframeElement () {
+    deleteIframeElement() {
         this.RemoveIFrame();
     }
-    iframeElementExists () {
+    iframeElementExists() {
         return this.GetIFrameState();
     }
-    setIframeUrl (args) {
+    setIframeUrl(args) {
         if (!this.GetIFrameState()) return; // iframe doesnt exist, stop
         let usingProxy = false;
         let checkingUrl = args.URL;
-        if (String(args.URL).startsWith("proxy://")) {
+        if (Cast.toString(args.URL).startsWith("proxy://")) {
             // use the penguin mod proxy but still say we are on proxy:// since its what the user input
             // replace proxy:// with https:// though since we are still using the https protocol
             usingProxy = true;
-            checkingUrl = String(args.URL).replace("proxy://", "https://");
+            checkingUrl = Cast.toString(args.URL).replace("proxy://", "https://");
+        }
+        if (Cast.toString(args.URL) === 'about:blank') {
+            this.createdIframe.src = "about:blank";
+            this.displayWebsiteUrl = "about:blank";
+            return;
         }
         this.IsWebsiteAllowed(checkingUrl).then(safe => {
             if (!safe) { // website isnt in the permitted sites list?
@@ -525,129 +647,178 @@ class JgIframeBlocks {
                 this.displayWebsiteUrl = args.URL;
                 return;
             }
-            this.createdIframe.src = (usingProxy ? `https://detaproxy-1-s1965152.deta.app/?url=${String(args.URL).replace("proxy://", "https://")}` : args.URL);
+            this.createdIframe.src = (usingProxy ? `https://detaproxy-1-s1965152.deta.app/?url=${Cast.toString(args.URL).replace("proxy://", "https://")}` : args.URL);
             // tell the user we are on proxy:// still since it looks nicer than the disgusting deta url
-            this.displayWebsiteUrl = (usingProxy ? `${String(this.createdIframe.src).replace("https://detaproxy-1-s1965152.deta.app/?url=https://", "proxy://")}` : this.createdIframe.src);
-        })
+            this.displayWebsiteUrl = (usingProxy ? `${Cast.toString(this.createdIframe.src).replace("https://detaproxy-1-s1965152.deta.app/?url=https://", "proxy://")}` : this.createdIframe.src);
+        });
     }
-    setIframePosLeft (args) {
+    setIframePosLeft(args) {
         if (!this.GetIFrameState()) return; // iframe doesnt exist, stop
         const iframe = this.createdIframe;
         this.SetIFramePosition(iframe,
-            args.X,
+            Cast.toNumber(args.X),
             this.iframeSettings.y,
             this.iframeSettings.width,
             this.iframeSettings.height,
             this.iframeSettings.rotation,
         );
     }
-    setIframePosTop (args) {
+    setIframePosTop(args) {
         if (!this.GetIFrameState()) return; // iframe doesnt exist, stop
         const iframe = this.createdIframe;
         this.SetIFramePosition(iframe,
             this.iframeSettings.x,
-            args.Y,
+            Cast.toNumber(args.Y),
             this.iframeSettings.width,
             this.iframeSettings.height,
             this.iframeSettings.rotation,
         );
     }
-    setIframeSizeWidth (args) {
+    setIframeSizeWidth(args) {
         if (!this.GetIFrameState()) return; // iframe doesnt exist, stop
         const iframe = this.createdIframe;
         this.SetIFramePosition(iframe,
             this.iframeSettings.x,
             this.iframeSettings.y,
-            args.WIDTH,
+            Cast.toNumber(args.WIDTH),
             this.iframeSettings.height,
             this.iframeSettings.rotation,
         );
     }
-    setIframeSizeHeight (args) {
-        if (!this.GetIFrameState()) return; // iframe doesnt exist, stop
-        const iframe = this.createdIframe;
-        this.SetIFramePosition(iframe,
-            this.iframeSettings.x,
-            this.iframeSettings.y,
-            this.iframeSettings.width,
-            args.HEIGHT,
-            this.iframeSettings.rotation,
-        );
-    }
-    setIframeRotation (args) {
+    setIframeSizeHeight(args) {
         if (!this.GetIFrameState()) return; // iframe doesnt exist, stop
         const iframe = this.createdIframe;
         this.SetIFramePosition(iframe,
             this.iframeSettings.x,
             this.iframeSettings.y,
             this.iframeSettings.width,
-            this.iframeSettings.height,
-            args.ROTATE,
+            Cast.toNumber(args.HEIGHT),
+            this.iframeSettings.rotation,
         );
     }
-    showIframeElement () {
+    setIframeRotation(args) {
+        if (!this.GetIFrameState()) return; // iframe doesnt exist, stop
+        const iframe = this.createdIframe;
+        this.SetIFramePosition(iframe,
+            this.iframeSettings.x,
+            this.iframeSettings.y,
+            this.iframeSettings.width,
+            this.iframeSettings.height,
+            Cast.toNumber(args.ROTATE),
+        );
+    }
+    setIframeBackgroundColor(args) {
+        if (!this.GetIFrameState()) return; // iframe doesnt exist, stop
+        const iframe = this.createdIframe;
+        this.SetIFrameColors(iframe, args.COLOR, this.iframeSettings.opacity);
+    }
+    setIframeBackgroundOpacity(args) {
+        if (!this.GetIFrameState()) return; // iframe doesnt exist, stop
+        const iframe = this.createdIframe;
+        let opacity = Cast.toNumber(args.GHOST);
+        if (opacity > 100) opacity = 100;
+        if (opacity < 0) opacity = 0;
+        opacity /= 100;
+        opacity = 1 - opacity;
+        this.SetIFrameColors(iframe, this.iframeSettings.color, opacity);
+    }
+    setIframeClickable(args) {
+        if (!this.GetIFrameState()) return; // iframe doesnt exist, stop
+        const iframe = this.createdIframe;
+        let clickable = false;
+        if (Cast.toString(args.USABLE).toLowerCase() === 'interactable') {
+            clickable = true;
+        }
+        if (Cast.toString(args.USABLE).toLowerCase() === 'on') {
+            clickable = true;
+        }
+        if (Cast.toString(args.USABLE).toLowerCase() === 'enabled') {
+            clickable = true;
+        }
+        if (Cast.toString(args.USABLE).toLowerCase() === 'true') {
+            clickable = true;
+        }
+        this.SetIFrameClickable(iframe, clickable);
+    }
+    showIframeElement() {
         if (!this.GetIFrameState()) return; // iframe doesnt exist, stop
         const iframe = this.createdIframe;
         iframe.style.display = "";
     }
-    hideIframeElement () {
+    hideIframeElement() {
         if (!this.GetIFrameState()) return; // iframe doesnt exist, stop
         const iframe = this.createdIframe;
         iframe.style.display = "none";
     }
 
-    getIframeLeft () {
-        if (!this.GetIFrameState()) return; // iframe doesnt exist, stop
+    getIframeLeft() {
+        if (!this.GetIFrameState()) return 0; // iframe doesnt exist, stop
         return this.iframeSettings.x;
     }
-    getIframeTop () {
-        if (!this.GetIFrameState()) return; // iframe doesnt exist, stop
+    getIframeTop() {
+        if (!this.GetIFrameState()) return 0; // iframe doesnt exist, stop
         return this.iframeSettings.y;
     }
-    getIframeWidth () {
-        if (!this.GetIFrameState()) return; // iframe doesnt exist, stop
+    getIframeWidth() {
+        if (!this.GetIFrameState()) return 480; // iframe doesnt exist, stop
         return this.iframeSettings.width;
     }
-    getIframeHeight () {
-        if (!this.GetIFrameState()) return; // iframe doesnt exist, stop
+    getIframeHeight() {
+        if (!this.GetIFrameState()) return 360; // iframe doesnt exist, stop
         return this.iframeSettings.height;
     }
-    getIframeRotation () {
-        if (!this.GetIFrameState()) return; // iframe doesnt exist, stop
+    getIframeRotation() {
+        if (!this.GetIFrameState()) return 90; // iframe doesnt exist, stop
         return this.iframeSettings.rotation;
     }
-    getIframeTargetUrl () {
-        if (!this.GetIFrameState()) return; // iframe doesnt exist, stop
+    getIframeTargetUrl() {
+        if (!this.GetIFrameState()) return ''; // iframe doesnt exist, stop
         return this.displayWebsiteUrl;
     }
-    iframeElementIsHidden () {
+    getIframeBackgroundColor() {
+        if (!this.GetIFrameState()) return '#ffffff'; // iframe doesnt exist, stop
+        const rawColor = this.iframeSettings.color;
+        const rgb = Cast.toRgbColorObject(rawColor);
+        const hex = Color.rgbToHex(rgb);
+        return hex;
+    }
+    getIframeBackgroundOpacity() {
+        if (!this.GetIFrameState()) return 100; // iframe doesnt exist, stop
+        const rawOpacity = this.iframeSettings.opacity;
+        return (1 - rawOpacity) * 100;
+    }
+    getIframeClickable() {
+        if (!this.GetIFrameState()) return true; // iframe doesnt exist, stop
+        return this.iframeSettings.clickable;
+    }
+    iframeElementIsHidden() {
         if (!this.GetIFrameState()) return false; // iframe doesnt exist, stop
         return this.createdIframe.style.display === "none";
     }
 
-    whenIframeIsLoaded () {
+    whenIframeIsLoaded() {
         const value = this.iframeLoadedValue;
         this.iframeLoadedValue = false;
         return value;
     }
 
     // effect functions lolol
-    iframeElementSetEffect (args) {
+    iframeElementSetEffect(args) {
         if (!this.GetIFrameState()) return; // iframe doesnt exist, stop
-        this.iframeFilters[args.EFFECT] = Number(args.AMOUNT);
+        this.iframeFilters[args.EFFECT] = Cast.toNumber(args.AMOUNT);
         this.ApplyFilterOptions(this.createdIframe);
     }
-    iframeElementChangeEffect (args) {
+    iframeElementChangeEffect(args) {
         if (!this.GetIFrameState()) return; // iframe doesnt exist, stop
-        this.iframeFilters[args.EFFECT] += Number(args.AMOUNT);
+        this.iframeFilters[args.EFFECT] += Cast.toNumber(args.AMOUNT);
         this.ApplyFilterOptions(this.createdIframe);
     }
-    iframeElementClearEffects () {
+    iframeElementClearEffects() {
         if (!this.GetIFrameState()) return; // iframe doesnt exist, stop
         this.iframeFilters = ArrayToValue(EffectOptions.items.map(item => item.value), 0); // reset all values to 0
         this.ApplyFilterOptions(this.createdIframe);
     }
-    getIframeEffectAmount (args) {
+    getIframeEffectAmount(args) {
         if (!this.GetIFrameState()) return 0; // iframe doesnt exist, stop
         return this.iframeFilters[args.EFFECT];
     }

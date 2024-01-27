@@ -58,7 +58,7 @@ const isUrlRatedSafe = (url) => {
             return resolve(safeOriginUrls[saveUrl]);
         }
 
-        fetch(`https://pm-bapi.vercel.app/api/safeurl?url=${saveUrl}`).then(res => {
+        fetch(`https://sn-bapi.vercel.app/api/safeurl?url=${saveUrl}`).then(res => {
             if (!res.ok) {
                 resolve(true);
                 return;
