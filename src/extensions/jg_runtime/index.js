@@ -139,6 +139,24 @@ class JgRuntimeBlocks {
                     }
                 },
                 {
+                    opcode: 'widescreen',
+                    text: formatMessage({
+                        id: 'jgRuntime.blocks.widescreen',
+                        default: '16:9',
+                        description: 'turns on widescreen'
+                    }),
+                    blockType: BlockType.COMMAND,
+                },
+                {
+                    opcode: 'normal',
+                    text: formatMessage({
+                        id: 'jgRuntime.blocks.normal',
+                        default: '4:3',
+                        description: 'turns on normal'
+                    }),
+                    blockType: BlockType.COMMAND,
+                },
+                {
                     opcode: 'turboModeEnabled',
                     text: formatMessage({
                         id: 'jgRuntime.blocks.turboModeEnabled',
@@ -575,6 +593,20 @@ class JgRuntimeBlocks {
     setStageSize(args) {
         let width = Number(args.WIDTH) || 480;
         let height = Number(args.HEIGHT) || 360;
+        if (width <= 0) width = 1;
+        if (height <= 0) height = 1;
+        if (vm) vm.setStageSize(width, height);
+    }
+    widescreen() {
+        let width = 640;
+        let height = 360;
+        if (width <= 0) width = 1;
+        if (height <= 0) height = 1;
+        if (vm) vm.setStageSize(width, height);
+    }
+    normal() {
+        let width = 480;
+        let height = 360;
         if (width <= 0) width = 1;
         if (height <= 0) height = 1;
         if (vm) vm.setStageSize(width, height);
