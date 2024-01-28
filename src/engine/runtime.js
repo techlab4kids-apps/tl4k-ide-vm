@@ -2597,6 +2597,7 @@ class Runtime extends EventEmitter {
         this.interpolationEnabled = interpolationEnabled;
         this.frameLoop.setInterpolation(this.interpolationEnabled);
         this.emit(Runtime.INTERPOLATION_CHANGED, interpolationEnabled);
+        console.log('Snail IDE Vm Logger: Interpolation set to ' + interpolationEnabled);
     }
 
     /**
@@ -2657,6 +2658,7 @@ class Runtime extends EventEmitter {
             }
         }
         this.emit(Runtime.STAGE_SIZE_CHANGED, width, height);
+        console.log('Snail IDE Vm Logger: Stage size set to w: ' + width + ' and h: ' + height);
     }
 
     // eslint-disable-next-line no-unused-vars
