@@ -935,6 +935,48 @@ class Runtime extends EventEmitter {
         // tw: clone limit is set per-runtime in runtimeOptions, this is only the initial value
         return 300;
     }
+    
+
+     /**
+     * Event name when the runtime is paused temporarily.
+     * @const {string}
+     */
+     static get RUNTIME_PAUSED () {
+        return 'RUNTIME_PAUSED';
+    }
+    /**
+     * Event name when the runtime is about to be paused temporarily.
+     * Fires before runtime.paused = true.
+     * @const {string}
+     */
+    static get RUNTIME_PRE_PAUSED () {
+        return 'RUNTIME_PRE_PAUSED';
+    }
+     /**
+     * Event name when the runtime is unpaused.
+     * @const {string}
+     */
+     static get RUNTIME_UNPAUSED () {
+        return 'RUNTIME_UNPAUSED';
+    }
+
+    /**
+     * Event name when the runtime dispose has been called.
+     * @const {string}
+     */
+    static get RUNTIME_DISPOSED () {
+        return 'RUNTIME_DISPOSED';
+    }
+
+    /**
+     * Event name when _step() has been called.
+     * @const {string}
+     */
+    static get RUNTIME_STEP_START () {
+        return 'RUNTIME_STEP_START';
+    }
+
+
 
     // -----------------------------------------------------------------------------
     // -----------------------------------------------------------------------------
@@ -2372,6 +2414,67 @@ class Runtime extends EventEmitter {
         }
         this.startHats('event_whenflagclicked');
     }
+
+
+    /**
+     * Pause running scripts
+     */
+    pause() {
+        if (this.paused) return;
+        this.emit(Runtime.RUNTIME_PRE_PAUSED);
+        this.paused = true;
+        // pause all audio contexts (that includes you, extended audio)
+        // yea extended audio gets extra permissions :3
+        this.audioEngine.audioContext.suspend();
+        this._accountForExtendedSoundsAudioContexts();
+        const extAudioAC = this._getExtendedSoundsAudioContext();
+        if (extAudioAC) {
+            extAudioAC.suspend();
+        }
+        for (const audioData of this._extensionAudioObjects.values()) {
+            if (audioData.audioContext) {
+                audioData.audioContext.suspend();
+            }
+        }
+
+        this.ioDevices.clock.pause();
+        // safest way to stop the threads from being steped /shrug
+        this.frameLoop.stop();
+        for (const thread of this.threads) {
+            thread.pause();
+        }
+        this.emit(Runtime.RUNTIME_PAUSED);
+    }
+
+    /**
+     * Unpause running scripts
+     */
+    play() {
+        if (!this.paused) return;
+        this.paused = false;
+        // resume all audio contexts (that includes you, extended audio)
+        this.audioEngine.audioContext.resume();
+        this._accountForExtendedSoundsAudioContexts();
+        const extAudioAC = this._getExtendedSoundsAudioContext();
+        if (extAudioAC) {
+            extAudioAC.resume();
+        }
+        for (const audioData of this._extensionAudioObjects.values()) {
+            if (audioData.audioContext) {
+                audioData.audioContext.resume();
+            }
+        }
+
+        this.ioDevices.clock.resume();
+        // frameloop is always stoped by pause() so restart it
+        this.frameLoop.start();
+        for (const thread of this.threads) {
+            thread.play();
+        }
+        this.emit(Runtime.RUNTIME_UNPAUSED);
+    }
+
+
 
     /**
      * Stop "everything."
