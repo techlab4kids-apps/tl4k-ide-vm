@@ -198,8 +198,6 @@ const builtinExtensions = {
     threeAxisAccelerometer: () => require("../extensions/scratch3_3axis"),
     facemesh2scratch: () => require("../extensions/scratch3_facemesh2scratch"),
     handpose2scratch: () => require("../extensions/scratch3_handpose2scratch"),
-    // jgAnimation: animate idk
-    jgAnimation: () => require("../extensions/jg_animation"),
 
 };
 
