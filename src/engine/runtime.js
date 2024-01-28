@@ -2586,6 +2586,7 @@ class Runtime extends EventEmitter {
         if (framerate < 0) framerate = 1;
         this.frameLoop.setFramerate(framerate);
         this.emit(Runtime.FRAMERATE_CHANGED, framerate);
+        console.log('Snail IDE VM Logger: Framerate set to ' + framerate)
     }
 
     /**
