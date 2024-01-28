@@ -193,6 +193,7 @@ class iygPerlin {
             zf--;
         }
         }
+        console.log('Snail IDE VM Logger: Succsessfully got noise');
         return r % 1.0;
     }
 
@@ -203,6 +204,7 @@ class iygPerlin {
         const z = args.Z;
         this.generator.init_seed(seed);
         const noise = createNoise3D(this.generator.random_incl.bind(this.generator));
+        console.log('Snail IDE VM Logger: Succsessfully got simplex noise');
         return noise(x, y, z);
     }
 }

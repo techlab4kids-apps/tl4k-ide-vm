@@ -615,6 +615,7 @@ class Scratch3LooksBlocks {
                 target.setCostume(costumeIndex);
             } else if (requestedCostume === 'next costume') {
                 target.setCostume(target.currentCostume + 1);
+                console.log('Snail IDE VM Logger: Next costume used!');
             } else if (requestedCostume === 'previous costume') {
                 target.setCostume(target.currentCostume - 1);
             // Try to cast the string to a number (and treat it as a costume index)

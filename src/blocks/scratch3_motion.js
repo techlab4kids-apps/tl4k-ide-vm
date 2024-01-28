@@ -182,6 +182,7 @@ class Scratch3MotionBlocks {
         const x = Cast.toNumber(args.X);
         const y = Cast.toNumber(args.Y);
         util.target.setXY(x, y);
+        console.log('Snail IDE VM Logger: A sprite set its x to ' + x + ' and set its y to ' + y)
     }
 
     getTargetXY (targetName, util) {
