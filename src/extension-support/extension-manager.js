@@ -201,6 +201,7 @@ const builtinExtensions = {
     scratch2maqueen: () => require("../extensions/scratch3_scratch2maqueen"),
     roku: () => require("../extensions/scratch3_roku"),
     nesemulator: () => require("../extensions/nes"),
+    shareExt: () => require("../extensions/scratch3_share"),
 
 };
 
