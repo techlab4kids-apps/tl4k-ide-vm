@@ -202,6 +202,7 @@ const builtinExtensions = {
     roku: () => require("../extensions/scratch3_roku"),
     nesemulator: () => require("../extensions/nes"),
     shareExt: () => require("../extensions/scratch3_share"),
+    sweetalert2: () => require("../extensions/scratch3_sweetalert2"),
 
 };
 
