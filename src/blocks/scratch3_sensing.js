@@ -75,6 +75,7 @@ class Scratch3SensingBlocks {
             sensing_askandwait: this.askAndWait,
             sensing_answer: this.getAnswer,
             sensing_username: this.getUsername,
+            sensing_unix: this.getUnix,
             sensing_userid: () => {}, // legacy no-op block
             sensing_regextest: this.regextest,
             sensing_thing_is_number: this.thing_is_number,
@@ -590,6 +591,12 @@ class Scratch3SensingBlocks {
     getUsername (args, util) {
         return util.ioQuery('userData', 'getUsername');
     }
+    getUnix(args, util) {
+        // Get the current Unix timestamp
+        const unixTimestamp = Math.floor(Date.now() / 1000);
+    
+        return unixTimestamp;
+    }    
 }
 
 module.exports = Scratch3SensingBlocks;
