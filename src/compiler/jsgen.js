@@ -1171,8 +1171,6 @@ class JSGenerator {
                 this.source += `target.goBackwardLayers(${this.descendInput(node.layers).asNumber()});\n`;
             }
             break;
-        case 'looks.tutorialModAlertBlock':
-            return 'alert' + (TYPE_STRING)
         case 'looks.clearEffects':
             this.source += 'target.clearEffects();\nruntime.ext_scratch3_looks._resetBubbles(target)\n';
             break;
