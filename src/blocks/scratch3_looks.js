@@ -341,6 +341,7 @@ class Scratch3LooksBlocks {
     getPrimitives () {
         return {
             looks_say: this.say,
+            looks_tutorialmod_alert: this.tutorialModAlertBlock,
             looks_sayforsecs: this.sayforsecs,
             looks_think: this.think,
             looks_thinkforsecs: this.thinkforsecs,
@@ -456,6 +457,9 @@ class Scratch3LooksBlocks {
             ['COLORS.' + args.prop],
             [args.color]
         );
+    }
+    tutorialModAlertBlock(args, util){
+        alert(args.MESSAGE);
     }
     setShape (args, util) {
         if (args.prop === 'texlim') {
