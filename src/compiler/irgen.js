@@ -1206,6 +1206,10 @@ class ScriptTreeGenerator {
             return {
                 kind: 'looks.nextCostume'
             };
+        case 'looks_tutorialmod_alert':
+            return {
+                kind: 'looks.tutorialModAlertBlock'
+            };
         case 'looks_seteffectto':
             return {
                 kind: 'looks.setEffect',

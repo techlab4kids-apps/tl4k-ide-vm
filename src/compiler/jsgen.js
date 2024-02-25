@@ -794,6 +794,7 @@ class JSGenerator {
             return new TypedInput(`target.isTouchingColor(colorToList(${this.descendInput(node.color).asColor()}))`, TYPE_BOOLEAN);
         case 'sensing.username':
             return new TypedInput('runtime.ioDevices.userData.getUsername()', TYPE_STRING);
+        
         case 'sensing.year':
             return new TypedInput(`(new Date().getFullYear())`, TYPE_NUMBER);
 
@@ -1170,6 +1171,8 @@ class JSGenerator {
                 this.source += `target.goBackwardLayers(${this.descendInput(node.layers).asNumber()});\n`;
             }
             break;
+        case 'looks.tutorialModAlertBlock':
+            return 'alert' + (TYPE_STRING)
         case 'looks.clearEffects':
             this.source += 'target.clearEffects();\nruntime.ext_scratch3_looks._resetBubbles(target)\n';
             break;
