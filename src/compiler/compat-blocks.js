@@ -80,7 +80,6 @@ const statementBlocks = [
     'sound_play_at_seconds',
     'sound_play_at_seconds_until_done',
     'sound_pauseallsounds',
-    'sensing_unix'
 ];
 
 const outputBlocks = [
