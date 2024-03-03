@@ -25,7 +25,7 @@ class TurboWarpBlocks {
     getInfo () {
         return {
             id: 'tw',
-            name: 'TurboWarp',
+            name: 'TurboWarp/Snail IDE',
             color1: '#ff4c4c',
             color2: '#e64444',
             color3: '#c73a3a',
@@ -39,6 +39,33 @@ class TurboWarpBlocks {
                         id: 'tw.blocks.lastKeyPressed',
                         default: 'last key pressed',
                         description: 'Block that returns the last key that was pressed'
+                    }),
+                    blockType: BlockType.REPORTER
+                },
+                {
+                    opcode: 'pi',
+                    text: formatMessage({
+                        id: 'tw.blocks.pi',
+                        default: 'π',
+                        description: 'Block that returns pi'
+                    }),
+                    blockType: BlockType.REPORTER
+                },
+                {
+                    opcode: 'e',
+                    text: formatMessage({
+                        id: 'tw.blocks.e',
+                        default: 'e',
+                        description: 'Block that returns e'
+                    }),
+                    blockType: BlockType.REPORTER
+                },
+                {
+                    opcode: 't',
+                    text: formatMessage({
+                        id: 'tw.blocks.t',
+                        default: 'τ',
+                        description: 'Block that returns τ'
                     }),
                     blockType: BlockType.REPORTER
                 },
@@ -95,6 +122,16 @@ class TurboWarpBlocks {
 
     getLastKeyPressed (args, util) {
         return util.ioQuery('keyboard', 'getLastKeyPressed');
+    }
+    pi (args, util) {
+        return 3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679
+    }
+
+    e (args, util) {
+        return 2.718281828459045235360
+    }
+    t (args, util) {
+        return 6.28318530717958647692
     }
 
     getButtonIsDown (args, util) {
