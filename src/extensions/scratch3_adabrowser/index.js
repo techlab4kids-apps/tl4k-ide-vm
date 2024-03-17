@@ -155,7 +155,7 @@ class Scratch3AdaBrowserBlocks {
                     arguments: {
                         URL: {
                             type: ArgumentType.STRING,
-                            defaultValue: 'https://snail-ide.github.io/'
+                            defaultValue: 'https://snail-ide.com/'
                         }
                     }
                 },
