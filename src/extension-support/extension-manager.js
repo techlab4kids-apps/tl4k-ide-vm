@@ -203,6 +203,7 @@ const builtinExtensions = {
     nesemulator: () => require("../extensions/nes"),
     shareExt: () => require("../extensions/scratch3_share"),
     sweetalert2: () => require("../extensions/scratch3_sweetalert"),
+    scratch2webserialapi: () => require("../extensions/scratch2webserialapi")
 
 };
 
