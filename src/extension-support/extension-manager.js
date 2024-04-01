@@ -21,6 +21,7 @@ const builtinExtensions = {
     // but serves as a reference for loading core blocks as extensions.
     coreExample: () => require('../blocks/scratch3_core_example'),
     // These are the non-core built-in extensions.
+    tl4kSuperPen: () => require ('../extensions/tl4k_pen_ext'),
     pen: () => require('../extensions/scratch3_pen'),
     wedo2: () => require('../extensions/scratch3_wedo2'),
     music: () => require('../extensions/scratch3_music'),
@@ -163,7 +164,7 @@ const builtinExtensions = {
     // griffpatch: () => require('../extensions/griffpatch_box2d')
 
     // iyg: erm a crep, erm a werdohhhh
-    // iygPerlin: 
+    // iygPerlin:
     iygPerlin: () => require('../extensions/iyg_perlin_noise'),
     // fr: waw 3d physics!!
     //fr3d:
