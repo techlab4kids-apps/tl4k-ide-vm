@@ -1,5 +1,3 @@
-const levelText = require('./text leveler');
-
 class Color {
     /**
      * @typedef {object} RGBObject - An object representing a color in RGB format.
@@ -31,14 +29,12 @@ class Color {
      * @return {string} RGB color as #RRGGBB hex string.
      */
     static decimalToHex (decimal) {
-        const rgb = this.decimalToRgb(decimal);
-        const alphaOrNone = typeof rgb.a === 'number' && rgb.a !== 255 
-            ? rgb.a.toString(16)
-            : '';
-        const r = levelText(rgb.r.toString(16), 2, '0');
-        const g = levelText(rgb.g.toString(16), 2, '0');
-        const b = levelText(rgb.b.toString(16), 2, '0');
-        return `#${r}${g}${b}${alphaOrNone}`;
+        if (decimal < 0) {
+            decimal += 0xFFFFFF + 1;
+        }
+        let hex = Math.round(Number(decimal)).toString(16);
+        hex = `#${'000000'.substr(0, 6 - hex.length)}${hex}`;
+        return hex;
     }
 
     /**
@@ -47,19 +43,11 @@ class Color {
      * @return {RGBObject} rgb - {r: red [0,255], g: green [0,255], b: blue [0,255]}.
      */
     static decimalToRgb (decimal) {
-        const alpha = ((decimal >> 24) & 0xFF) !== 0x00;
-        
-        let r = (decimal >> 16) & 0xFF,
-            g = (decimal >> 8) & 0xFF,
-            b = decimal & 0xFF,
-            a = 0;
-        if (alpha) {
-            a = (decimal >> 24) & 0xFF;
-            r = (decimal >> 16) & 0xFF;
-            g = (decimal >> 8) & 0xFF;
-            b = decimal & 0xFF;
-        }
-        return {r: r, g: g, b: b, a: a};
+        const a = (decimal >> 24) & 0xFF;
+        const r = (decimal >> 16) & 0xFF;
+        const g = (decimal >> 8) & 0xFF;
+        const b = decimal & 0xFF;
+        return {r: r, g: g, b: b, a: a > 0 ? a : 255};
     }
 
     /**
@@ -71,6 +59,9 @@ class Color {
         if (hex.startsWith('#')) {
             hex = hex.substring(1);
         }
+        if (hex.length === 8) {
+            hex = hex.slice(0, 6);
+        }
         const parsed = parseInt(hex, 16);
         if (isNaN(parsed)) {
             return null;
@@ -80,13 +71,6 @@ class Color {
                 r: (parsed >> 16) & 0xff,
                 g: (parsed >> 8) & 0xff,
                 b: parsed & 0xff
-            };
-        } else if (hex.length === 8) {
-            return {
-                r: (parsed >> 24) & 0xff,
-                g: (parsed >> 16) & 0xff,
-                b: (parsed >> 8) & 0xff,
-                a: parsed & 0xff
             };
         } else if (hex.length === 3) {
             const r = ((parsed >> 8) & 0xf);
@@ -116,9 +100,6 @@ class Color {
      * @return {!number} Number representing the color.
      */
     static rgbToDecimal (rgb) {
-        if (typeof rgb.a === 'number') {
-            return ((255 - rgb.a) << 24) + (rgb.r << 16) + (rgb.g << 8) + rgb.b;
-        }
         return (rgb.r << 16) + (rgb.g << 8) + rgb.b;
     }
 
