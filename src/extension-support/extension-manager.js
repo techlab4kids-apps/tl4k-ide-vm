@@ -22,6 +22,8 @@ const builtinExtensions = {
     coreExample: () => require('../blocks/scratch3_core_example'),
     // These are the non-core built-in extensions.
     tl4kSuperPen: () => require ('../extensions/tl4k_pen_ext'),
+    // mqttClient: () => require('../extensions/tl4k_mqtt_client'),
+    // mqttAgruminoClient: () => require('../extensions/tl4k_mqtt_agrumino'),
     pen: () => require('../extensions/scratch3_pen'),
     wedo2: () => require('../extensions/scratch3_wedo2'),
     music: () => require('../extensions/scratch3_music'),
