@@ -26,6 +26,8 @@ const builtinExtensions = {
     tl4kSuperPen: () => require ('../extensions/tl4k_pen_ext'),
     mqttClient: () => require('../extensions/tl4k_mqtt_client'),
     mqttAgruminoClient: () => require('../extensions/tl4k_mqtt_agrumino'),
+    techLAB4KidsBlocks: () => require('../extensions/tl4k_blocks'),
+    techLAB4KidsSimplifiedBlocks: () => require('../extensions/tl4k_simplified_commands'),
 
     // Builtin
     pen: () => require('../extensions/scratch3_pen'),
