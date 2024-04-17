@@ -129,7 +129,7 @@ class ScratchMqttAgruminoClientBlocks {
                     opcode: 'agruminoField',
                     text: formatMessage({
                         id: 'mqtt.agruminoField',
-                        default: "Dato [AGRUMINO_FIELD]",
+                        default: "[AGRUMINO_FIELD]",
                         description: ''
                     }),
                     arguments: {

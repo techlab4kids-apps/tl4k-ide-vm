@@ -107,6 +107,7 @@ class ScratchMqttClientBlocks {
     }
 
     disconnect (args, util){
+        this._isClientConnected = false;
         if(this.client){
             this.client.end(true);
             this.client = undefined;
