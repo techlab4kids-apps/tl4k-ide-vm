@@ -56,8 +56,8 @@ class ScratchSimplifiedCommandsBlocks {
     }
 
     gotoXY(args, util) {
-        const x = this.runtime.renderer.stageCoordinates.xLeft + this.cell_length/2 + args.X * this.cell_length;
-        const y = this.runtime.renderer.stageCoordinates.yBottom + this.cell_length/2 + args.Y * this.cell_length;
+        const x = Math.round(this.runtime.renderer.stageCoordinates.xLeft + this.cell_length/2 + args.X * this.cell_length);
+        const y = Math.round(this.runtime.renderer.stageCoordinates.yBottom + this.cell_length/2 + args.Y * this.cell_length);
 
         util.target.setXY(x, y);
         this.sendMqttMessages("vai", JSON.stringify({colonna: args.X, riga: args.Y}), util)
