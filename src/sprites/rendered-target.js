@@ -17,6 +17,19 @@ class RenderedTarget extends Target {
     constructor (sprite, runtime) {
         super(runtime, sprite.blocks);
 
+        // TL4K: handle custom sprite animation during motion
+        this.animation = {
+            isMoving: false,
+            costumePrefixDown: "giu",
+            costumePrefixUp: "su",
+            costumePrefixLeft: "sinistra",
+            costumePrefixRight: "destra",
+            costumeStoppedPrefix: "giu",
+            costumeFirstIndex: 0,
+            costumeLastIndex: 8,
+            stepDuration: 0.2
+        }
+
         /**
          * Reference to the sprite that this is a render of.
          * @type {!Sprite}
@@ -184,6 +197,13 @@ class RenderedTarget extends Target {
         this.onTargetVisualChange = null;
 
         this.interpolationData = null;
+
+        /**
+         * TL4K
+         * The sprite is confined to the stage visible area
+         * @type {string}
+         */
+        this.spritesAreFenced = true;
     }
 
     /**
@@ -280,6 +300,12 @@ class RenderedTarget extends Target {
         };
     }
 
+    //TL4K
+    setSpritesAreFenced(areSpritesFenced){
+        this.renderer.spritesAreFenced = areSpritesFenced;
+    }
+
+
     emitVisualChange () {
         if (this.onTargetVisualChange) {
             this.onTargetVisualChange(this);
@@ -320,7 +346,7 @@ class RenderedTarget extends Target {
     }
 
     setTransform (transform) {
-        if (!Array.isArray(transform) || transform.length !== 2) 
+        if (!Array.isArray(transform) || transform.length !== 2)
             throw new TypeError('Expected an Array of length 2 for the transform input');
         if (this.isStage) {
             return;

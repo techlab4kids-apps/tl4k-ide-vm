@@ -31,19 +31,47 @@ class ScratchTechLAB4KidsLedStick {
     }
 
     color(args, util) {
-        const rgb = Cast.toRgbColorObject(args.COLOR);
+        const rgb = Cast.toRgbColorObject(args.COLORE);
         let command = "color";
         let parameters = `{'red': ${rgb.red}, 'green': ${rgb.green}, 'blue': ${rgb.blue}, 'white': ${args.WHITE}}`
         this.sendMqttMessages(command, parameters, util)
     }
 
-    returnFalse() {
-        return false;
+// Example function for the 'show' opcode
+    show(args, util) {
+        let command = "show";
+        let parameters = `{}`
+
+        this.sendMqttMessages(command, parameters, util)
     }
 
-    openLink(args, util) {
-        window.open(args.LINK);
+// Example function for the 'setPixelColor' opcode
+    setPixelColor(args, util) {
+        let indice = args.INDICE;
+        let colore = Cast.toRgbColorObject(args.COLORE); // Assuming color is an int, you may need to handle this differently
+        let bianco = args.BIANCO;
+
+        let command = "setPixelColor";
+        let parameters = `{'indice': ${indice}, 'red': ${colore.red}, 'green': ${colore.green}, 'blue': ${colore.blue}, 'white': ${bianco}}`
+        this.sendMqttMessages(command, parameters, util)
     }
+
+// Example function for the 'setBrightness' opcode
+    setBrightness(args, util) {
+        let luminosita = args.LUMINOSITA;
+
+        let command = "setBrightness";
+        let parameters = `{'luminosita': ${luminosita}}`
+        this.sendMqttMessages(command, parameters, util)
+    }
+
+// Example function for the 'clear' opcode
+    clear(args, util) {
+        let command = "clear";
+        let parameters = `{}`
+        this.sendMqttMessages(command, parameters, util)
+    }
+
 
     /**
      * @returns {object} metadata for this extension and its blocks.
@@ -72,7 +100,7 @@ class ScratchTechLAB4KidsLedStick {
                     blockType: BlockType.REPORTER,
                     text: formatMessage({
                         id: 'techLAB4KidsLedStick.setPixelColor',
-                        default: 'Imposta led [INDICE] colore [ROSSO] [VERDE] [BLU] [BIANCO]',
+                        default: 'Imposta led [INDICE], colore [COLORE], [BIANCO]',
                         description: 'imposta il colore del led definendo le componenti rosso, verde, blu e bianco (valori da 0 a 255)'
                     }),
                     arguments: {
@@ -80,17 +108,8 @@ class ScratchTechLAB4KidsLedStick {
                             type: ArgumentType.NUMBER,
                             defaultValue: 0
                         },
-                        ROSSO: {
-                            type: ArgumentType.NUMBER,
-                            defaultValue: 255
-                        },
-                        VERDE: {
-                            type: ArgumentType.NUMBER,
-                            defaultValue: 255
-                        },
-                        BLU: {
-                            type: ArgumentType.NUMBER,
-                            defaultValue: 255
+                        COLORE: {
+                            type: ArgumentType.COLOR
                         },
                         BIANCO: {
                             type: ArgumentType.NUMBER,
