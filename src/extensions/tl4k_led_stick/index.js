@@ -22,9 +22,13 @@ class ScratchTechLAB4KidsLedStick {
         this.runtime = runtime;
     }
 
+    getMqttMessage(command, parameter){
+        return "{\"comando\":\"" + command + "\",\"parametri\":" + parameter + "}";
+    }
+
     sendMqttMessages(command, parameter, util){
         if(util.target.shouldSendMqttMessage && util.target.mqttMessageTopic){
-            let message = "{\"comando\":\"" + command + "\",\"parametri\":" + parameter + "}";
+            let message = getMqttMessage(command, parameter);
             let args = {TOPIC: util.target.mqttMessageTopic, MESSAGE: message};
             util.mqttClient.publish(args, util)
         }
@@ -33,16 +37,15 @@ class ScratchTechLAB4KidsLedStick {
     color(args, util) {
         const rgb = Cast.toRgbColorObject(args.COLORE);
         let command = "color";
-        let parameters = `{'red': ${rgb.red}, 'green': ${rgb.green}, 'blue': ${rgb.blue}, 'white': ${args.WHITE}}`
-        this.sendMqttMessages(command, parameters, util)
+        let parameters = `{"red": ${rgb.r}, "green": ${rgb.g}, "blue": ${rgb.b}, "white": ${args.WHITE}}`;
+        return this.getMqttMessage(command, parameters);
     }
 
 // Example function for the 'show' opcode
     show(args, util) {
         let command = "show";
-        let parameters = `{}`
-
-        this.sendMqttMessages(command, parameters, util)
+        let parameters = `{}`;
+        return this.getMqttMessage(command, parameters);
     }
 
 // Example function for the 'setPixelColor' opcode
@@ -52,8 +55,28 @@ class ScratchTechLAB4KidsLedStick {
         let bianco = args.BIANCO;
 
         let command = "setPixelColor";
-        let parameters = `{'indice': ${indice}, 'red': ${colore.red}, 'green': ${colore.green}, 'blue': ${colore.blue}, 'white': ${bianco}}`
-        this.sendMqttMessages(command, parameters, util)
+        let parameters = `{"indice": ${indice}, "red": ${colore.r}, "green": ${colore.g}, "blue": ${colore.b}, "white": ${bianco}}`;
+        return this.getMqttMessage(command, parameters);
+    }
+
+    colorWipeEffect(args, util) {
+        let colore = Cast.toRgbColorObject(args.COLORE); // Assuming color is an int, you may need to handle this differently
+        let attesa = args.ATTESA;
+
+        let command = "colorWipeEffect";
+        let parameters = `{"red": ${colore.r}, "green": ${colore.g}, "blue": ${colore.b}, "attesa": ${attesa}}`;
+        return this.getMqttMessage(command, parameters);
+    }
+
+    knightRider(args, util) {
+        let colore = Cast.toRgbColorObject(args.COLORE); // Assuming color is an int, you may need to handle this differently
+        let ripetizioni = args.RIPETIZIONI;
+        let attesa = args.ATTESA;
+        let lunghezza = args.LUNGHEZZA;
+
+        let command = "knightRider";
+        let parameters = `{"red": ${colore.r}, "green": ${colore.g}, "blue": ${colore.b}, "ripetizioni": ${ripetizioni}, "attesa": ${attesa}, "lunghezza": ${lunghezza}}`;
+        return this.getMqttMessage(command, parameters);
     }
 
 // Example function for the 'setBrightness' opcode
@@ -62,14 +85,14 @@ class ScratchTechLAB4KidsLedStick {
 
         let command = "setBrightness";
         let parameters = `{'luminosita': ${luminosita}}`
-        this.sendMqttMessages(command, parameters, util)
+        return this.getMqttMessage(command, parameters);
     }
 
 // Example function for the 'clear' opcode
     clear(args, util) {
         let command = "clear";
         let parameters = `{}`
-        this.sendMqttMessages(command, parameters, util)
+        return this.getMqttMessage(command, parameters);
     }
 
 
@@ -133,6 +156,56 @@ class ScratchTechLAB4KidsLedStick {
                             type: ArgumentType.NUMBER,
                             defaultValue: 255
                         },
+                    },
+
+                    showAsVariable: false
+                },
+                {
+                    opcode: 'colorWipeEffect',
+                    func: 'colorWipeEffect',
+                    blockType: BlockType.REPORTER,
+                    text: formatMessage({
+                        id: 'techLAB4KidsLedStick.colorWipeEffect',
+                        default: 'Color wipe [COLORE] [ATTESA] millisecondi',
+                        description: 'Attiva l\'effetto color wipe'
+                    }),
+                    arguments: {
+                        COLORE: {
+                            type: ArgumentType.COLOR
+                        },
+                        ATTESA: {
+                            type: ArgumentType.NUMBER,
+                            defaultValue: 100
+                        }
+                    },
+
+                    showAsVariable: false
+                },
+                {
+                    opcode: 'knightRider',
+                    func: 'knightRider',
+                    blockType: BlockType.REPORTER,
+                    text: formatMessage({
+                        id: 'techLAB4KidsLedStick.knightRider',
+                        default: 'KnightRider [COLORE] [RIPETIZIONI] [ATTESA] [LUNGHEZZA]',
+                        description: 'Attiva l\'effetto knightRider (KITT)'
+                    }),
+                    arguments: {
+                        COLORE: {
+                            type: ArgumentType.COLOR
+                        },
+                        RIPETIZIONI: {
+                            type: ArgumentType.NUMBER,
+                            defaultValue: 2
+                        },
+                        ATTESA: {
+                            type: ArgumentType.NUMBER,
+                            defaultValue: 100
+                        },
+                        LUNGHEZZA: {
+                            type: ArgumentType.NUMBER,
+                            defaultValue: 3
+                        }
                     },
 
                     showAsVariable: false
