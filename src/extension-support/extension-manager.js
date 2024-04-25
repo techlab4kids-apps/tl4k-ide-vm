@@ -29,6 +29,7 @@ const builtinExtensions = {
     techLAB4KidsLedStick: () => require('../extensions/tl4k_led_stick'),
     techLAB4KidsBlocks: () => require('../extensions/tl4k_blocks'),
     techLAB4KidsSimplifiedBlocks: () => require('../extensions/tl4k_simplified_commands'),
+    techLAB4KidsCodeyRocky: () => require('../extensions/tl4k_codeyrocky'),
 
     // Builtin
     pen: () => require('../extensions/scratch3_pen'),
@@ -131,7 +132,7 @@ const builtinExtensions = {
     // jwReflex: vector positioning (UNRELEASED, DO NOT ADD TO GUI)
     jwReflex: () => require("../extensions/jw_reflex"),
     // Blockly 2: a faithful recreation of the original blockly blocks
-    blockly2math: () => require("../extensions/blockly-2/math.js"),
+    // blockly2math: () => require("../extensions/blockly-2/math.js"),
 
     // jw: They'll think its made by jwklong >:)
     // (but it's not (yet (maybe (probably not (but its made by ianyourgod)))))
