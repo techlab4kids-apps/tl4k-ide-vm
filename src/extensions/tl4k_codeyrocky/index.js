@@ -228,7 +228,7 @@ class ScratchTechLAB4KidsCodeyRocky {
                 {
                     opcode: 'ledShow',
                     blockType: BlockType.REPORTER,
-                    text: 'set LED color red [RED] green [GREEN] blue [BLUE]',
+                    text: 'imposta colore LED rosso [RED] verde [GREEN] blu [BLUE]',
                     arguments: {
                         RED: {
                             type: ArgumentType.NUMBER,
@@ -247,7 +247,7 @@ class ScratchTechLAB4KidsCodeyRocky {
                 {
                     opcode: 'ledSetRed',
                     blockType: BlockType.REPORTER,
-                    text: 'set LED red component to [VALUE]',
+                    text: 'imposta componente rosso del LED a [VALUE]',
                     arguments: {
                         VALUE: {
                             type: ArgumentType.NUMBER,
@@ -258,7 +258,7 @@ class ScratchTechLAB4KidsCodeyRocky {
                 {
                     opcode: 'ledSetGreen',
                     blockType: BlockType.REPORTER,
-                    text: 'set LED green component to [VALUE]',
+                    text: 'imposta componente verde del LED a [VALUE]',
                     arguments: {
                         VALUE: {
                             type: ArgumentType.NUMBER,
@@ -269,7 +269,7 @@ class ScratchTechLAB4KidsCodeyRocky {
                 {
                     opcode: 'ledSetBlue',
                     blockType: BlockType.REPORTER,
-                    text: 'set LED blue component to [VALUE]',
+                    text: 'imposta componente blu del LED a [VALUE]',
                     arguments: {
                         VALUE: {
                             type: ArgumentType.NUMBER,
@@ -280,17 +280,16 @@ class ScratchTechLAB4KidsCodeyRocky {
                 {
                     opcode: 'ledOff',
                     blockType: BlockType.REPORTER,
-                    text: 'turn off LED'
+                    text: 'spegni LED'
                 },
-
                 {
                     opcode: 'displayShowImage',
                     blockType: BlockType.REPORTER,
-                    text: 'display image [IMAGE] at x: [POS_X] y: [POS_Y] for [TIME_S] seconds',
+                    text: 'mostra immagine [IMAGE] a x: [POS_X] y: [POS_Y] per [TIME_S] secondi',
                     arguments: {
                         IMAGE: {
                             type: ArgumentType.STRING,
-                            defaultValue: '0000000000000000'  // Represents a 16-column wide image
+                            defaultValue: '0000000000000000'
                         },
                         POS_X: {
                             type: ArgumentType.NUMBER,
@@ -309,7 +308,7 @@ class ScratchTechLAB4KidsCodeyRocky {
                 {
                     opcode: 'displayShow',
                     blockType: BlockType.REPORTER,
-                    text: 'display value [VAR] at x: [POS_X] y: [POS_Y], wait: [WAIT]',
+                    text: 'mostra valore [VAR] a x: [POS_X] y: [POS_Y], attendi: [WAIT]',
                     arguments: {
                         VAR: {
                             type: ArgumentType.STRING,
@@ -332,7 +331,7 @@ class ScratchTechLAB4KidsCodeyRocky {
                 {
                     opcode: 'displaySetPixel',
                     blockType: BlockType.REPORTER,
-                    text: 'set pixel at x: [POS_X] y: [POS_Y] to [STATUS]',
+                    text: 'imposta pixel a x: [POS_X] y: [POS_Y] su [STATUS]',
                     arguments: {
                         POS_X: {
                             type: ArgumentType.NUMBER,
@@ -351,7 +350,7 @@ class ScratchTechLAB4KidsCodeyRocky {
                 {
                     opcode: 'displayGetPixel',
                     blockType: BlockType.REPORTER,
-                    text: 'get pixel status at x: [POS_X] y: [POS_Y]',
+                    text: 'ottieni stato del pixel a x: [POS_X] y: [POS_Y]',
                     arguments: {
                         POS_X: {
                             type: ArgumentType.NUMBER,
@@ -366,7 +365,7 @@ class ScratchTechLAB4KidsCodeyRocky {
                 {
                     opcode: 'displayTogglePixel',
                     blockType: BlockType.REPORTER,
-                    text: 'toggle pixel at x: [POS_X] y: [POS_Y]',
+                    text: 'alterna stato del pixel a x: [POS_X] y: [POS_Y]',
                     arguments: {
                         POS_X: {
                             type: ArgumentType.NUMBER,
@@ -381,39 +380,37 @@ class ScratchTechLAB4KidsCodeyRocky {
                 {
                     opcode: 'displayClear',
                     blockType: BlockType.REPORTER,
-                    text: 'clear display'
+                    text: 'pulisci display'
                 },
-
                 {
                     opcode: 'displayHappyFace',
                     blockType: BlockType.REPORTER,
-                    text: 'display happy face'
+                    text: 'mostra faccia felice'
                 },
                 {
                     opcode: 'displaySadFace',
                     blockType: BlockType.REPORTER,
-                    text: 'display sad face'
+                    text: 'mostra faccia triste'
                 },
                 {
                     opcode: 'displayAngryFace',
                     blockType: BlockType.REPORTER,
-                    text: 'display angry face'
+                    text: 'mostra faccia arrabbiata'
                 },
                 {
                     opcode: 'displaySurprisedFace',
                     blockType: BlockType.REPORTER,
-                    text: 'display surprised face'
+                    text: 'mostra faccia sorpresa'
                 },
-
                 {
                     opcode: 'rockyStop',
                     blockType: BlockType.REPORTER,
-                    text: 'Rocky stop'
+                    text: 'ferma Rocky'
                 },
                 {
                     opcode: 'rockyForward',
                     blockType: BlockType.REPORTER,
-                    text: 'Rocky move forward speed [SPEED] for [TIME_S] seconds, straight [STRAIGHT]',
+                    text: 'muovi Rocky in avanti velocità [SPEED] per [TIME_S] secondi, dritto [STRAIGHT]',
                     arguments: {
                         SPEED: {
                             type: ArgumentType.NUMBER,
@@ -432,7 +429,7 @@ class ScratchTechLAB4KidsCodeyRocky {
                 {
                     opcode: 'rockyBackward',
                     blockType: BlockType.REPORTER,
-                    text: 'Rocky move backward speed [SPEED] for [TIME_S] seconds, straight [STRAIGHT]',
+                    text: 'muovi Rocky all\'indietro velocità [SPEED] per [TIME_S] secondi, dritto [STRAIGHT]',
                     arguments: {
                         SPEED: {
                             type: ArgumentType.NUMBER,
@@ -451,7 +448,7 @@ class ScratchTechLAB4KidsCodeyRocky {
                 {
                     opcode: 'rockyTurnLeft',
                     blockType: BlockType.REPORTER,
-                    text: 'Rocky turn left speed [SPEED] for [TIME_S] seconds',
+                    text: 'Rocky gira a sinistra velocità [SPEED] per [TIME_S] secondi',
                     arguments: {
                         SPEED: {
                             type: ArgumentType.NUMBER,
@@ -466,7 +463,7 @@ class ScratchTechLAB4KidsCodeyRocky {
                 {
                     opcode: 'rockyTurnRight',
                     blockType: BlockType.REPORTER,
-                    text: 'Rocky turn right speed [SPEED] for [TIME_S] seconds',
+                    text: 'Rocky gira a destra velocità [SPEED] per [TIME_S] secondi',
                     arguments: {
                         SPEED: {
                             type: ArgumentType.NUMBER,
@@ -481,7 +478,7 @@ class ScratchTechLAB4KidsCodeyRocky {
                 {
                     opcode: 'rockyDrive',
                     blockType: BlockType.REPORTER,
-                    text: 'Rocky drive left power [LEFT_POWER] right power [RIGHT_POWER]',
+                    text: 'guida Rocky potenza sinistra [LEFT_POWER] potenza destra [RIGHT_POWER]',
                     arguments: {
                         LEFT_POWER: {
                             type: ArgumentType.NUMBER,
@@ -496,7 +493,7 @@ class ScratchTechLAB4KidsCodeyRocky {
                 {
                     opcode: 'rockyTurnRightByDegree',
                     blockType: BlockType.REPORTER,
-                    text: 'Rocky turn right by [ANGLE] degrees at speed [SPEED]',
+                    text: 'Rocky gira a destra di [ANGLE] gradi a velocità [SPEED]',
                     arguments: {
                         ANGLE: {
                             type: ArgumentType.NUMBER,
@@ -511,7 +508,7 @@ class ScratchTechLAB4KidsCodeyRocky {
                 {
                     opcode: 'rockyTurnLeftByDegree',
                     blockType: BlockType.REPORTER,
-                    text: 'Rocky turn left by [ANGLE] degrees at speed [SPEED]',
+                    text: 'Rocky gira a sinistra di [ANGLE] gradi a velocità [SPEED]',
                     arguments: {
                         ANGLE: {
                             type: ArgumentType.NUMBER,
@@ -523,102 +520,100 @@ class ScratchTechLAB4KidsCodeyRocky {
                         }
                     }
                 },
-
                 {
                     opcode: 'getLoudness',
                     blockType: BlockType.REPORTER,
-                    text: 'get loudness'
+                    text: 'ottieni volume'
                 },
                 {
                     opcode: 'getLightIntensity',
                     blockType: BlockType.REPORTER,
-                    text: 'get light intensity'
+                    text: 'ottieni intensità luminosa'
                 },
                 {
                     opcode: 'getPotentiometerValue',
                     blockType: BlockType.REPORTER,
-                    text: 'get potentiometer value'
+                    text: 'ottieni valore del potenziometro'
                 },
                 {
                     opcode: 'isButtonAPressed',
                     blockType: BlockType.BOOLEAN,
-                    text: 'is button A pressed'
+                    text: 'il pulsante A è premuto?'
                 },
                 {
                     opcode: 'isButtonBPressed',
                     blockType: BlockType.BOOLEAN,
-                    text: 'is button B pressed'
+                    text: 'il pulsante B è premuto?'
                 },
                 {
                     opcode: 'isButtonCPressed',
                     blockType: BlockType.BOOLEAN,
-                    text: 'is button C pressed'
+                    text: 'il pulsante C è premuto?'
                 },
                 {
                     opcode: 'getRoll',
                     blockType: BlockType.REPORTER,
-                    text: 'get roll'
+                    text: 'ottieni rollio'
                 },
                 {
                     opcode: 'getPitch',
                     blockType: BlockType.REPORTER,
-                    text: 'get pitch'
+                    text: 'ottieni beccheggio'
                 },
                 {
                     opcode: 'getYaw',
                     blockType: BlockType.REPORTER,
-                    text: 'get yaw'
+                    text: 'ottieni imbardata'
                 },
                 {
                     opcode: 'isShaked',
                     blockType: BlockType.BOOLEAN,
-                    text: 'is Codey shaked'
+                    text: 'Codey è stato scosso?'
                 },
                 {
                     opcode: 'getShakeStrength',
                     blockType: BlockType.REPORTER,
-                    text: 'get shake strength'
+                    text: 'ottieni intensità della scossa'
                 },
                 {
                     opcode: 'isTiltedLeft',
                     blockType: BlockType.BOOLEAN,
-                    text: 'is tilted left'
+                    text: 'inclinato a sinistra?'
                 },
                 {
                     opcode: 'isTiltedRight',
                     blockType: BlockType.BOOLEAN,
-                    text: 'is tilted right'
+                    text: 'inclinato a destra?'
                 },
-
                 {
                     opcode: 'isUpright',
                     blockType: BlockType.BOOLEAN,
-                    text: 'is Codey upright'
+                    text: 'Codey è in posizione eretta?'
                 },
                 {
                     opcode: 'isDisplayUp',
                     blockType: BlockType.BOOLEAN,
-                    text: 'is display up'
+                    text: 'il display è rivolto verso l\'alto?'
                 },
                 {
                     opcode: 'isDisplayDown',
                     blockType: BlockType.BOOLEAN,
-                    text: 'is display down'
+                    text: 'il display è rivolto verso il basso?'
                 },
                 {
                     opcode: 'isEarsUp',
                     blockType: BlockType.BOOLEAN,
-                    text: 'is ears up'
+                    text: 'le orecchie sono in alto?'
                 },
                 {
                     opcode: 'isEarsDown',
                     blockType: BlockType.BOOLEAN,
-                    text: 'is ears down'
+                    text: 'le orecchie sono in basso?'
                 },
                 {
                     opcode: 'getAcceleration',
                     blockType: BlockType.REPORTER,
-                    text: 'get acceleration on axis [AXIS]',
+                    text: 'ottieni accelerazione sull\'asse [AXIS]',
                     arguments: {
                         AXIS: {
                             type: ArgumentType.STRING,
@@ -630,7 +625,7 @@ class ScratchTechLAB4KidsCodeyRocky {
                 {
                     opcode: 'getGyroscope',
                     blockType: BlockType.REPORTER,
-                    text: 'get gyroscope on axis [AXIS]',
+                    text: 'ottieni velocità angolare sull\'asse [AXIS]',
                     arguments: {
                         AXIS: {
                             type: ArgumentType.STRING,
@@ -639,22 +634,10 @@ class ScratchTechLAB4KidsCodeyRocky {
                         }
                     }
                 },
-
-
             ]
-            // ,
-
-            // translation_map: {
-            //     it: {
-            //         'writeText': 'Scrivi [TEXT] [IS_UPDATABLE]',
-            //         'writeText.TEXT_default': 'Ciao!',
-            //         'changeFontSizeBy': 'Porta la dimensione del font a [SIZE]',
-            //         'setFontSizeTo': 'Cambia la dimensione del font di [SIZE]',
-            //         'setFont': 'Imposta il carattere',
-            //     }
-            // }
         };
     }
+
 }
 
 module.exports = ScratchTechLAB4KidsCodeyRocky;
