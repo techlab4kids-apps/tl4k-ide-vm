@@ -8,10 +8,12 @@ import random
 
 # Fill in your router's ssid and password here.
 #codey.wifi.start('TL4K-4G-NET', 'techlab4kids')
-rete = 'procioniopossum'
-password = 'tombolina'
+#rete = 'procioniopossum'
+#password = 'tombolina'
+rete = 'TL4K-4G-NET'
+password = 'techlab4kids'
 
-MQTTHOST = "192.168.10.118"
+MQTTHOST = "192.168.0.111"
 MQTTPORT = 1883
 
 DEBUG_MODE = True
@@ -90,6 +92,56 @@ def handle_display_clear(params):
 
 def handle_display_show_emotion(params, emotion):
     codey.display.show_image(emotion)
+
+def handle_rocky_stop(params):
+    rocky.rocky.stop()
+
+def handle_rocky_forward(params):
+    speed = params.get('speed',100)
+    time_s = params.get('time_s',0)
+    straight = params.get()
+    rocky.rocky.forward(speed, time_s, straight)
+
+def handle_rocky_backward(params):
+    speed = params.get('speed',100)
+    time_s = params.get('time_s',0)
+    straight = params.get()
+    rocky.rocky.backward(speed, time_s, straight)
+
+def handle_rocky_turn_left(params):
+    speed = params.get('speed',100)
+    time_s = params.get('time_s',0)
+    rocky.rocky.turn_left(speed, time_s)
+
+def handle_rocky_turn_right(params):
+    speed = params.get('speed',100)
+    time_s = params.get('time_s',0)
+    rocky.rocky.turn_right(speed, time_s)
+
+def handle_rocky_drive(params):
+    left_power = params.get('left_power',100)
+    right_power = params.get('right_power',100)
+    rocky.rocky.drive(left_power, right_power)
+
+def handle_rocky_turn_right_by_degree(params):
+    angle = params.get('angle',90)
+    speed = params.get('speed',40)
+    rocky.rocky.turn_right_by_degree(angle, speed)
+
+def handle_rocky_turn_left_by_degree(params):
+    angle = params.get('angle',90)
+    speed = params.get('speed',40)
+    rocky.rocky.turn_left_by_degree(angle, speed)
+
+def handle_get_loudness(params):
+    codey.sound_sensor.get_loudness()
+
+def handle_light_sensor_get_value(params):
+    codey.light_sensor.get_value()
+
+def handle_potentiometer_get_value(params):
+    codey.potentiometer.get_value()
+
 
 # Function to convert a column to hexadecimal
 def column_to_hex(col_data):
@@ -180,6 +232,19 @@ command_handlers = {
     "display.show_sad_face": lambda params: handle_display_show_emotion(params, "003c0f003f0c00000000f00f3c3c0300"),  # Example pattern
     "display.show_angry_face": lambda params: handle_display_show_emotion(params, "0f003f0c3c030000000000f00f3c0f00"),  # Example pattern
     "display.show_surprised_face": lambda params: handle_display_show_emotion(params, "03c03f0f3f030000000000f0f3c3f030")  # Example pattern
+
+    "rocky.stop": handle_rocky_stop,
+    "rocky.forward": handle_rocky_forward,
+    "rocky.backward": handle_rocky_backward,
+    "rocky.turn_left": handle_rocky_turn_left,
+    "rocky.turn_right": handle_rocky_turn_right,
+    "rocky.drive": handle_rocky_drive,
+    "rocky.turn_right_by_degree": handle_rocky_turn_right_by_degree,
+    "rocky.turn_left_by_degree": handle_rocky_turn_left_by_degree,
+
+    "sound_sensor.get_loudness": handle_get_loudness,
+    "light_sensor.get_value": handle_light_sensor_get_value,
+    "potentiometer.get_value": handle_potentiometer_get_value,
 }
 
 def enumerate_properties(obj, depth=1, max_depth=2, visited=None):
@@ -278,20 +343,20 @@ codey.led.show(255,0,0)
 while True:
     if codey.wifi.is_connected():
         print("WIFI connected")
-        codey.led.show(0,255,0)
+        codey.led.show(0,255,255)
 
         mqtt_connect()
-        codey.led.show(255,0,0)
+        codey.led.show(0,255,0)
         codey.emotion.hello()
         time.sleep(1)
-        codey.display.show(CODEY_ID)
 
         mqtt_subscribe()
-
         codey.led.show(0,0,255)
 
-        enumerate_properties(codey)
-        enumerate_properties(rocky)
+        codey.display.show(CODEY_ID)
+
+        #enumerate_properties(codey)
+        #enumerate_properties(rocky)
 
         while True:
             mqttClient.wait_msg()
