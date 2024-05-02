@@ -537,17 +537,17 @@ class ScratchTechLAB4KidsCodeyRocky {
                 },
                 {
                     opcode: 'isButtonAPressed',
-                    blockType: BlockType.BOOLEAN,
+                    blockType: BlockType.REPORTER,
                     text: 'il pulsante A è premuto?'
                 },
                 {
                     opcode: 'isButtonBPressed',
-                    blockType: BlockType.BOOLEAN,
+                    blockType: BlockType.REPORTER,
                     text: 'il pulsante B è premuto?'
                 },
                 {
                     opcode: 'isButtonCPressed',
-                    blockType: BlockType.BOOLEAN,
+                    blockType: BlockType.REPORTER,
                     text: 'il pulsante C è premuto?'
                 },
                 {
@@ -567,7 +567,7 @@ class ScratchTechLAB4KidsCodeyRocky {
                 },
                 {
                     opcode: 'isShaked',
-                    blockType: BlockType.BOOLEAN,
+                    blockType: BlockType.REPORTER,
                     text: 'Codey è stato scosso?'
                 },
                 {
@@ -577,37 +577,37 @@ class ScratchTechLAB4KidsCodeyRocky {
                 },
                 {
                     opcode: 'isTiltedLeft',
-                    blockType: BlockType.BOOLEAN,
+                    blockType: BlockType.REPORTER,
                     text: 'inclinato a sinistra?'
                 },
                 {
                     opcode: 'isTiltedRight',
-                    blockType: BlockType.BOOLEAN,
+                    blockType: BlockType.REPORTER,
                     text: 'inclinato a destra?'
                 },
                 {
                     opcode: 'isUpright',
-                    blockType: BlockType.BOOLEAN,
+                    blockType: BlockType.REPORTER,
                     text: 'Codey è in posizione eretta?'
                 },
                 {
                     opcode: 'isDisplayUp',
-                    blockType: BlockType.BOOLEAN,
+                    blockType: BlockType.REPORTER,
                     text: 'il display è rivolto verso l\'alto?'
                 },
                 {
                     opcode: 'isDisplayDown',
-                    blockType: BlockType.BOOLEAN,
+                    blockType: BlockType.REPORTER,
                     text: 'il display è rivolto verso il basso?'
                 },
                 {
                     opcode: 'isEarsUp',
-                    blockType: BlockType.BOOLEAN,
+                    blockType: BlockType.REPORTER,
                     text: 'le orecchie sono in alto?'
                 },
                 {
                     opcode: 'isEarsDown',
-                    blockType: BlockType.BOOLEAN,
+                    blockType: BlockType.REPORTER,
                     text: 'le orecchie sono in basso?'
                 },
                 {
