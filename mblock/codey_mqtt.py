@@ -94,35 +94,80 @@ def handle_rocky_stop(params):
     rocky.stop()
 
 def handle_rocky_forward(params):
-    function = "handle_rocky_backward"
-    print_debug(function, params)
+    function = "handle_rocky_forward"
+    #print_debug(function, params)
 
     speed = params.get('speed', 50)
-    print_debug(function, "speed: {}".format(speed))
+    #print_debug(function, "speed: {}".format(speed))
 
     time_s = params.get('time_s', 1)
     print_debug(function, "time_s: {}".format(time_s))
+    if time_s == 0:
+        time_s = None
+    print_debug(function, "time_s: {}".format(time_s))
 
     straight = params.get('straight', True)
-    print_debug(function, "straight: {}".format(straight))
+    #print_debug(function, "straight: {}".format(straight))
 
     rocky.forward(speed, time_s, straight)
 
 def handle_rocky_backward(params):
     function = "handle_rocky_backward"
-    print_debug(function, params)
+    #print_debug(function, params)
 
     speed = params.get('speed', 50)
-    print_debug(function, "speed: {}".format(speed))
+    #print_debug(function, "speed: {}".format(speed))
 
     time_s = params.get('time_s', 1)
-    print_debug(function, "time_s: {}".format(time_s))
+    if time_s == 0:
+        time_s = None
+    #print_debug(function, "time_s: {}".format(time_s))
 
     straight = params.get('straight', True)
-    print_debug("function, "straight: {}".format(straight))
+    #print_debug(function, "straight: {}".format(straight))
     rocky.backward(speed, time_s, straight)
 
+def handle_rocky_turn_by_degree(params):
+    function = "handle_rocky_turn_right_by_degree"
+    #print_debug(function, params)
+
+    speed = params.get('speed', 40)
+    #print_debug(function, "speed: {}".format(speed))
+
+    angle = params.get('angle', 90)
+    #print_debug(function, "time_s: {}".format(time_s))
+
+    rocky.turn_right_by_degree(angle, speed)
+
+def handle_rocky_turn_right_by_degree(params):
+    function = "handle_rocky_turn_right_by_degree"
+    #print_debug(function, params)
+
+    speed = params.get('speed', 40)
+    #print_debug(function, "speed: {}".format(speed))
+
+    angle = params.get('angle', 90)
+    #print_debug(function, "time_s: {}".format(time_s))
+
+    rocky.turn_right_by_degree(angle, speed)
+
+def handle_rocky_turn_left_by_degree(params):
+    angle = params.get('angle',90)
+    speed = params.get('speed',40)
+    rocky.turn_left_by_degree(angle, speed)
+
 def handle_rocky_turn_left(params):
+    function = "handle_rocky_turn_left"
+    #print_debug(function, params)
+
+    speed = params.get('speed', 40)
+    #print_debug(function, "speed: {}".format(speed))
+
+    time_s = params.get('time_s', 1)
+    #print_debug(function, "time_s: {}".format(time_s))
+
+    straight = params.get('straight', True)
+    #print_debug(function, "straight: {}".format(straight))
     speed = params.get('speed',100)
     time_s = params.get('time_s',0)
     rocky.turn_left(speed, time_s)
@@ -136,16 +181,6 @@ def handle_rocky_drive(params):
     left_power = params.get('left_power',100)
     right_power = params.get('right_power',100)
     rocky.drive(left_power, right_power)
-
-def handle_rocky_turn_right_by_degree(params):
-    angle = params.get('angle',90)
-    speed = params.get('speed',40)
-    rocky.turn_right_by_degree(angle, speed)
-
-def handle_rocky_turn_left_by_degree(params):
-    angle = params.get('angle',90)
-    speed = params.get('speed',40)
-    rocky.turn_left_by_degree(angle, speed)
 
 def handle_get_loudness(params):
     codey.sound_sensor.get_loudness()
@@ -229,9 +264,10 @@ command_handlers = {
     "rocky.stop": handle_rocky_stop,
     "rocky.forward": handle_rocky_forward,
     "rocky.backward": handle_rocky_backward,
-    "rocky.turn_left": handle_rocky_turn_left,
-    "rocky.turn_right": handle_rocky_turn_right,
-    "rocky.drive": handle_rocky_drive,
+    "rocky.turn_by_degree": handle_rocky_turn_by_degree,
+    #"rocky.turn_left": handle_rocky_turn_left,
+    #"rocky.turn_right": handle_rocky_turn_right,
+    #"rocky.drive": handle_rocky_drive,
     "rocky.turn_right_by_degree": handle_rocky_turn_right_by_degree,
     "rocky.turn_left_by_degree": handle_rocky_turn_left_by_degree,
 
@@ -258,8 +294,10 @@ def on_new_mqtt_message(myTopic, msg):
                     handler(params)
                 else:
                     print("No handler available for command:", command)
+                    codey.emotion.uh_oh()
             except:
                 print("Error getting handler for command '{}'", command)
+                codey.emotion.uh_oh()
         else:
             # Handle other myTopics, e.g., data requests or settings
             if myTopic.endswith('/data_request/'):
@@ -270,8 +308,10 @@ def on_new_mqtt_message(myTopic, msg):
 
     except json.JSONDecodeError:
         print("Error decoding JSON")
+        codey.emotion.uh_oh()
     except Exception as e:
         print("Error handling message:", e)
+        codey.emotion.uh_oh()
 
 def print_debug(function, params):
     if (DEBUG_MODE):
