@@ -94,23 +94,32 @@ def handle_rocky_stop(params):
     rocky.stop()
 
 def handle_rocky_forward(params):
-    print_debug("handle_rocky_forward", params)
+    function = "handle_rocky_backward"
+    print_debug(function, params)
 
     speed = params.get('speed', 50)
-    print_debug("handle_rocky_forward", "speed: {}".format(speed))
+    print_debug(function, "speed: {}".format(speed))
 
     time_s = params.get('time_s', 1)
-    print_debug("handle_rocky_forward", "time_s: {}".format(time_s))
+    print_debug(function, "time_s: {}".format(time_s))
 
     straight = params.get('straight', True)
-    print_debug("handle_rocky_forward", "straight: {}".format(straight))
+    print_debug(function, "straight: {}".format(straight))
 
     rocky.forward(speed, time_s, straight)
 
 def handle_rocky_backward(params):
-    speed = params.get('speed',100)
-    time_s = params.get('time_s',0)
-    straight = params.get()
+    function = "handle_rocky_backward"
+    print_debug(function, params)
+
+    speed = params.get('speed', 50)
+    print_debug(function, "speed: {}".format(speed))
+
+    time_s = params.get('time_s', 1)
+    print_debug(function, "time_s: {}".format(time_s))
+
+    straight = params.get('straight', True)
+    print_debug("function, "straight: {}".format(straight))
     rocky.backward(speed, time_s, straight)
 
 def handle_rocky_turn_left(params):
