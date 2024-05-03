@@ -5,6 +5,8 @@ import time
 import ubinascii
 import json
 import random
+import utime
+
 
 # Fill in your router's ssid and password here.
 
@@ -13,16 +15,23 @@ password = 'tombolina'
 #rete = 'TL4K-4G-NET'
 #password = 'techlab4kids'
 
-MQTTHOST = "192.168.10.119"
+MQTTHOST = "192.168.10.116"
 MQTTPORT = 1883
 
-DEBUG_MODE = True
+DEBUG_MODE = False
+
+MQTT_TIME_INTERVAL_MS = 900
 
 # Fill in as you like
 CODEY_ID = random.randint(1000, 9999)
 clientID = 'TL4K-Codey-{}'.format(CODEY_ID)
 
+sendData = False
+dataToSend = []
+start = None
+
 # Example Path
+myDataTopic = "tl4k/{}/data/".format(clientID)
 myTopic = "tl4k/{}/command/#".format(clientID)
 broadcastTopic = "tl4k/broadcast/command/#"
 
@@ -143,11 +152,10 @@ def handle_rocky_turn_right_by_degree(params):
     function = "handle_rocky_turn_right_by_degree"
     #print_debug(function, params)
 
-    speed = params.get('speed', 40)
-    #print_debug(function, "speed: {}".format(speed))
-
     angle = params.get('angle', 90)
     #print_debug(function, "time_s: {}".format(time_s))
+    speed = params.get('speed', 40)
+    #print_debug(function, "speed: {}".format(speed))
 
     rocky.turn_right_by_degree(angle, speed)
 
@@ -238,8 +246,29 @@ def handle_display_show_emotion_by_matrix(params, emotion_matrix):
     print("final_hex_string '{}'".format(final_hex_string))
     codey.display.show_image(final_hex_string)
 
+def handle_data_request(params):
+    function = "handle_data_request"
+    #print_debug(function, params)
+
+    shouldSend = params.get('invia', False)
+    print_debug(function, "invia: {}".format(shouldSend))
+    data = params.get('dati', [])
+    print_debug(function, "dati: {}".format(data))
+
+    if shouldSend:
+        global sendData
+        sendData = True
+
+        global dataToSend
+        dataToSend = data
+
+        print_debug("handle_data_request", dataToSend)
+    else:
+        sendData = False
+
 # Map each command to its handler function
 command_handlers = {
+    "send.data": handle_data_request,
     "led.show": handle_led_show,
     "led.set_red": handle_led_set_red,
     "led.set_green": handle_led_set_green,
@@ -291,20 +320,24 @@ def on_new_mqtt_message(myTopic, msg):
                 handler = command_handlers.get(command)
                 #print("Command handler '{}' on myTopic '{}'".format(handler))
                 if handler:
-                    handler(params)
+                    try:
+                        handler(params)
+                    except:
+                        logError("Error executing command {}:".format(command), codey.emotion.uh_oh)
                 else:
-                    print("No handler available for command:", command)
-                    codey.emotion.uh_oh()
+                    logError("No handler available for command {}:".format(command), codey.emotion.uh_oh)
             except:
-                print("Error getting handler for command '{}'", command)
+                logError("Error getting handler for command '{}'", command)
                 codey.emotion.uh_oh()
-        else:
-            # Handle other myTopics, e.g., data requests or settings
-            if myTopic.endswith('/data_request/'):
-                print("Received data request '{}' on myTopic '{}'".format(msg, myTopic))
-                process_data_requests(command, params)
-
-            # Implement additional myTopic handlers as necessary
+    #        else:
+    #            # Handle other myTopics, e.g., data requests or settings
+    #            if myTopic.endswith('/data/'):
+    #                data = json.loads(msg)
+    #                command = data.get("comando")
+    #                params = data.get("parametri", {})
+    #                print("Command '{}' with parameters '{}'".format(command, params))
+    #                print("Received data request '{}' on myTopic '{}'".format(msg, myTopic))
+    #                process_data_requests(command, params)
 
     except json.JSONDecodeError:
         print("Error decoding JSON")
@@ -313,22 +346,55 @@ def on_new_mqtt_message(myTopic, msg):
         print("Error handling message:", e)
         codey.emotion.uh_oh()
 
-def print_debug(function, params):
+def logError(msg, codeyAction):
+    print(msg)
+    codeyAction()
+
+def sendMqttData():
+    global sendData
+    #print_debug("sendMqttData sendData", sendData)
+
+    msg = {}
+    now = utime.ticks_ms()
+
+    global start
+
+    if start == None:
+        start = utime.ticks_ms()
+        print_debug("initializing start time", start)
+
+    elapsedTime = utime.ticks_diff(now, start)
+    print_debug("elapsedTime", elapsedTime)
+    if (sendData and elapsedTime > MQTT_TIME_INTERVAL_MS):
+        start = now
+
+        global dataToSend
+        #print_debug("sendMqttData dataToSend", dataToSend)
+        if "light" in dataToSend:
+            msg["light"] = codey.light_sensor.get_value()
+
+        print_debug("sendMqttData", "msg {} to topic {}".format(msg, myDataTopic))
+
+        mqttClient.publish(myDataTopic, json.dumps(msg), retain=False, qos=0)
+
+
+def print_debug(function, params = {}):
+    global DEBUG_MODE
     if (DEBUG_MODE):
         print("'{}': data: '{}'".format(function, params))
 
 # subscribe message
 def mqtt_subscribe():
-    print("Setting the callback")
+    print_debug("Setting the callback")
     mqttClient.set_callback(on_new_mqtt_message)
 
-    print("Subscribing to myTopic '{}'".format(myTopic))
+    print_debug("Subscribing to myTopic '{}'".format(myTopic))
     mqttClient.subscribe(myTopic, qos = 1)
-    print("Subscribed to myTopic '{}'".format(myTopic))
+    print_debug("Subscribed to myTopic '{}'".format(myTopic))
 
-    print("Subscribing to broadcastTopic '{}'".format(broadcastTopic))
+    print_debug("Subscribing to broadcastTopic '{}'".format(broadcastTopic))
     mqttClient.subscribe(broadcastTopic, qos = 1)
-    print("Subscribed to broadcastTopic '{}'".format(broadcastTopic))
+    print_debug("Subscribed to broadcastTopic '{}'".format(broadcastTopic))
 
 codey.wifi.start(rete, password)
 codey.led.show(255,0,0)
@@ -349,7 +415,8 @@ while True:
         codey.display.show(CODEY_ID)
 
         while True:
-            mqttClient.wait_msg()
+            mqttClient.check_msg()
+            sendMqttData()
             time.sleep(1)
 
     else:
