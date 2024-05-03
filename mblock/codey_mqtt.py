@@ -7,13 +7,13 @@ import json
 import random
 
 # Fill in your router's ssid and password here.
-#codey.wifi.start('TL4K-4G-NET', 'techlab4kids')
-#rete = 'procioniopossum'
-#password = 'tombolina'
-rete = 'TL4K-4G-NET'
-password = 'techlab4kids'
 
-MQTTHOST = "192.168.0.111"
+rete = 'procioniopossum'
+password = 'tombolina'
+#rete = 'TL4K-4G-NET'
+#password = 'techlab4kids'
+
+MQTTHOST = "192.168.10.119"
 MQTTPORT = 1883
 
 DEBUG_MODE = True
@@ -25,16 +25,13 @@ clientID = 'TL4K-Codey-{}'.format(CODEY_ID)
 # Example Path
 myTopic = "tl4k/{}/command/#".format(clientID)
 broadcastTopic = "tl4k/broadcast/command/#"
-#myTopic = "/tl4k/#"
 
 mqttClient = MQTTClient(clientID, MQTTHOST, port=MQTTPORT, user='', password='', keepalive=0, ssl=False)
 
 # Connect to the MQTT server
 def mqtt_connect():
-    #codey_debug("B 1!")
     time.sleep(1)
     mqttClient.connect()
-    #codey_debug("B 2!")
 
 def handle_led_show(params):
     r = params.get('r', 0)
@@ -94,44 +91,52 @@ def handle_display_show_emotion(params, emotion):
     codey.display.show_image(emotion)
 
 def handle_rocky_stop(params):
-    rocky.rocky.stop()
+    rocky.stop()
 
 def handle_rocky_forward(params):
-    speed = params.get('speed',100)
-    time_s = params.get('time_s',0)
-    straight = params.get()
-    rocky.rocky.forward(speed, time_s, straight)
+    print_debug("handle_rocky_forward", params)
+
+    speed = params.get('speed', 50)
+    print_debug("handle_rocky_forward", "speed: {}".format(speed))
+
+    time_s = params.get('time_s', 1)
+    print_debug("handle_rocky_forward", "time_s: {}".format(time_s))
+
+    straight = params.get('straight', True)
+    print_debug("handle_rocky_forward", "straight: {}".format(straight))
+
+    rocky.forward(speed, time_s, straight)
 
 def handle_rocky_backward(params):
     speed = params.get('speed',100)
     time_s = params.get('time_s',0)
     straight = params.get()
-    rocky.rocky.backward(speed, time_s, straight)
+    rocky.backward(speed, time_s, straight)
 
 def handle_rocky_turn_left(params):
     speed = params.get('speed',100)
     time_s = params.get('time_s',0)
-    rocky.rocky.turn_left(speed, time_s)
+    rocky.turn_left(speed, time_s)
 
 def handle_rocky_turn_right(params):
     speed = params.get('speed',100)
     time_s = params.get('time_s',0)
-    rocky.rocky.turn_right(speed, time_s)
+    rocky.turn_right(speed, time_s)
 
 def handle_rocky_drive(params):
     left_power = params.get('left_power',100)
     right_power = params.get('right_power',100)
-    rocky.rocky.drive(left_power, right_power)
+    rocky.drive(left_power, right_power)
 
 def handle_rocky_turn_right_by_degree(params):
     angle = params.get('angle',90)
     speed = params.get('speed',40)
-    rocky.rocky.turn_right_by_degree(angle, speed)
+    rocky.turn_right_by_degree(angle, speed)
 
 def handle_rocky_turn_left_by_degree(params):
     angle = params.get('angle',90)
     speed = params.get('speed',40)
-    rocky.rocky.turn_left_by_degree(angle, speed)
+    rocky.turn_left_by_degree(angle, speed)
 
 def handle_get_loudness(params):
     codey.sound_sensor.get_loudness()
@@ -141,7 +146,6 @@ def handle_light_sensor_get_value(params):
 
 def handle_potentiometer_get_value(params):
     codey.potentiometer.get_value()
-
 
 # Function to convert a column to hexadecimal
 def column_to_hex(col_data):
@@ -177,36 +181,16 @@ emotion_matrix_default = [
     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]  # Row 7
 ]
 
-emotion_matrix_happy = [
-    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], # Row 0
-    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], # Row 1
-    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], # Row 2
-    [0,0,1,1,1,0,0,0,0,0,0,1,1,1,0,0], # Row 3
-    [0,1,1,1,1,1,0,0,0,0,1,1,1,1,1,0], # Row 4
-    [0,1,0,0,1,1,0,0,0,0,1,0,0,1,1,0], # Row 5
-    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0], # Row 6
-    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]  # Row 7
-]
-
 def handle_display_show_emotion_by_matrix(params, emotion_matrix):
-    #print("handle_display_show_emotion_by_matrix '{}'".format(emotion_matrix))
-
-    #print("range(16) '{}'".format(range(16)))
     hex_columns = []
-    for col_idx in range(16):  # Assumes all rows have the same length
-        # Extract the column data
+    for col_idx in range(16):
         column_data = [emotion_matrix[row_idx][col_idx] for row_idx in range(8)]
-        #print("column_data column '{}'".format(column_data))
 
-        # Convert the column data to hex and add to the list
         column = column_to_hex(column_data)
-        #print("column_data column '{}'".format(column))
         hex_columns.append(column_to_hex(column_data))
-        #print("column_data '{}'".format(hex_columns))
 
-    # Join all hexadecimal values into a single string
+
     final_hex_string = ''.join(hex_columns)
-    #final_hex_string = "0003c7e7e3c00"
     print("final_hex_string '{}'".format(final_hex_string))
     codey.display.show_image(final_hex_string)
 
@@ -231,7 +215,7 @@ command_handlers = {
     "display.show_happy_face": lambda params: handle_display_show_emotion(params, "000c18181c0c000000000c18181c0c00"),  # Example pattern
     "display.show_sad_face": lambda params: handle_display_show_emotion(params, "003c0f003f0c00000000f00f3c3c0300"),  # Example pattern
     "display.show_angry_face": lambda params: handle_display_show_emotion(params, "0f003f0c3c030000000000f00f3c0f00"),  # Example pattern
-    "display.show_surprised_face": lambda params: handle_display_show_emotion(params, "03c03f0f3f030000000000f0f3c3f030")  # Example pattern
+    "display.show_surprised_face": lambda params: handle_display_show_emotion(params, "03c03f0f3f030000000000f0f3c3f030"),  # Example pattern
 
     "rocky.stop": handle_rocky_stop,
     "rocky.forward": handle_rocky_forward,
@@ -246,45 +230,6 @@ command_handlers = {
     "light_sensor.get_value": handle_light_sensor_get_value,
     "potentiometer.get_value": handle_potentiometer_get_value,
 }
-
-def enumerate_properties(obj, depth=1, max_depth=2, visited=None):
-    if visited is None:
-        visited = set()
-
-    # Avoid cyclic references causing infinite loops
-    if id(obj) in visited:
-        return
-    visited.add(id(obj))
-
-    # Prevent too deep recursion
-    if depth > max_depth:
-        return
-
-    # Attempt to print properties of the object
-    try:
-        properties = dir(obj)
-    except Exception as e:
-        #print(f"Could not access properties of object: {e}")
-        print("Could not access properties of object: '{}'".format(e))
-        return
-
-    for prop in properties:
-        # Print property name
-        objectName = "{}.{}".format(obj, prop)
-        print(objectName)
-        mqttClient.publish("tl4k/data/object_properties", objectName)
-
-        # Get the property's value
-        try:
-            prop_value = getattr(obj, prop)
-        except Exception as e:
-            #print("    " * depth + f"Could not retrieve property '{prop}': {e}")
-            print("    " * depth + "Could not retrieve property '{}': {}".format(prop, e))
-            continue
-
-        # If the property is an object, enumerate its properties
-        if hasattr(prop_value, '__dict__') or isinstance(prop_value, object):
-            enumerate_properties(prop_value, depth + 1, max_depth, visited)
 
 def on_new_mqtt_message(myTopic, msg):
     print("Received message '{}' on myTopic '{}'".format(msg, myTopic))
@@ -319,9 +264,9 @@ def on_new_mqtt_message(myTopic, msg):
     except Exception as e:
         print("Error handling message:", e)
 
-def codey_debug(msg):
+def print_debug(function, params):
     if (DEBUG_MODE):
-        codey.display.show(msg)
+        print("'{}': data: '{}'".format(function, params))
 
 # subscribe message
 def mqtt_subscribe():
@@ -338,7 +283,6 @@ def mqtt_subscribe():
 
 codey.wifi.start(rete, password)
 codey.led.show(255,0,0)
-#codey.display.show("Connessione...")
 
 while True:
     if codey.wifi.is_connected():
@@ -354,9 +298,6 @@ while True:
         codey.led.show(0,0,255)
 
         codey.display.show(CODEY_ID)
-
-        #enumerate_properties(codey)
-        #enumerate_properties(rocky)
 
         while True:
             mqttClient.wait_msg()
