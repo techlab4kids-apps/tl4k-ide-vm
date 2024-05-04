@@ -6,6 +6,8 @@ import ubinascii
 import json
 import random
 import utime
+import event
+import _thread
 
 
 # Fill in your router's ssid and password here.
@@ -18,7 +20,7 @@ password = 'tombolina'
 MQTTHOST = "192.168.10.116"
 MQTTPORT = 1883
 
-DEBUG_MODE = False
+DEBUG_MODE = True
 
 MQTT_TIME_INTERVAL_MS = 900
 
@@ -32,6 +34,7 @@ start = None
 
 # Example Path
 myDataTopic = "tl4k/{}/data/".format(clientID)
+myEventTopic = "tl4k/{}/event/".format(clientID)
 myTopic = "tl4k/{}/command/#".format(clientID)
 broadcastTopic = "tl4k/broadcast/command/#"
 
@@ -266,6 +269,31 @@ def handle_data_request(params):
     else:
         sendData = False
 
+def notify_event(event):
+    print_debug("event", event)
+    #global sendData
+    #if (sendData):
+    msg = event
+    print_debug("event", "msg {} to topic {}".format(msg, myEventTopic))
+
+    mqttClient.publish(myEventTopic, json.dumps(msg), retain=False, qos=0)
+
+#@event.start
+def start_callback():
+    notify_event("start")
+
+#@event.button_a_pressed
+def button_a_pressed_callback():
+    notify_event("button_a_pressed")
+
+#@event.button_b_pressed
+def button_b_pressed_callback():
+    notify_event("button_b_pressed")
+
+#@event.button_c_pressed
+def button_c_pressed_callback():
+    notify_event("button_c_pressed")
+
 # Map each command to its handler function
 command_handlers = {
     "send.data": handle_data_request,
@@ -362,20 +390,54 @@ def sendMqttData():
     if start == None:
         start = utime.ticks_ms()
         print_debug("initializing start time", start)
+    else:
+        elapsedTime = utime.ticks_diff(now, start)
+        #print_debug("elapsedTime", elapsedTime)
+        if (sendData and elapsedTime > MQTT_TIME_INTERVAL_MS):
+            codey.led.show(255,255,0)
+            start = now
 
-    elapsedTime = utime.ticks_diff(now, start)
-    print_debug("elapsedTime", elapsedTime)
-    if (sendData and elapsedTime > MQTT_TIME_INTERVAL_MS):
-        start = now
+            global dataToSend
+            #print_debug("sendMqttData dataToSend", dataToSend)
+            if "light" in dataToSend:
+                msg["light"] = codey.light_sensor.get_value()
 
-        global dataToSend
-        #print_debug("sendMqttData dataToSend", dataToSend)
-        if "light" in dataToSend:
-            msg["light"] = codey.light_sensor.get_value()
+            print_debug("sendMqttData", "msg {} to topic {}".format(msg, myDataTopic))
+            if len(msg) > 0:
+                mqttClient.publish(myDataTopic, json.dumps(msg), retain=False, qos=0)
+        else:
+            codey.led.show(0,0,255)
 
-        print_debug("sendMqttData", "msg {} to topic {}".format(msg, myDataTopic))
+def sendMqttDataThread():
+    #global sendData
+    #print_debug("sendMqttData sendData", sendData)
 
-        mqttClient.publish(myDataTopic, json.dumps(msg), retain=False, qos=0)
+    msg = {}
+    now = utime.ticks_ms()
+
+    #global start
+    start = None
+
+    if start == None:
+        start = utime.ticks_ms()
+        print_debug("initializing start time", start)
+    else:
+        elapsedTime = utime.ticks_diff(now, start)
+        #print_debug("elapsedTime", elapsedTime)
+        if (sendData and elapsedTime > MQTT_TIME_INTERVAL_MS):
+            codey.led.show(255,255,0)
+            start = now
+
+            global dataToSend
+            #print_debug("sendMqttData dataToSend", dataToSend)
+            if "light" in dataToSend:
+                msg["light"] = codey.light_sensor.get_value()
+
+            print_debug("sendMqttData", "msg {} to topic {}".format(msg, myDataTopic))
+            if len(msg) > 0:
+                mqttClient.publish(myDataTopic, json.dumps(msg), retain=False, qos=0)
+        else:
+            codey.led.show(0,0,255)
 
 
 def print_debug(function, params = {}):
@@ -399,27 +461,81 @@ def mqtt_subscribe():
 codey.wifi.start(rete, password)
 codey.led.show(255,0,0)
 
-while True:
-    if codey.wifi.is_connected():
-        print("WIFI connected")
-        codey.led.show(0,255,255)
 
-        mqtt_connect()
-        codey.led.show(0,255,0)
-        codey.emotion.hello()
+
+def mqtt_work_thread():
+    #print_debug("Starting mqtt thread")
+    while True:
+        mqttClient.check_msg()
+        sendMqttData()
+
         time.sleep(1)
 
-        mqtt_subscribe()
-        codey.led.show(0,0,255)
+args = []
 
-        codey.display.show(CODEY_ID)
+pippo = {
+    "MQTTHOST": MQTTHOST,
+    "MQTTPORT": MQTTPORT,
 
-        while True:
-            mqttClient.check_msg()
-            sendMqttData()
-            time.sleep(1)
+    "DEBUG_MODE": DEBUG_MODE,
 
-    else:
-        codey.led.show(255,0,0)
-        codey.emotion.look_around()
+    "MQTT_TIME_INTERVAL_MS": MQTT_TIME_INTERVAL_MS,
 
+    "clientID": clientID,
+
+    "sendData": sendData,
+    "dataToSend": dataToSend,
+    "start": start,
+
+    "myDataTopic": myDataTopic,
+    "myEventTopic": myEventTopic,
+    "myEventTopic": myEventTopic,
+    "broadcastTopic": myEventTopic,
+
+    "mqttClient": mqttClient
+}
+
+event.start(start_callback)
+event.button_a_pressed(button_a_pressed_callback)
+event.button_b_pressed(button_b_pressed_callback)
+event.button_c_pressed(button_c_pressed_callback)
+
+def main_thread():
+    mqttThreadStarted = False
+    isWifiConnected = False
+    isMqttConnected = False
+    isMqttSubscribed = False
+    while True:
+        if codey.wifi.is_connected():
+            if not isWifiConnected:
+                isWifiConnected = True
+                print("WIFI connected")
+                codey.led.show(0,255,255)
+
+                if not isMqttConnected:
+                    mqtt_connect()
+                    isMqttConnected = True
+
+                    codey.led.show(0,255,0)
+                    codey.emotion.hello()
+                    time.sleep(1)
+
+                    if not isMqttSubscribed:
+                        mqtt_subscribe()
+                        isMqttSubscribed = True
+                        codey.led.show(0,0,255)
+
+                        codey.display.show(CODEY_ID)
+
+                        if mqttThreadStarted == False:
+                            mqtt_work_thread()
+                            mqttThreadStarted = True
+
+
+        else:
+            codey.led.show(255,0,0)
+            codey.emotion.look_around()
+
+        time.sleep(1)
+
+_thread.start_new_thread(main_thread, [])
