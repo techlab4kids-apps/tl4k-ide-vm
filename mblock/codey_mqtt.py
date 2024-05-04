@@ -24,26 +24,28 @@ DEBUG_MODE = True
 
 MQTT_TIME_INTERVAL_MS = 900
 
-# Fill in as you like
 CODEY_ID = random.randint(1000, 9999)
-clientID = 'TL4K-Codey-{}'.format(CODEY_ID)
+clientIdCommands = 'TL4K-Codey-{}-commands'.format(CODEY_ID)
+clientIdEvents = 'TL4K-Codey-{}-events'.format(CODEY_ID)
 
 sendData = False
 dataToSend = []
 start = None
 
 # Example Path
-myDataTopic = "tl4k/{}/data/".format(clientID)
-myEventTopic = "tl4k/{}/event/".format(clientID)
-myTopic = "tl4k/{}/command/#".format(clientID)
+myDataTopic = "tl4k/{}/data/".format(clientIdCommands)
+myEventTopic = "tl4k/{}/event/".format(clientIdCommands)
+myTopic = "tl4k/{}/command/#".format(clientIdCommands)
 broadcastTopic = "tl4k/broadcast/command/#"
 
-mqttClient = MQTTClient(clientID, MQTTHOST, port=MQTTPORT, user='', password='', keepalive=0, ssl=False)
+mqttClientCommands = MQTTClient(clientIdCommands, MQTTHOST, port=MQTTPORT, user='', password='', keepalive=0, ssl=False)
+mqttClientEvents = MQTTClient(clientIdEvents, MQTTHOST, port=MQTTPORT, user='', password='', keepalive=0, ssl=False)
 
 # Connect to the MQTT server
 def mqtt_connect():
     time.sleep(1)
-    mqttClient.connect()
+    mqttClientCommands.connect()
+    mqttClientEvents.connect()
 
 def handle_led_show(params):
     r = params.get('r', 0)
@@ -276,7 +278,7 @@ def notify_event(event):
     msg = event
     print_debug("event", "msg {} to topic {}".format(msg, myEventTopic))
 
-    mqttClient.publish(myEventTopic, json.dumps(msg), retain=False, qos=0)
+    mqttClientEvents.publish(myEventTopic, json.dumps(msg), retain=False, qos=0)
 
 #@event.start
 def start_callback():
@@ -404,7 +406,7 @@ def sendMqttData():
 
             print_debug("sendMqttData", "msg {} to topic {}".format(msg, myDataTopic))
             if len(msg) > 0:
-                mqttClient.publish(myDataTopic, json.dumps(msg), retain=False, qos=0)
+                mqttClientCommands.publish(myDataTopic, json.dumps(msg), retain=False, qos=0)
         else:
             codey.led.show(0,0,255)
 
@@ -435,7 +437,7 @@ def sendMqttDataThread():
 
             print_debug("sendMqttData", "msg {} to topic {}".format(msg, myDataTopic))
             if len(msg) > 0:
-                mqttClient.publish(myDataTopic, json.dumps(msg), retain=False, qos=0)
+                mqttClientCommands.publish(myDataTopic, json.dumps(msg), retain=False, qos=0)
         else:
             codey.led.show(0,0,255)
 
@@ -448,14 +450,14 @@ def print_debug(function, params = {}):
 # subscribe message
 def mqtt_subscribe():
     print_debug("Setting the callback")
-    mqttClient.set_callback(on_new_mqtt_message)
+    mqttClientCommands.set_callback(on_new_mqtt_message)
 
     print_debug("Subscribing to myTopic '{}'".format(myTopic))
-    mqttClient.subscribe(myTopic, qos = 1)
+    mqttClientCommands.subscribe(myTopic, qos = 1)
     print_debug("Subscribed to myTopic '{}'".format(myTopic))
 
     print_debug("Subscribing to broadcastTopic '{}'".format(broadcastTopic))
-    mqttClient.subscribe(broadcastTopic, qos = 1)
+    mqttClientCommands.subscribe(broadcastTopic, qos = 1)
     print_debug("Subscribed to broadcastTopic '{}'".format(broadcastTopic))
 
 codey.wifi.start(rete, password)
@@ -466,7 +468,7 @@ codey.led.show(255,0,0)
 def mqtt_work_thread():
     #print_debug("Starting mqtt thread")
     while True:
-        mqttClient.check_msg()
+        mqttClientCommands.check_msg()
         sendMqttData()
 
         time.sleep(1)
@@ -481,7 +483,7 @@ pippo = {
 
     "MQTT_TIME_INTERVAL_MS": MQTT_TIME_INTERVAL_MS,
 
-    "clientID": clientID,
+    "clientIdCommands": clientIdCommands,
 
     "sendData": sendData,
     "dataToSend": dataToSend,
@@ -492,7 +494,7 @@ pippo = {
     "myEventTopic": myEventTopic,
     "broadcastTopic": myEventTopic,
 
-    "mqttClient": mqttClient
+    "mqttClientCommands": mqttClientCommands
 }
 
 event.start(start_callback)
