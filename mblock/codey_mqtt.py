@@ -1,6 +1,7 @@
 from cloud_message.mqtt import MQTTClient
 import codey
 import rocky
+
 import time
 import ubinascii
 import json
@@ -12,12 +13,12 @@ import _thread
 
 # Fill in your router's ssid and password here.
 
-rete = 'procioniopossum'
-password = 'tombolina'
-#rete = 'TL4K-4G-NET'
-#password = 'techlab4kids'
+#rete = 'procioniopossum'
+#password = 'tombolina'
+rete = 'TL4K-4G-NET'
+password = 'techlab4kids'
 
-MQTTHOST = "192.168.10.116"
+MQTTHOST = "192.168.0.102"
 MQTTPORT = 1883
 
 DEBUG_MODE = True
@@ -403,6 +404,29 @@ def sendMqttData():
             #print_debug("sendMqttData dataToSend", dataToSend)
             if "light" in dataToSend:
                 msg["light"] = codey.light_sensor.get_value()
+            if "light strength" in dataToSend:
+                msg["light strength"] = rocky.color_ir_sensor.get_light_strength()
+            if "sound" in dataToSend:
+                msg["sound"] = codey.sound_sensor.get_loudness()
+            if "color component":
+                msg["color component"] = {
+                    "red": rocky.color_ir_sensor.get_red(),
+                    "green": rocky.color_ir_sensor.get_green(),
+                    "blue": rocky.color_ir_sensor.get_blue()
+                }
+            if "color matched":
+                msg["color matched"] = {
+                    "is_red": rocky.color_ir_sensor.is_color("red"),
+                    "is_green": rocky.color_ir_sensor.is_color("green"),
+                    "is_blue": rocky.color_ir_sensor.is_color("blue"),
+                    "is_yellow": rocky.color_ir_sensor.is_color("yellow"),
+                    "is_cyan": rocky.color_ir_sensor.is_color("cyan"),
+                    "is_purple": rocky.color_ir_sensor.is_color("purple"),
+                    "is_white": rocky.color_ir_sensor.is_color("white"),
+                    "is_black": rocky.color_ir_sensor.is_color("black"),
+                }
+            if "obstacle ahead":
+                msg["obstacle ahead"] = rocky.color_ir_sensor.is_obstacle_ahead()
 
             print_debug("sendMqttData", "msg {} to topic {}".format(msg, myDataTopic))
             if len(msg) > 0:
@@ -410,6 +434,7 @@ def sendMqttData():
         else:
             codey.led.show(0,0,255)
 
+'''
 def sendMqttDataThread():
     #global sendData
     #print_debug("sendMqttData sendData", sendData)
@@ -440,7 +465,7 @@ def sendMqttDataThread():
                 mqttClientCommands.publish(myDataTopic, json.dumps(msg), retain=False, qos=0)
         else:
             codey.led.show(0,0,255)
-
+'''
 
 def print_debug(function, params = {}):
     global DEBUG_MODE
