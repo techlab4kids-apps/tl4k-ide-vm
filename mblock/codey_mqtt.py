@@ -10,15 +10,12 @@ import utime
 import event
 import _thread
 
+rete = 'procioniopossum'
+password = 'tombolina'
+#rete = 'TL4K-4G-NET'
+#password = 'techlab4kids'
 
-# Fill in your router's ssid and password here.
-
-#rete = 'procioniopossum'
-#password = 'tombolina'
-rete = 'TL4K-4G-NET'
-password = 'techlab4kids'
-
-MQTTHOST = "192.168.0.102"
+MQTTHOST = "192.168.10.116"
 MQTTPORT = 1883
 
 DEBUG_MODE = True
@@ -29,10 +26,6 @@ CODEY_ID = random.randint(1000, 9999)
 clientIdCommands = 'TL4K-Codey-{}-commands'.format(CODEY_ID)
 clientIdEvents = 'TL4K-Codey-{}-events'.format(CODEY_ID)
 
-sendData = False
-dataToSend = []
-start = None
-
 # Example Path
 myDataTopic = "tl4k/{}/data/".format(clientIdCommands)
 myEventTopic = "tl4k/{}/event/".format(clientIdCommands)
@@ -42,11 +35,155 @@ broadcastTopic = "tl4k/broadcast/command/#"
 mqttClientCommands = MQTTClient(clientIdCommands, MQTTHOST, port=MQTTPORT, user='', password='', keepalive=0, ssl=False)
 mqttClientEvents = MQTTClient(clientIdEvents, MQTTHOST, port=MQTTPORT, user='', password='', keepalive=0, ssl=False)
 
-# Connect to the MQTT server
+def notify_event(event):
+    #print("notify_event")
+    #print_debug("event", event)
+    #global sendData
+    #if (sendData):
+    msg = event
+    print_debug("event", "msg {} to topic {}".format(msg, myEventTopic))
+
+    mqttClientEvents.publish(myEventTopic, json.dumps(msg), retain=False, qos=0)
+
+#@event.start
+def start_callback():
+    notify_event("start")
+
+@event.button_a_pressed
+def button_a_pressed_callback():
+    notify_event("button_a_pressed")
+
+@event.button_b_pressed
+def button_b_pressed_callback():
+    notify_event("button_b_pressed")
+
+@event.button_c_pressed
+def button_c_pressed_callback():
+    notify_event("button_c_pressed")
+
+#event.start(start_callback)
+
 def mqtt_connect():
     time.sleep(1)
     mqttClientCommands.connect()
     mqttClientEvents.connect()
+
+def logError(msg, codeyAction):
+    print(msg)
+    codeyAction()
+
+def print_debug(function, params = {}):
+    global DEBUG_MODE
+    if (DEBUG_MODE):
+        print("'{}': data: '{}'".format(function, params))
+
+codey.wifi.start(rete, password)
+codey.led.show(255,0,0)
+
+args = []
+
+#def mqtt_thread():
+sendData = False
+dataToSend = []
+start = None
+
+# subscribe message
+def mqtt_subscribe():
+    print_debug("Setting the callback")
+    mqttClientCommands.set_callback(on_new_mqtt_message)
+
+    print_debug("Subscribing to myTopic '{}'".format(myTopic))
+    mqttClientCommands.subscribe(myTopic, qos = 0)
+    print_debug("Subscribed to myTopic '{}'".format(myTopic))
+
+    print_debug("Subscribing to broadcastTopic '{}'".format(broadcastTopic))
+    mqttClientCommands.subscribe(broadcastTopic, qos = 0)
+    print_debug("Subscribed to broadcastTopic '{}'".format(broadcastTopic))
+
+def on_new_mqtt_message(myTopic, msg):
+    print("Received message '{}' on myTopic '{}'".format(msg, myTopic))
+    try:
+        if myTopic.endswith('/command/'):
+            #print("Received command '{}' on myTopic '{}'".format(msg, myTopic))
+            data = json.loads(msg)
+            command = data.get("comando")
+            params = data.get("parametri", {})
+            print("Command '{}' with parameters '{}'".format(command, params))
+
+            # Retrieve the handler function based on the command and call it
+            try:
+                handler = command_handlers.get(command)
+                #print("Command handler '{}' on myTopic '{}'".format(handler))
+                if handler:
+                    try:
+                        handler(params)
+                    except:
+                        logError("Error executing command {}:".format(command), codey.emotion.uh_oh)
+                else:
+                    logError("No handler available for command {}:".format(command), codey.emotion.uh_oh)
+            except:
+                logError("Error getting handler for command '{}'", command)
+                codey.emotion.uh_oh()
+
+    except json.JSONDecodeError:
+        print("Error decoding JSON")
+        codey.emotion.uh_oh()
+    except Exception as e:
+        print("Error handling message:", e)
+        codey.emotion.uh_oh()
+
+def sendMqttData():
+    global sendData
+    #print_debug("sendMqttData sendData", sendData)
+
+    msg = {}
+    now = utime.ticks_ms()
+
+    global start
+
+    if start == None:
+        start = utime.ticks_ms()
+        print_debug("initializing start time", start)
+    else:
+        elapsedTime = utime.ticks_diff(now, start)
+        #print_debug("elapsedTime", elapsedTime)
+        if (sendData and elapsedTime > MQTT_TIME_INTERVAL_MS):
+            codey.led.show(255,255,0)
+            start = now
+
+            global dataToSend
+            #print_debug("sendMqttData dataToSend", dataToSend)
+            if "light" in dataToSend:
+                msg["light"] = codey.light_sensor.get_value()
+            if "light strength" in dataToSend:
+                msg["light strength"] = rocky.color_ir_sensor.get_light_strength()
+            if "sound" in dataToSend:
+                msg["sound"] = codey.sound_sensor.get_loudness()
+            if "color component":
+                msg["color component"] = {
+                    "red": rocky.color_ir_sensor.get_red(),
+                    "green": rocky.color_ir_sensor.get_green(),
+                    "blue": rocky.color_ir_sensor.get_blue()
+                }
+            if "color matched":
+                msg["color matched"] = {
+                    "is_red": rocky.color_ir_sensor.is_color("red"),
+                    "is_green": rocky.color_ir_sensor.is_color("green"),
+                    "is_blue": rocky.color_ir_sensor.is_color("blue"),
+                    "is_yellow": rocky.color_ir_sensor.is_color("yellow"),
+                    "is_cyan": rocky.color_ir_sensor.is_color("cyan"),
+                    "is_purple": rocky.color_ir_sensor.is_color("purple"),
+                    "is_white": rocky.color_ir_sensor.is_color("white"),
+                    "is_black": rocky.color_ir_sensor.is_color("black"),
+                }
+            if "obstacle ahead":
+                msg["obstacle ahead"] = rocky.color_ir_sensor.is_obstacle_ahead()
+
+            print_debug("sendMqttData", "msg {} to topic {}".format(msg, myDataTopic))
+            if len(msg) > 0:
+                mqttClientCommands.publish(myDataTopic, json.dumps(msg), retain=False, qos=0)
+        else:
+            codey.led.show(0,0,255)
 
 def handle_led_show(params):
     r = params.get('r', 0)
@@ -211,18 +348,13 @@ def column_to_hex(col_data):
     # Join the column data into a single string of binary numbers
     binary_string = ''.join(str(bit) for bit in col_data)
     #print("column_to_hex binary_string '{}'".format(binary_string))
-    # Convert the binary string to a hexadecimal number
-    # hex_number = format(int(binary_string, 2), '02x')
 
     # Convert binary string to an integer
     integer_value = int(binary_string, 2)
     #print("column_to_hex integer_value'{}'".format(integer_value))
     # Convert integer to hexadecimal string and remove the '0x' prefix
-    #hexadecimal_string = hex(integer_value)[2:]
+
     hexadecimal_string = "{:02x}".format(integer_value)
-    #print("column_to_hex hexadecimal_string'{}'".format(hexadecimal_string))
-    # Optionally, ensure the hexadecimal string is formatted to have even length (common in many applications)
-    #hexadecimal_string = hexadecimal_string.zfill((len(hexadecimal_string) + 1) // 2 * 2)
     #print("column_to_hex hexadecimal_string 2'{}'".format(hexadecimal_string))
 
     return hexadecimal_string
@@ -272,31 +404,6 @@ def handle_data_request(params):
     else:
         sendData = False
 
-def notify_event(event):
-    print_debug("event", event)
-    #global sendData
-    #if (sendData):
-    msg = event
-    print_debug("event", "msg {} to topic {}".format(msg, myEventTopic))
-
-    mqttClientEvents.publish(myEventTopic, json.dumps(msg), retain=False, qos=0)
-
-#@event.start
-def start_callback():
-    notify_event("start")
-
-#@event.button_a_pressed
-def button_a_pressed_callback():
-    notify_event("button_a_pressed")
-
-#@event.button_b_pressed
-def button_b_pressed_callback():
-    notify_event("button_b_pressed")
-
-#@event.button_c_pressed
-def button_c_pressed_callback():
-    notify_event("button_c_pressed")
-
 # Map each command to its handler function
 command_handlers = {
     "send.data": handle_data_request,
@@ -336,233 +443,61 @@ command_handlers = {
     "potentiometer.get_value": handle_potentiometer_get_value,
 }
 
-def on_new_mqtt_message(myTopic, msg):
-    print("Received message '{}' on myTopic '{}'".format(msg, myTopic))
-    try:
-        if myTopic.endswith('/command/'):
-            #print("Received command '{}' on myTopic '{}'".format(msg, myTopic))
-            data = json.loads(msg)
-            command = data.get("comando")
-            params = data.get("parametri", {})
-            print("Command '{}' with parameters '{}'".format(command, params))
+#_thread.start_new_thread(notification_thread, (event, mqttClientEvents))
 
-            # Retrieve the handler function based on the command and call it
-            try:
-                handler = command_handlers.get(command)
-                #print("Command handler '{}' on myTopic '{}'".format(handler))
-                if handler:
-                    try:
-                        handler(params)
-                    except:
-                        logError("Error executing command {}:".format(command), codey.emotion.uh_oh)
-                else:
-                    logError("No handler available for command {}:".format(command), codey.emotion.uh_oh)
-            except:
-                logError("Error getting handler for command '{}'", command)
-                codey.emotion.uh_oh()
-    #        else:
-    #            # Handle other myTopics, e.g., data requests or settings
-    #            if myTopic.endswith('/data/'):
-    #                data = json.loads(msg)
-    #                command = data.get("comando")
-    #                params = data.get("parametri", {})
-    #                print("Command '{}' with parameters '{}'".format(command, params))
-    #                print("Received data request '{}' on myTopic '{}'".format(msg, myTopic))
-    #                process_data_requests(command, params)
+mqttThreadStarted = False
+isWifiConnected = False
+isMqttConnected = False
+isMqttSubscribed = False
 
-    except json.JSONDecodeError:
-        print("Error decoding JSON")
-        codey.emotion.uh_oh()
-    except Exception as e:
-        print("Error handling message:", e)
-        codey.emotion.uh_oh()
 
-def logError(msg, codeyAction):
-    print(msg)
-    codeyAction()
 
-def sendMqttData():
-    global sendData
-    #print_debug("sendMqttData sendData", sendData)
+while not isWifiConnected:
+    if codey.wifi.is_connected():
+        if not isWifiConnected:
+            isWifiConnected = True
+            print("WIFI connected")
+            codey.led.show(0,255,255)
 
-    msg = {}
-    now = utime.ticks_ms()
+            if not isMqttConnected:
+                mqtt_connect()
+                isMqttConnected = True
 
-    global start
+                codey.led.show(0,255,0)
+                codey.emotion.hello()
+                #time.sleep(1)
 
-    if start == None:
-        start = utime.ticks_ms()
-        print_debug("initializing start time", start)
+                if not isMqttSubscribed:
+                    mqtt_subscribe()
+                    isMqttSubscribed = True
+                    codey.led.show(0,0,255)
+
+                    codey.display.show(CODEY_ID)
+                    '''
+                    while True:
+                        mqttClientCommands.check_msg()
+                        sendMqttData()
+
+                        time.sleep(.01)
+                    '''
     else:
-        elapsedTime = utime.ticks_diff(now, start)
-        #print_debug("elapsedTime", elapsedTime)
-        if (sendData and elapsedTime > MQTT_TIME_INTERVAL_MS):
-            codey.led.show(255,255,0)
-            start = now
+        codey.led.show(255,0,0)
+        codey.emotion.look_around()
 
-            global dataToSend
-            #print_debug("sendMqttData dataToSend", dataToSend)
-            if "light" in dataToSend:
-                msg["light"] = codey.light_sensor.get_value()
-            if "light strength" in dataToSend:
-                msg["light strength"] = rocky.color_ir_sensor.get_light_strength()
-            if "sound" in dataToSend:
-                msg["sound"] = codey.sound_sensor.get_loudness()
-            if "color component":
-                msg["color component"] = {
-                    "red": rocky.color_ir_sensor.get_red(),
-                    "green": rocky.color_ir_sensor.get_green(),
-                    "blue": rocky.color_ir_sensor.get_blue()
-                }
-            if "color matched":
-                msg["color matched"] = {
-                    "is_red": rocky.color_ir_sensor.is_color("red"),
-                    "is_green": rocky.color_ir_sensor.is_color("green"),
-                    "is_blue": rocky.color_ir_sensor.is_color("blue"),
-                    "is_yellow": rocky.color_ir_sensor.is_color("yellow"),
-                    "is_cyan": rocky.color_ir_sensor.is_color("cyan"),
-                    "is_purple": rocky.color_ir_sensor.is_color("purple"),
-                    "is_white": rocky.color_ir_sensor.is_color("white"),
-                    "is_black": rocky.color_ir_sensor.is_color("black"),
-                }
-            if "obstacle ahead":
-                msg["obstacle ahead"] = rocky.color_ir_sensor.is_obstacle_ahead()
+    time.sleep(1)
 
-            print_debug("sendMqttData", "msg {} to topic {}".format(msg, myDataTopic))
-            if len(msg) > 0:
-                mqttClientCommands.publish(myDataTopic, json.dumps(msg), retain=False, qos=0)
-        else:
-            codey.led.show(0,0,255)
-
-'''
-def sendMqttDataThread():
-    #global sendData
-    #print_debug("sendMqttData sendData", sendData)
-
-    msg = {}
-    now = utime.ticks_ms()
-
-    #global start
-    start = None
-
-    if start == None:
-        start = utime.ticks_ms()
-        print_debug("initializing start time", start)
-    else:
-        elapsedTime = utime.ticks_diff(now, start)
-        #print_debug("elapsedTime", elapsedTime)
-        if (sendData and elapsedTime > MQTT_TIME_INTERVAL_MS):
-            codey.led.show(255,255,0)
-            start = now
-
-            global dataToSend
-            #print_debug("sendMqttData dataToSend", dataToSend)
-            if "light" in dataToSend:
-                msg["light"] = codey.light_sensor.get_value()
-
-            print_debug("sendMqttData", "msg {} to topic {}".format(msg, myDataTopic))
-            if len(msg) > 0:
-                mqttClientCommands.publish(myDataTopic, json.dumps(msg), retain=False, qos=0)
-        else:
-            codey.led.show(0,0,255)
-'''
-
-def print_debug(function, params = {}):
-    global DEBUG_MODE
-    if (DEBUG_MODE):
-        print("'{}': data: '{}'".format(function, params))
-
-# subscribe message
-def mqtt_subscribe():
-    print_debug("Setting the callback")
-    mqttClientCommands.set_callback(on_new_mqtt_message)
-
-    print_debug("Subscribing to myTopic '{}'".format(myTopic))
-    mqttClientCommands.subscribe(myTopic, qos = 1)
-    print_debug("Subscribed to myTopic '{}'".format(myTopic))
-
-    print_debug("Subscribing to broadcastTopic '{}'".format(broadcastTopic))
-    mqttClientCommands.subscribe(broadcastTopic, qos = 1)
-    print_debug("Subscribed to broadcastTopic '{}'".format(broadcastTopic))
-
-codey.wifi.start(rete, password)
-codey.led.show(255,0,0)
-
-
-
-def mqtt_work_thread():
-    #print_debug("Starting mqtt thread")
-    while True:
-        mqttClientCommands.check_msg()
-        sendMqttData()
-
-        time.sleep(1)
-
-args = []
-
-pippo = {
-    "MQTTHOST": MQTTHOST,
-    "MQTTPORT": MQTTPORT,
-
-    "DEBUG_MODE": DEBUG_MODE,
-
-    "MQTT_TIME_INTERVAL_MS": MQTT_TIME_INTERVAL_MS,
-
-    "clientIdCommands": clientIdCommands,
-
-    "sendData": sendData,
-    "dataToSend": dataToSend,
-    "start": start,
-
-    "myDataTopic": myDataTopic,
-    "myEventTopic": myEventTopic,
-    "myEventTopic": myEventTopic,
-    "broadcastTopic": myEventTopic,
-
-    "mqttClientCommands": mqttClientCommands
-}
-
-event.start(start_callback)
 event.button_a_pressed(button_a_pressed_callback)
 event.button_b_pressed(button_b_pressed_callback)
 event.button_c_pressed(button_c_pressed_callback)
+print("Event handersRegistered")
 
-def main_thread():
-    mqttThreadStarted = False
-    isWifiConnected = False
-    isMqttConnected = False
-    isMqttSubscribed = False
-    while True:
-        if codey.wifi.is_connected():
-            if not isWifiConnected:
-                isWifiConnected = True
-                print("WIFI connected")
-                codey.led.show(0,255,255)
+print("Main loop")
+while True:
+    mqttClientCommands.check_msg()
+    sendMqttData()
 
-                if not isMqttConnected:
-                    mqtt_connect()
-                    isMqttConnected = True
+    time.sleep(.01)
 
-                    codey.led.show(0,255,0)
-                    codey.emotion.hello()
-                    time.sleep(1)
+print("terminating program")
 
-                    if not isMqttSubscribed:
-                        mqtt_subscribe()
-                        isMqttSubscribed = True
-                        codey.led.show(0,0,255)
-
-                        codey.display.show(CODEY_ID)
-
-                        if mqttThreadStarted == False:
-                            mqtt_work_thread()
-                            mqttThreadStarted = True
-
-
-        else:
-            codey.led.show(255,0,0)
-            codey.emotion.look_around()
-
-        time.sleep(1)
-
-_thread.start_new_thread(main_thread, [])
+#_thread.start_new_thread(mqtt_thread, [])
