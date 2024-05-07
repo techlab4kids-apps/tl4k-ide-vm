@@ -305,6 +305,17 @@ class ScratchMqttClientBlocks {
                         }
                     }
                 },
+                // {
+                //     filter: ['sprite', 'stage'],
+                //     opcode: 'isClientConnected',
+                //     text: formatMessage({
+                //         id: 'mqtt.isClientConnected',
+                //         default: "connesso",
+                //         description: 'indica se il client è connesso o meno al broker'
+                //     }),
+                //     blockType: BlockType.REPORTER,
+                //     showAsVariable: true
+                // },
                 {
                     filter: ['sprite', 'stage'],
                     opcode: 'isClientConnected',
@@ -313,7 +324,7 @@ class ScratchMqttClientBlocks {
                         default: "connesso",
                         description: 'indica se il client è connesso o meno al broker'
                     }),
-                    blockType: BlockType.REPORTER,
+                    blockType: BlockType.BOOLEAN,
                     showAsVariable: true
                 },
                 {

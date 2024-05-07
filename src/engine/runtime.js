@@ -43,7 +43,7 @@ const defaultBlockPackages = {
     scratch3_sensing: require('../blocks/scratch3_sensing'),
     scratch3_data: require('../blocks/scratch3_data'),
     scratch3_procedures: require('../blocks/scratch3_procedures'),
-    pm_liveTests: require('../blocks/pm_live tests')
+    // pm_liveTests: require('../blocks/pm_live tests')
 };
 
 const interpolate = require('./tw-interpolate');
@@ -935,7 +935,7 @@ class Runtime extends EventEmitter {
         // tw: clone limit is set per-runtime in runtimeOptions, this is only the initial value
         return 300;
     }
-    
+
 
 
 
@@ -1243,14 +1243,14 @@ class Runtime extends EventEmitter {
                 outputShape: menuInfo.acceptReporters ?
                     ScratchBlocksConstants.OUTPUT_SHAPE_ROUND : ScratchBlocksConstants.OUTPUT_SHAPE_SQUARE,
                 args0: [
-                    (typeof menuInfo.variableType === 'string' ? 
+                    (typeof menuInfo.variableType === 'string' ?
                         {
                             type: 'field_variable_getter',
                             name: menuName,
-                            variableType: menuInfo.variableType === 'scaler' 
-                                ? '' 
+                            variableType: menuInfo.variableType === 'scaler'
+                                ? ''
                                 : menuInfo.variableType
-                        } : 
+                        } :
                         {
                             type: 'field_dropdown',
                             name: menuName,
@@ -1324,7 +1324,7 @@ class Runtime extends EventEmitter {
             return this._convertSeparatorForScratchBlocks(blockInfo);
         }
 
-        if (blockInfo.blockType === BlockType.LABEL) 
+        if (blockInfo.blockType === BlockType.LABEL)
             return this._convertLabelForScratchBlocks(blockInfo);
 
         if (blockInfo.blockType === BlockType.BUTTON) {
@@ -1714,7 +1714,7 @@ class Runtime extends EventEmitter {
                 return blockFilterIncludesTarget && !block.info.hideFromPalette;
             });
 
-            orderBlocks = orderBlocks 
+            orderBlocks = orderBlocks
                 ? orderBlocks
                 : blocks => blocks;
 

@@ -26,13 +26,13 @@ class ScratchTechLAB4KidsCodeyRocky {
         return "{\"comando\":\"" + command + "\",\"parametri\":" + parameter + "}";
     }
 
-    sendMqttMessages(command, parameter, util){
-        if(util.target.shouldSendMqttMessage && util.target.mqttMessageTopic){
-            let message = getMqttMessage(command, parameter);
-            let args = {TOPIC: util.target.mqttMessageTopic, MESSAGE: message};
-            util.mqttClient.publish(args, util)
-        }
-    }
+    // sendMqttMessages(command, parameter, util){
+    //     if(util.target.shouldSendMqttMessage && util.target.mqttMessageTopic){
+    //         let message = getMqttMessage(command, parameter);
+    //         let args = {TOPIC: util.target.mqttMessageTopic, MESSAGE: message};
+    //         util.mqttClient.publish(args, util)
+    //     }
+    // }
 
     ledShow(args) {
         const parameters = JSON.stringify({ r: args.RED, g: args.GREEN, b: args.BLUE });
@@ -73,10 +73,10 @@ class ScratchTechLAB4KidsCodeyRocky {
         return this.getMqttMessage('display.set_pixel', parameters);
     }
 
-    displayGetPixel(args) {
-        const parameters = JSON.stringify({ pos_x: args.POS_X, pos_y: args.POS_Y });
-        return this.getMqttMessage('display.get_pixel', parameters);
-    }
+    // displayGetPixel(args) {
+    //     const parameters = JSON.stringify({ pos_x: args.POS_X, pos_y: args.POS_Y });
+    //     return this.getMqttMessage('display.get_pixel', parameters);
+    // }
 
     displayTogglePixel(args) {
         const parameters = JSON.stringify({ pos_x: args.POS_X, pos_y: args.POS_Y });
@@ -97,15 +97,15 @@ class ScratchTechLAB4KidsCodeyRocky {
         return this.getMqttMessage('display.show_image', JSON.stringify({ image: image }));
     }
 
-    displayAngryFace() {
-        const image = "0f003f0c3c030000000000f00f3c0f00"; // Example pattern
-        return this.getMqttMessage('display.show_image', JSON.stringify({ image: image }));
-    }
-
-    displaySurprisedFace() {
-        const image = "03c03f0f3f030000000000f0f3c3f030"; // Example pattern
-        return this.getMqttMessage('display.show_image', JSON.stringify({ image: image }));
-    }
+    // displayAngryFace() {
+    //     const image = "0f003f0c3c030000000000f00f3c0f00"; // Example pattern
+    //     return this.getMqttMessage('display.show_image', JSON.stringify({ image: image }));
+    // }
+    //
+    // displaySurprisedFace() {
+    //     const image = "03c03f0f3f030000000000f0f3c3f030"; // Example pattern
+    //     return this.getMqttMessage('display.show_image', JSON.stringify({ image: image }));
+    // }
 
     rockyStop() {
         return this.getMqttMessage('rocky.stop', '{}');
@@ -121,19 +121,24 @@ class ScratchTechLAB4KidsCodeyRocky {
         return this.getMqttMessage('rocky.backward', parameters);
     }
 
-    rockyTurnLeft(args) {
-        const parameters = JSON.stringify({ speed: args.SPEED, t: args.TIME_S });
-        return this.getMqttMessage('rocky.turn_left', parameters);
-    }
+    // rockyTurnLeft(args) {
+    //     const parameters = JSON.stringify({ speed: args.SPEED, t: args.TIME_S });
+    //     return this.getMqttMessage('rocky.turn_left', parameters);
+    // }
+    //
+    // rockyTurnRight(args) {
+    //     const parameters = JSON.stringify({ speed: args.SPEED, t: args.TIME_S });
+    //     return this.getMqttMessage('rocky.turn_right', parameters);
+    // }
 
-    rockyTurnRight(args) {
-        const parameters = JSON.stringify({ speed: args.SPEED, t: args.TIME_S });
-        return this.getMqttMessage('rocky.turn_right', parameters);
-    }
+    // rockyDrive(args) {
+    //     const parameters = JSON.stringify({ left_power: args.LEFT_POWER, right_power: args.RIGHT_POWER });
+    //     return this.getMqttMessage('rocky.drive', parameters);
+    // }
 
-    rockyDrive(args) {
-        const parameters = JSON.stringify({ left_power: args.LEFT_POWER, right_power: args.RIGHT_POWER });
-        return this.getMqttMessage('rocky.drive', parameters);
+    rockyTurnByDegree(args) {
+        const parameters = JSON.stringify({ angle: args.ANGLE, speed: args.SPEED });
+        return this.getMqttMessage('rocky.turn_right_by_degree', parameters);
     }
 
     rockyTurnRightByDegree(args) {
@@ -146,75 +151,93 @@ class ScratchTechLAB4KidsCodeyRocky {
         return this.getMqttMessage('rocky.turn_left_by_degree', parameters);
     }
 
-    getLoudness() {
-        return this.getMqttMessage('sound_sensor.get_loudness', '{}');
+    // getLoudness() {
+    //     return this.getMqttMessage('sound_sensor.get_loudness', '{}');
+    // }
+    //
+    // getLightIntensity() {
+    //     return this.getMqttMessage('light_sensor.get_value', '{}');
+    // }
+    //
+    // getPotentiometerValue() {
+    //     return this.getMqttMessage('potentiometer.get_value', '{}');
+    // }
+    //
+    // isButtonAPressed() {
+    //     return this.getMqttMessage('button_a.is_pressed', '{}');
+    // }
+    //
+    // getRoll() {
+    //     return this.getMqttMessage('motion_sensor.get_roll', '{}');
+    // }
+    //
+    // getPitch() {
+    //     return this.getMqttMessage('motion_sensor.get_pitch', '{}');
+    // }
+    //
+    // getYaw() {
+    //     return this.getMqttMessage('motion_sensor.get_yaw', '{}');
+    // }
+    //
+    // isShaked() {
+    //     return this.getMqttMessage('motion_sensor.is_shaked', '{}');
+    // }
+    //
+    // getShakeStrength() {
+    //     return this.getMqttMessage('motion_sensor.get_shake_strength', '{}');
+    // }
+    //
+    // isTiltedLeft() {
+    //     return this.getMqttMessage('motion_sensor.is_tilted_left', '{}');
+    // }
+    //
+    // isUpright() {
+    //     return this.getMqttMessage('motion_sensor.is_upright', '{}');
+    // }
+    //
+    // isDisplayUp() {
+    //     return this.getMqttMessage('motion_sensor.is_display_up', '{}');
+    // }
+    //
+    // isDisplayDown() {
+    //     return this.getMqttMessage('motion_sensor.is_display_down', '{}');
+    // }
+    //
+    // isEarsUp() {
+    //     return this.getMqttMessage('motion_sensor.is_ears_up', '{}');
+    // }
+    //
+    // isEarsDown() {
+    //     return this.getMqttMessage('motion_sensor.is_ears_down', '{}');
+    // }
+
+    // getAcceleration(args) {
+    //     return this.getMqttMessage('motion_sensor.get_acceleration', JSON.stringify({ axis: args.AXIS }));
+    // }
+    //
+    // getGyroscope(args) {
+    //     return this.getMqttMessage('motion_sensor.get_gyroscope', JSON.stringify({ axis: args.AXIS }));
+    // }
+
+    getCodeyCommandTopic(args){
+        let mqttMessage = `tl4k/devices/TL4K-Codey-${args.CODEY_ID}-commands/command/`;
+        return mqttMessage;
     }
 
-    getLightIntensity() {
-        return this.getMqttMessage('light_sensor.get_value', '{}');
+    getBroadcastCommandTopic(args){
+        let mqttMessage = `tl4k/devices/broadcast/command/`;
+        return mqttMessage;
     }
 
-    getPotentiometerValue() {
-        return this.getMqttMessage('potentiometer.get_value', '{}');
+    getEsp8266CommandTopic(args){
+        let mqttMessage = `tl4k/devices/${args.CLIENT_ID}/command/`;
+        return mqttMessage;
     }
 
-    isButtonAPressed() {
-        return this.getMqttMessage('button_a.is_pressed', '{}');
+    getSendData(args){
+        let mqttMessage = this.getMqttMessage('send.data', JSON.stringify({"invia": args.INVIA, "dati": args.SENSORI}));
+        return mqttMessage
     }
-
-    getRoll() {
-        return this.getMqttMessage('motion_sensor.get_roll', '{}');
-    }
-
-    getPitch() {
-        return this.getMqttMessage('motion_sensor.get_pitch', '{}');
-    }
-
-    getYaw() {
-        return this.getMqttMessage('motion_sensor.get_yaw', '{}');
-    }
-
-    isShaked() {
-        return this.getMqttMessage('motion_sensor.is_shaked', '{}');
-    }
-
-    getShakeStrength() {
-        return this.getMqttMessage('motion_sensor.get_shake_strength', '{}');
-    }
-
-    isTiltedLeft() {
-        return this.getMqttMessage('motion_sensor.is_tilted_left', '{}');
-    }
-
-    isUpright() {
-        return this.getMqttMessage('motion_sensor.is_upright', '{}');
-    }
-
-    isDisplayUp() {
-        return this.getMqttMessage('motion_sensor.is_display_up', '{}');
-    }
-
-    isDisplayDown() {
-        return this.getMqttMessage('motion_sensor.is_display_down', '{}');
-    }
-
-    isEarsUp() {
-        return this.getMqttMessage('motion_sensor.is_ears_up', '{}');
-    }
-
-    isEarsDown() {
-        return this.getMqttMessage('motion_sensor.is_ears_down', '{}');
-    }
-
-    getAcceleration(args) {
-        return this.getMqttMessage('motion_sensor.get_acceleration', JSON.stringify({ axis: args.AXIS }));
-    }
-
-    getGyroscope(args) {
-        return this.getMqttMessage('motion_sensor.get_gyroscope', JSON.stringify({ axis: args.AXIS }));
-    }
-
-
 
     /**
      * @returns {object} metadata for this extension and its blocks.
@@ -225,6 +248,48 @@ class ScratchTechLAB4KidsCodeyRocky {
             name: 'TechLAB4Kids Codey Rocky',
             blockIconURI: blockIconURI,
             blocks: [
+                {
+                    opcode: 'getCodeyCommandTopic',
+                    blockType: BlockType.REPORTER,
+                    text: 'Topic per il client con id [CODEY_ID]',
+                    arguments: {
+                        CODEY_ID: {
+                            type: ArgumentType.STRING,
+                            defaultValue: "0000"
+                        }
+                    }
+                },
+                {
+                    opcode: 'getBroadcastCommandTopic',
+                    blockType: BlockType.REPORTER,
+                    text: 'Topic per tutti i Codey'
+                },
+                {
+                    opcode: 'getEsp8266CommandTopic',
+                    blockType: BlockType.REPORTER,
+                    text: 'Topic per il client con id [CLIENT_ID]',
+                    arguments: {
+                        CLIENT_ID: {
+                            type: ArgumentType.STRING,
+                            defaultValue: "0000"
+                        }
+                    }
+                },
+                {
+                    opcode: 'getSendData',
+                    blockType: BlockType.REPORTER,
+                    text: 'Invia [INVIA] i dati dei sensori [SENSORI]',
+                    arguments: {
+                        INVIA: {
+                            type: ArgumentType.BOOLEAN,
+                            defaultValue: true
+                        },
+                        SENSORI: {
+                            type: ArgumentType.STRING,
+                            defaultValue: "light,light strength,sound,color component,color matched,obstacle ahead"
+                        }
+                    }
+                },
                 {
                     opcode: 'ledShow',
                     blockType: BlockType.REPORTER,
@@ -347,21 +412,21 @@ class ScratchTechLAB4KidsCodeyRocky {
                         }
                     }
                 },
-                {
-                    opcode: 'displayGetPixel',
-                    blockType: BlockType.REPORTER,
-                    text: 'ottieni stato del pixel a x: [POS_X] y: [POS_Y]',
-                    arguments: {
-                        POS_X: {
-                            type: ArgumentType.NUMBER,
-                            defaultValue: 0
-                        },
-                        POS_Y: {
-                            type: ArgumentType.NUMBER,
-                            defaultValue: 0
-                        }
-                    }
-                },
+                // {
+                //     opcode: 'displayGetPixel',
+                //     blockType: BlockType.REPORTER,
+                //     text: 'ottieni stato del pixel a x: [POS_X] y: [POS_Y]',
+                //     arguments: {
+                //         POS_X: {
+                //             type: ArgumentType.NUMBER,
+                //             defaultValue: 0
+                //         },
+                //         POS_Y: {
+                //             type: ArgumentType.NUMBER,
+                //             defaultValue: 0
+                //         }
+                //     }
+                // },
                 {
                     opcode: 'displayTogglePixel',
                     blockType: BlockType.REPORTER,
@@ -392,16 +457,16 @@ class ScratchTechLAB4KidsCodeyRocky {
                     blockType: BlockType.REPORTER,
                     text: 'mostra faccia triste'
                 },
-                {
-                    opcode: 'displayAngryFace',
-                    blockType: BlockType.REPORTER,
-                    text: 'mostra faccia arrabbiata'
-                },
-                {
-                    opcode: 'displaySurprisedFace',
-                    blockType: BlockType.REPORTER,
-                    text: 'mostra faccia sorpresa'
-                },
+                // {
+                //     opcode: 'displayAngryFace',
+                //     blockType: BlockType.REPORTER,
+                //     text: 'mostra faccia arrabbiata'
+                // },
+                // {
+                //     opcode: 'displaySurprisedFace',
+                //     blockType: BlockType.REPORTER,
+                //     text: 'mostra faccia sorpresa'
+                // },
                 {
                     opcode: 'rockyStop',
                     blockType: BlockType.REPORTER,
@@ -445,48 +510,63 @@ class ScratchTechLAB4KidsCodeyRocky {
                         }
                     }
                 },
+                // {
+                //     opcode: 'rockyTurnLeft',
+                //     blockType: BlockType.REPORTER,
+                //     text: 'Rocky gira a sinistra velocità [SPEED] per [TIME_S] secondi',
+                //     arguments: {
+                //         SPEED: {
+                //             type: ArgumentType.NUMBER,
+                //             defaultValue: 100
+                //         },
+                //         TIME_S: {
+                //             type: ArgumentType.NUMBER,
+                //             defaultValue: 0
+                //         }
+                //     }
+                // },
+                // {
+                //     opcode: 'rockyTurnRight',
+                //     blockType: BlockType.REPORTER,
+                //     text: 'Rocky gira a destra velocità [SPEED] per [TIME_S] secondi',
+                //     arguments: {
+                //         SPEED: {
+                //             type: ArgumentType.NUMBER,
+                //             defaultValue: 100
+                //         },
+                //         TIME_S: {
+                //             type: ArgumentType.NUMBER,
+                //             defaultValue: 0
+                //         }
+                //     }
+                // },
+                // {
+                //     opcode: 'rockyDrive',
+                //     blockType: BlockType.REPORTER,
+                //     text: 'guida Rocky potenza sinistra [LEFT_POWER] potenza destra [RIGHT_POWER]',
+                //     arguments: {
+                //         LEFT_POWER: {
+                //             type: ArgumentType.NUMBER,
+                //             defaultValue: 100
+                //         },
+                //         RIGHT_POWER: {
+                //             type: ArgumentType.NUMBER,
+                //             defaultValue: 100
+                //         }
+                //     }
+                // },
                 {
-                    opcode: 'rockyTurnLeft',
+                    opcode: 'rockyTurnByDegree',
                     blockType: BlockType.REPORTER,
-                    text: 'Rocky gira a sinistra velocità [SPEED] per [TIME_S] secondi',
+                    text: 'Rocky gira di [ANGLE] gradi a velocità [SPEED]',
                     arguments: {
+                        ANGLE: {
+                            type: ArgumentType.NUMBER,
+                            defaultValue: 90
+                        },
                         SPEED: {
                             type: ArgumentType.NUMBER,
-                            defaultValue: 100
-                        },
-                        TIME_S: {
-                            type: ArgumentType.NUMBER,
-                            defaultValue: 0
-                        }
-                    }
-                },
-                {
-                    opcode: 'rockyTurnRight',
-                    blockType: BlockType.REPORTER,
-                    text: 'Rocky gira a destra velocità [SPEED] per [TIME_S] secondi',
-                    arguments: {
-                        SPEED: {
-                            type: ArgumentType.NUMBER,
-                            defaultValue: 100
-                        },
-                        TIME_S: {
-                            type: ArgumentType.NUMBER,
-                            defaultValue: 0
-                        }
-                    }
-                },
-                {
-                    opcode: 'rockyDrive',
-                    blockType: BlockType.REPORTER,
-                    text: 'guida Rocky potenza sinistra [LEFT_POWER] potenza destra [RIGHT_POWER]',
-                    arguments: {
-                        LEFT_POWER: {
-                            type: ArgumentType.NUMBER,
-                            defaultValue: 100
-                        },
-                        RIGHT_POWER: {
-                            type: ArgumentType.NUMBER,
-                            defaultValue: 100
+                            defaultValue: 40
                         }
                     }
                 },
@@ -520,120 +600,121 @@ class ScratchTechLAB4KidsCodeyRocky {
                         }
                     }
                 },
-                {
-                    opcode: 'getLoudness',
-                    blockType: BlockType.REPORTER,
-                    text: 'ottieni volume'
-                },
-                {
-                    opcode: 'getLightIntensity',
-                    blockType: BlockType.REPORTER,
-                    text: 'ottieni intensità luminosa'
-                },
-                {
-                    opcode: 'getPotentiometerValue',
-                    blockType: BlockType.REPORTER,
-                    text: 'ottieni valore del potenziometro'
-                },
-                {
-                    opcode: 'isButtonAPressed',
-                    blockType: BlockType.REPORTER,
-                    text: 'il pulsante A è premuto?'
-                },
-                {
-                    opcode: 'isButtonBPressed',
-                    blockType: BlockType.REPORTER,
-                    text: 'il pulsante B è premuto?'
-                },
-                {
-                    opcode: 'isButtonCPressed',
-                    blockType: BlockType.REPORTER,
-                    text: 'il pulsante C è premuto?'
-                },
-                {
-                    opcode: 'getRoll',
-                    blockType: BlockType.REPORTER,
-                    text: 'ottieni rollio'
-                },
-                {
-                    opcode: 'getPitch',
-                    blockType: BlockType.REPORTER,
-                    text: 'ottieni beccheggio'
-                },
-                {
-                    opcode: 'getYaw',
-                    blockType: BlockType.REPORTER,
-                    text: 'ottieni imbardata'
-                },
-                {
-                    opcode: 'isShaked',
-                    blockType: BlockType.REPORTER,
-                    text: 'Codey è stato scosso?'
-                },
-                {
-                    opcode: 'getShakeStrength',
-                    blockType: BlockType.REPORTER,
-                    text: 'ottieni intensità della scossa'
-                },
-                {
-                    opcode: 'isTiltedLeft',
-                    blockType: BlockType.REPORTER,
-                    text: 'inclinato a sinistra?'
-                },
-                {
-                    opcode: 'isTiltedRight',
-                    blockType: BlockType.REPORTER,
-                    text: 'inclinato a destra?'
-                },
-                {
-                    opcode: 'isUpright',
-                    blockType: BlockType.REPORTER,
-                    text: 'Codey è in posizione eretta?'
-                },
-                {
-                    opcode: 'isDisplayUp',
-                    blockType: BlockType.REPORTER,
-                    text: 'il display è rivolto verso l\'alto?'
-                },
-                {
-                    opcode: 'isDisplayDown',
-                    blockType: BlockType.REPORTER,
-                    text: 'il display è rivolto verso il basso?'
-                },
-                {
-                    opcode: 'isEarsUp',
-                    blockType: BlockType.REPORTER,
-                    text: 'le orecchie sono in alto?'
-                },
-                {
-                    opcode: 'isEarsDown',
-                    blockType: BlockType.REPORTER,
-                    text: 'le orecchie sono in basso?'
-                },
-                {
-                    opcode: 'getAcceleration',
-                    blockType: BlockType.REPORTER,
-                    text: 'ottieni accelerazione sull\'asse [AXIS]',
-                    arguments: {
-                        AXIS: {
-                            type: ArgumentType.STRING,
-                            defaultValue: 'x',
-                            menu: 'axisMenu'
-                        }
-                    }
-                },
-                {
-                    opcode: 'getGyroscope',
-                    blockType: BlockType.REPORTER,
-                    text: 'ottieni velocità angolare sull\'asse [AXIS]',
-                    arguments: {
-                        AXIS: {
-                            type: ArgumentType.STRING,
-                            defaultValue: 'x',
-                            menu: 'axisMenu'
-                        }
-                    }
-                },
+                // {
+                //     opcode: 'getLoudness',
+                //     blockType: BlockType.REPORTER,
+                //     text: 'ottieni volume'
+                // },
+
+                // {
+                //     opcode: 'getLightIntensity',
+                //     blockType: BlockType.REPORTER,
+                //     text: 'ottieni intensità luminosa'
+                // },
+                // {
+                //     opcode: 'getPotentiometerValue',
+                //     blockType: BlockType.REPORTER,
+                //     text: 'ottieni valore del potenziometro'
+                // },
+                // {
+                //     opcode: 'isButtonAPressed',
+                //     blockType: BlockType.REPORTER,
+                //     text: 'il pulsante A è premuto?'
+                // },
+                // {
+                //     opcode: 'isButtonBPressed',
+                //     blockType: BlockType.REPORTER,
+                //     text: 'il pulsante B è premuto?'
+                // },
+                // {
+                //     opcode: 'isButtonCPressed',
+                //     blockType: BlockType.REPORTER,
+                //     text: 'il pulsante C è premuto?'
+                // },
+                // {
+                //     opcode: 'getRoll',
+                //     blockType: BlockType.REPORTER,
+                //     text: 'ottieni rollio'
+                // },
+                // {
+                //     opcode: 'getPitch',
+                //     blockType: BlockType.REPORTER,
+                //     text: 'ottieni beccheggio'
+                // },
+                // {
+                //     opcode: 'getYaw',
+                //     blockType: BlockType.REPORTER,
+                //     text: 'ottieni imbardata'
+                // },
+                // {
+                //     opcode: 'isShaked',
+                //     blockType: BlockType.REPORTER,
+                //     text: 'Codey è stato scosso?'
+                // },
+                // {
+                //     opcode: 'getShakeStrength',
+                //     blockType: BlockType.REPORTER,
+                //     text: 'ottieni intensità della scossa'
+                // },
+                // {
+                //     opcode: 'isTiltedLeft',
+                //     blockType: BlockType.REPORTER,
+                //     text: 'inclinato a sinistra?'
+                // },
+                // {
+                //     opcode: 'isTiltedRight',
+                //     blockType: BlockType.REPORTER,
+                //     text: 'inclinato a destra?'
+                // },
+                // {
+                //     opcode: 'isUpright',
+                //     blockType: BlockType.REPORTER,
+                //     text: 'Codey è in posizione eretta?'
+                // },
+                // {
+                //     opcode: 'isDisplayUp',
+                //     blockType: BlockType.REPORTER,
+                //     text: 'il display è rivolto verso l\'alto?'
+                // },
+                // {
+                //     opcode: 'isDisplayDown',
+                //     blockType: BlockType.REPORTER,
+                //     text: 'il display è rivolto verso il basso?'
+                // },
+                // {
+                //     opcode: 'isEarsUp',
+                //     blockType: BlockType.REPORTER,
+                //     text: 'le orecchie sono in alto?'
+                // },
+                // {
+                //     opcode: 'isEarsDown',
+                //     blockType: BlockType.REPORTER,
+                //     text: 'le orecchie sono in basso?'
+                // },
+                // {
+                //     opcode: 'getAcceleration',
+                //     blockType: BlockType.REPORTER,
+                //     text: 'ottieni accelerazione sull\'asse [AXIS]',
+                //     arguments: {
+                //         AXIS: {
+                //             type: ArgumentType.STRING,
+                //             defaultValue: 'x',
+                //             menu: 'axisMenu'
+                //         }
+                //     }
+                // },
+                // {
+                //     opcode: 'getGyroscope',
+                //     blockType: BlockType.REPORTER,
+                //     text: 'ottieni velocità angolare sull\'asse [AXIS]',
+                //     arguments: {
+                //         AXIS: {
+                //             type: ArgumentType.STRING,
+                //             defaultValue: 'x',
+                //             menu: 'axisMenu'
+                //         }
+                //     }
+                // },
             ]
         };
     }
