@@ -251,7 +251,7 @@ class ScratchTechLAB4KidsCodeyRocky {
                 {
                     opcode: 'getCodeyCommandTopic',
                     blockType: BlockType.REPORTER,
-                    text: 'Topic per il client con id [CODEY_ID]',
+                    text: 'Topic per Codey con id [CODEY_ID]',
                     arguments: {
                         CODEY_ID: {
                             type: ArgumentType.STRING,
