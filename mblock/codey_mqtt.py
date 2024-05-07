@@ -10,12 +10,12 @@ import utime
 import event
 import _thread
 
-rete = 'procioniopossum'
-password = 'tombolina'
-#rete = 'TL4K-4G-NET'
-#password = 'techlab4kids'
+#rete = 'procioniopossum'
+#password = 'tombolina'
+rete = 'TL4K-4G-NET'
+password = 'techlab4kids'
 
-MQTTHOST = "192.168.10.116"
+MQTTHOST = "192.168.0.111"
 MQTTPORT = 1883
 
 DEBUG_MODE = True
@@ -148,7 +148,7 @@ def sendMqttData():
         elapsedTime = utime.ticks_diff(now, start)
         #print_debug("elapsedTime", elapsedTime)
         if (sendData and elapsedTime > MQTT_TIME_INTERVAL_MS):
-            codey.led.show(255,255,0)
+            #codey.led.show(255,255,0)
             start = now
 
             global dataToSend
@@ -182,8 +182,8 @@ def sendMqttData():
             print_debug("sendMqttData", "msg {} to topic {}".format(msg, myDataTopic))
             if len(msg) > 0:
                 mqttClientCommands.publish(myDataTopic, json.dumps(msg), retain=False, qos=0)
-        else:
-            codey.led.show(0,0,255)
+        #else:
+        # codey.led.show(0,0,255)
 
 def handle_led_show(params):
     r = params.get('r', 0)
@@ -473,13 +473,6 @@ while not isWifiConnected:
                     codey.led.show(0,0,255)
 
                     codey.display.show(CODEY_ID)
-                    '''
-                    while True:
-                        mqttClientCommands.check_msg()
-                        sendMqttData()
-
-                        time.sleep(.01)
-                    '''
     else:
         codey.led.show(255,0,0)
         codey.emotion.look_around()
@@ -492,6 +485,7 @@ event.button_c_pressed(button_c_pressed_callback)
 print("Event handersRegistered")
 
 print("Main loop")
+
 while True:
     mqttClientCommands.check_msg()
     sendMqttData()
@@ -499,5 +493,3 @@ while True:
     time.sleep(.01)
 
 print("terminating program")
-
-#_thread.start_new_thread(mqtt_thread, [])
