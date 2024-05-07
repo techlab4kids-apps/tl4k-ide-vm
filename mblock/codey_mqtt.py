@@ -27,10 +27,10 @@ clientIdCommands = 'TL4K-Codey-{}-commands'.format(CODEY_ID)
 clientIdEvents = 'TL4K-Codey-{}-events'.format(CODEY_ID)
 
 # Example Path
-myDataTopic = "tl4k/{}/data/".format(clientIdCommands)
-myEventTopic = "tl4k/{}/event/".format(clientIdCommands)
-myTopic = "tl4k/{}/command/#".format(clientIdCommands)
-broadcastTopic = "tl4k/broadcast/command/#"
+myDataTopic = "tl4k/devices/{}/data/".format(clientIdCommands)
+myEventTopic = "tl4k/devices/{}/event/".format(clientIdCommands)
+myTopic = "tl4k/devices/{}/command/#".format(clientIdCommands)
+broadcastTopic = "tl4k/devices/broadcast/command/#"
 
 mqttClientCommands = MQTTClient(clientIdCommands, MQTTHOST, port=MQTTPORT, user='', password='', keepalive=0, ssl=False)
 mqttClientEvents = MQTTClient(clientIdEvents, MQTTHOST, port=MQTTPORT, user='', password='', keepalive=0, ssl=False)
@@ -416,7 +416,7 @@ command_handlers = {
     "display.show_image": handle_display_show_image,
     "display.show": handle_display_show,
     "display.set_pixel": handle_display_set_pixel,
-    "display.get_pixel": handle_display_get_pixel,
+    #"display.get_pixel": handle_display_get_pixel,
     "display.toggle_pixel": handle_display_toggle_pixel,
     "display.clear": handle_display_clear,
 
@@ -424,9 +424,9 @@ command_handlers = {
 
     "display.show_default_face": lambda params: handle_display_show_emotion(params, "00003c7e7e3c000000003c7e7e3c0000"),
     "display.show_happy_face": lambda params: handle_display_show_emotion(params, "000c18181c0c000000000c18181c0c00"),  # Example pattern
-    "display.show_sad_face": lambda params: handle_display_show_emotion(params, "003c0f003f0c00000000f00f3c3c0300"),  # Example pattern
-    "display.show_angry_face": lambda params: handle_display_show_emotion(params, "0f003f0c3c030000000000f00f3c0f00"),  # Example pattern
-    "display.show_surprised_face": lambda params: handle_display_show_emotion(params, "03c03f0f3f030000000000f0f3c3f030"),  # Example pattern
+    #"display.show_sad_face": lambda params: handle_display_show_emotion(params, "003c0f003f0c00000000f00f3c3c0300"),  # Example pattern
+    #"display.show_angry_face": lambda params: handle_display_show_emotion(params, "0f003f0c3c030000000000f00f3c0f00"),  # Example pattern
+    #"display.show_surprised_face": lambda params: handle_display_show_emotion(params, "03c03f0f3f030000000000f0f3c3f030"),  # Example pattern
 
     "rocky.stop": handle_rocky_stop,
     "rocky.forward": handle_rocky_forward,
@@ -438,9 +438,9 @@ command_handlers = {
     "rocky.turn_right_by_degree": handle_rocky_turn_right_by_degree,
     "rocky.turn_left_by_degree": handle_rocky_turn_left_by_degree,
 
-    "sound_sensor.get_loudness": handle_get_loudness,
-    "light_sensor.get_value": handle_light_sensor_get_value,
-    "potentiometer.get_value": handle_potentiometer_get_value,
+    #    "sound_sensor.get_loudness": handle_get_loudness,
+    #    "light_sensor.get_value": handle_light_sensor_get_value,
+    #    "potentiometer.get_value": handle_potentiometer_get_value,
 }
 
 #_thread.start_new_thread(notification_thread, (event, mqttClientEvents))
