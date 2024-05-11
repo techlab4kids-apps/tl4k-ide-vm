@@ -379,7 +379,6 @@ def handle_display_show_emotion_by_matrix(params, emotion_matrix):
         column = column_to_hex(column_data)
         hex_columns.append(column_to_hex(column_data))
 
-
     final_hex_string = ''.join(hex_columns)
     print("final_hex_string '{}'".format(final_hex_string))
     codey.display.show_image(final_hex_string)
@@ -423,10 +422,11 @@ command_handlers = {
     #"display.show_default_face": lambda params: handle_display_show_emotion_by_matrix(params, emotion_matrix_default),
 
     "display.show_default_face": lambda params: handle_display_show_emotion(params, "00003c7e7e3c000000003c7e7e3c0000"),
+
     "display.show_happy_face": lambda params: handle_display_show_emotion(params, "000c18181c0c000000000c18181c0c00"),  # Example pattern
-    #"display.show_sad_face": lambda params: handle_display_show_emotion(params, "003c0f003f0c00000000f00f3c3c0300"),  # Example pattern
-    #"display.show_angry_face": lambda params: handle_display_show_emotion(params, "0f003f0c3c030000000000f00f3c0f00"),  # Example pattern
-    #"display.show_surprised_face": lambda params: handle_display_show_emotion(params, "03c03f0f3f030000000000f0f3c3f030"),  # Example pattern
+    "display.show_sad_face": lambda params: handle_display_show_emotion(params, "000207070f0e080000080e0f07070200"),  # Example pattern
+    "display.show_angry_face": lambda params: handle_display_show_emotion(params, "00003c1e0e0400000000040e1e3c0000"),  # Example pattern
+    "display.show_surprised_face": lambda params: handle_display_show_emotion(params, "003c4242423c000000003c4242423c00"),  # Example pattern
 
     "rocky.stop": handle_rocky_stop,
     "rocky.forward": handle_rocky_forward,

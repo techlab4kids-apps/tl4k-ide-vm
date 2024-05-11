@@ -88,36 +88,32 @@ class ScratchTechLAB4KidsCodeyRocky {
     }
 
     displayHappyFace() {
-        const image = "0003c03c0f003f0000000000f00f3c3c0c00"; // Example pattern
-        return this.getMqttMessage('display.show_image', JSON.stringify({ image: image }));
+        return this.getMqttMessage('display.show_happy_face', '{}');
     }
 
     displaySadFace() {
-        const image = "003c0f003f0c00000000f00f3c3c0300"; // Example pattern
-        return this.getMqttMessage('display.show_image', JSON.stringify({ image: image }));
+        return this.getMqttMessage('display.show_sad_face', '{}');
     }
 
-    // displayAngryFace() {
-    //     const image = "0f003f0c3c030000000000f00f3c0f00"; // Example pattern
-    //     return this.getMqttMessage('display.show_image', JSON.stringify({ image: image }));
-    // }
-    //
-    // displaySurprisedFace() {
-    //     const image = "03c03f0f3f030000000000f0f3c3f030"; // Example pattern
-    //     return this.getMqttMessage('display.show_image', JSON.stringify({ image: image }));
-    // }
+    displayAngryFace() {
+        return this.getMqttMessage('display.show_angry_face', '{}');
+    }
+
+    displaySurprisedFace() {
+        return this.getMqttMessage('display.show_surprised_face', '{}');
+    }
 
     rockyStop() {
         return this.getMqttMessage('rocky.stop', '{}');
     }
 
     rockyForward(args) {
-        const parameters = JSON.stringify({ speed: args.SPEED, t: args.TIME_S, straight: args.STRAIGHT });
+        const parameters = JSON.stringify({ speed: args.SPEED, time_s: args.TIME_S, straight: args.STRAIGHT });
         return this.getMqttMessage('rocky.forward', parameters);
     }
 
     rockyBackward(args) {
-        const parameters = JSON.stringify({ speed: args.SPEED, t: args.TIME_S, straight: args.STRAIGHT });
+        const parameters = JSON.stringify({ speed: args.SPEED, time_s: args.TIME_S, straight: args.STRAIGHT });
         return this.getMqttMessage('rocky.backward', parameters);
     }
 
@@ -262,7 +258,8 @@ class ScratchTechLAB4KidsCodeyRocky {
                 {
                     opcode: 'getBroadcastCommandTopic',
                     blockType: BlockType.REPORTER,
-                    text: 'Topic per tutti i Codey'
+                    text: 'Topic per tutti i Codey',
+                    
                 },
                 {
                     opcode: 'getEsp8266CommandTopic',
@@ -457,16 +454,16 @@ class ScratchTechLAB4KidsCodeyRocky {
                     blockType: BlockType.REPORTER,
                     text: 'mostra faccia triste'
                 },
-                // {
-                //     opcode: 'displayAngryFace',
-                //     blockType: BlockType.REPORTER,
-                //     text: 'mostra faccia arrabbiata'
-                // },
-                // {
-                //     opcode: 'displaySurprisedFace',
-                //     blockType: BlockType.REPORTER,
-                //     text: 'mostra faccia sorpresa'
-                // },
+                {
+                    opcode: 'displayAngryFace',
+                    blockType: BlockType.REPORTER,
+                    text: 'mostra faccia arrabbiata'
+                },
+                {
+                    opcode: 'displaySurprisedFace',
+                    blockType: BlockType.REPORTER,
+                    text: 'mostra faccia sorpresa'
+                },
                 {
                     opcode: 'rockyStop',
                     blockType: BlockType.REPORTER,
